@@ -8,6 +8,9 @@
 <title>Mandados</title>
 <link rel="icon" id="appIcon">
 <link rel="manifest" id="appManifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Nunito:wght@600;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{
@@ -78,43 +81,89 @@ input,select{font:inherit;font-size:1rem;color:var(--text);background:var(--bg);
 h4{margin:2px 0 -6px;font-size:.85rem;color:var(--mute);font-weight:600}
 pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:var(--bg);border-radius:12px;padding:14px;border:1px solid var(--line);max-height:38vh;overflow:auto}
 
+/* Interruptor Debe / Pago */
+.sw{display:flex;width:max-content;margin-top:6px;border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.sw button{min-height:30px;min-width:60px;padding:0 12px;font-size:.78rem;border-radius:0;background:var(--bg);color:var(--mute)}
+.sw button.on-debe{background:var(--pend);color:#2b1c00;font-weight:700}
+.sw button.on-pago{background:var(--ok);color:#06241a;font-weight:700}
+.items li.paid .amt{color:var(--ok);text-decoration:line-through}
+.hint{margin:0;font-size:.8rem;color:var(--mute);text-align:center}
+.sum em{display:block;margin-top:2px;font-style:normal;font-size:.68rem;color:var(--ok)}
 /* Resumen de totales (detalle del cliente) */
 .sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .sum div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;min-width:0}
 .sum small{display:block;font-size:.7rem;color:var(--mute);line-height:1.2;min-height:2.4em}
 .sum strong{display:block;margin-top:4px;font-size:.98rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .sum .s-loan strong{color:var(--text)} .sum .s-paid strong{color:var(--ok)} .sum .s-bal{border-color:var(--pend)} .sum .s-bal strong{color:var(--pend)}
-/* Comprobante (imagen) */
-.rcpt{background:#fff;color:#111827;border:1px solid #d5dbe3;border-radius:16px;overflow:hidden;font-family:var(--font);line-height:1.35;text-align:left}
+/* Comprobante (imagen) - diseño AMBV MAO */
+.rcpt-prev{text-align:center}
+.rcpt-prev img{display:block;margin:0 auto;width:auto;max-width:100%;max-height:46vh;border-radius:12px;border:1px solid var(--line)}
+.rcpt-stage{position:fixed;left:-10000px;top:0;width:max-content;background:#fff;pointer-events:none}
+.rcpt{width:480px;background:#fff;color:#10285f;font-family:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.25;text-align:left;overflow:hidden}
+.rcpt.wide{width:760px}
 .rcpt *{box-sizing:border-box}
-.r-head{background:#0f1720;color:#fff;padding:16px 18px}
-.r-biz{margin:0;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:#f2b84b;font-weight:700}
-.r-title{margin:4px 0 0;font-size:1.3rem;font-weight:700;color:#fff}
-.r-date{margin:2px 0 0;font-size:.85rem;color:#c5d0dc}
-.r-body{padding:16px 18px;display:grid;gap:14px}
-.r-client small{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;font-weight:600}
-.r-client b{font-size:1.15rem;color:#111827;overflow-wrap:anywhere}
-.r-paid{background:#e3f7ee;border:1px solid #8fd8b7;border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.r-paid span{font-size:.85rem;color:#14532d;font-weight:600}
-.r-paid strong{font-size:1.45rem;color:#0b5a37}
-.r-paid em{display:block;font-style:normal;font-size:.78rem;color:#166534;font-weight:500}
-.r-sec{margin:0 0 4px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;font-weight:700}
-.r-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid #e5e9ef}
-.r-row:last-child{border-bottom:0}
-.r-main{flex:1;min-width:0;overflow-wrap:anywhere;color:#111827;font-weight:600;font-size:.95rem}
-.r-main small{display:block;font-weight:400;font-size:.78rem;color:#4b5563}
-.r-amt{font-weight:700;color:#111827;white-space:nowrap;font-size:.95rem}
-.r-tot{background:#f3f5f8;border:1px solid #d5dbe3;border-radius:12px;padding:4px 14px}
-.r-tot .r-row{align-items:baseline}
-.r-tot .r-main{font-weight:600;font-size:.9rem}
-.r-foot em{display:block;font-style:normal;font-size:.75rem;font-weight:600}
-.r-foot{padding:14px 18px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.r-foot.pend{background:#fff4d6;border-top:2px solid #f2b84b;color:#5b3d00}
-.r-foot.ok{background:#e3f7ee;border-top:2px solid #5fd0a0;color:#0b5a37}
-.r-foot span{font-weight:600;font-size:.9rem}
-.r-foot strong{font-size:1.5rem}
-.r-thanks{margin:0;padding:8px 18px 12px;text-align:center;font-size:.72rem;color:#6b7280}
-.rcpt-stage{position:fixed;left:-10000px;top:0;width:420px;padding:16px;background:#eef2f6;pointer-events:none}
+.rcpt .hand{font-family:"Kalam","Segoe Print","Comic Sans MS",cursive}
+.rcpt p{margin:0}
+.r-head{background:#10285f;color:#fff;padding:18px 18px 22px 20px;border-bottom:5px solid #ffc933;border-radius:0 0 36px 36px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.r-hl{min-width:0;flex:1}
+.r-biz{font-size:1rem;font-weight:700;color:#ffc933;letter-spacing:.04em;overflow-wrap:anywhere}
+.r-title{display:inline;font-size:1.75rem;line-height:1.25;font-weight:700;color:#fff;background:linear-gradient(transparent 80%,#ffc933 80%,#ffc933 92%,transparent 92%)}
+.r-tw{margin:2px 0 8px}
+.r-date{display:flex;align-items:center;gap:10px;margin-top:4px;background:#ffc933;color:#10285f;border-radius:14px;padding:6px 14px 6px 10px;width:max-content;max-width:100%}
+.r-date svg{width:30px;height:30px;flex:none;stroke:#10285f}
+.r-date span{display:block;min-width:0}
+.r-date small{display:block;font-size:.8rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;line-height:1.1;color:#10285f}
+.r-date b{display:block;font-size:1.45rem;font-weight:900;line-height:1.15;color:#0b1c45;white-space:nowrap}
+.r-hr{display:flex;align-items:center;gap:4px;flex:none}
+.r-tag{width:92px;font-size:.88rem;line-height:1.15;font-weight:700;color:#ffc933;text-align:center}
+.r-frame{margin:14px 14px 0;border:2px solid #ffc933;border-radius:22px;padding:12px;background:#fffdf6;display:grid;gap:12px}
+.r-cli{display:flex;align-items:center;gap:12px;background:#fff1bd;border-radius:16px;padding:10px 12px}
+.r-av{width:52px;height:52px;border-radius:50%;background:#ffd45e;display:flex;align-items:center;justify-content:center;flex:none}
+.r-cn{min-width:0;flex:1}
+.r-cn small{display:block;font-size:.72rem;letter-spacing:.12em;font-weight:800;color:#10285f}
+.r-cn b{display:block;font-size:1.55rem;line-height:1.15;color:#0b1c45;overflow-wrap:anywhere}
+.r-thx{flex:none;max-width:110px;text-align:right;font-size:.95rem;line-height:1.15;font-weight:700;color:#10285f}
+.r-blk{display:grid;gap:6px}
+.r-blk.green{background:#f1fbe9;border:1.5px solid #cdeebd;border-radius:16px;padding:10px}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.r-gc{display:grid;gap:6px;min-width:0}
+.r-sh{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.r-ic{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:#cfe0fb}
+.green .r-ic{background:#c4ecab}
+.r-sn{display:inline-block;font-size:1.3rem;font-weight:700;letter-spacing:.02em;color:#10285f;border-bottom:3px solid #3a86ef;line-height:1.2}
+.green .r-sn{border-bottom-color:#2fb344}
+.r-it{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#e8f0fb;border-radius:10px;padding:7px 10px}
+.green .r-it{background:#e3f6d6}
+.r-t{min-width:0;overflow-wrap:anywhere}
+.r-t b{display:block;font-size:1rem;font-weight:800;color:#0b1c45}
+.r-t small{display:block;font-size:.8rem;font-weight:600;color:#2c4a8f}
+.r-pill{flex:none;background:#ffe38a;border-radius:99px;padding:5px 14px;font-weight:800;font-size:1.02rem;color:#0b1c45;white-space:nowrap}
+.green .r-pill{background:#c6f09c}
+.r-tot{display:flex;align-items:center;gap:12px;background:#e3eefb;border:1.5px solid #a9c6ef;border-radius:16px;padding:10px 14px}
+.r-ti{width:46px;height:46px;border-radius:50%;background:#10285f;display:flex;align-items:center;justify-content:center;flex:none}
+.r-tl{flex:1;min-width:0}
+.r-tr{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:4px 0;font-size:1.1rem;font-weight:700;color:#10285f}
+.r-tr+.r-tr{border-top:1.5px solid #7fa6e6}
+.r-tr strong{font-family:"Nunito",system-ui,sans-serif;font-weight:800;color:#0b1c45;font-size:1.1rem}
+.r-sal{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#ffd54a;border-radius:16px;padding:10px 12px}
+.r-sal.ok{background:#b9ecc6}
+.r-sl{display:flex;align-items:center;gap:8px;min-width:0;font-size:1.2rem;line-height:1.1;font-weight:700;color:#0b1c45}
+.r-sl em{display:block;font-style:normal;font-size:.8rem;font-weight:700;color:#0b3d22;margin-top:2px}
+.r-ap{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:2px;padding:6px 4px 0;border-top:1.5px dashed #9bd67f;font-weight:800;font-size:1.05rem;color:#14532d}
+.r-sh+.r-ap{border-top:0;margin-top:0;padding-top:0}
+.r-big{flex:none;background:#0b1c45;color:#ffd54a;border-radius:12px;padding:6px 14px;font-weight:800;font-size:1.5rem;white-space:nowrap}
+.r-sal.ok .r-big{color:#b9ecc6}
+.rcpt.two{width:700px}
+.r-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.r-col{min-width:0}
+.r-col .r-blk{height:100%}
+.two .r-sn{font-size:1.08rem}
+.two .r-ic{width:34px;height:34px}
+.two .r-ic svg{width:22px;height:22px}
+.r-blk:not(.green) .r-ap{border-top-color:#a9c6ef;color:#10285f}
+.r-foot{margin-top:14px;background:#10285f;border-top:5px solid #ffc933;border-radius:36px 36px 0 0;padding:14px 20px 16px;text-align:center}
+.r-foot .a{font-size:1.25rem;font-weight:700;color:#ffc933}
+.r-foot .b{margin-top:2px;font-size:.8rem;letter-spacing:.06em;color:#dbe6ff}
 .toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:.9rem;opacity:0;pointer-events:none;transition:.2s;z-index:99}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -159,7 +208,7 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
       <input id="fConcept" required placeholder="Ej. Pago de recibo, compra en farmacia">
     </label>
     <label>Dinero prestado / gastado
-      <input id="fLent" type="number" inputmode="decimal" min="1" step="any" required placeholder="0">
+      <input id="fLent" data-money inputmode="numeric" pattern="[1-9][0-9.]*" title="Escribe un monto mayor a 0" autocomplete="off" required placeholder="0">
     </label>
     <label>Fecha del préstamo
       <input id="fDate" type="date" required>
@@ -176,6 +225,11 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
   <div id="payBody"></div>
 </dialog>
 
+<!-- Detalle de un abono del historial / reenvío del comprobante -->
+<dialog id="dDetail">
+  <div id="detBody"></div>
+</dialog>
+
 <!-- Editar préstamo / abono -->
 <dialog id="dEdit">
   <form id="fEdit" method="dialog" autocomplete="off">
@@ -184,7 +238,7 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
       <input id="eConcept">
     </label>
     <label>Monto
-      <input id="eAmt" type="number" inputmode="decimal" min="1" step="any" required>
+      <input id="eAmt" data-money inputmode="numeric" pattern="[1-9][0-9.]*" title="Escribe un monto mayor a 0" autocomplete="off" required>
     </label>
     <label>Fecha
       <input id="eDate" type="date" required>
@@ -206,8 +260,9 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
     <p id="cMsg"></p>
     <div class="actions">
       <button value="cancel" class="ghost">Cancelar</button>
-      <button value="ok" class="danger">Eliminar</button>
+      <button value="ok" class="danger" id="cOk">Eliminar</button>
     </div>
+    <button value="paid" class="primary" id="cPaid" hidden>✅ Ya pagado: borrar y registrar abono</button>
   </form>
 </dialog>
 
@@ -252,6 +307,20 @@ const $ = s => document.querySelector(s);
 const money = n => new Intl.NumberFormat(LOCALE, { style: "currency", currency: CURRENCY, maximumFractionDigits: 0 }).format(n || 0);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const norm = s => s.trim().toLowerCase();
+
+/* ---------- Dinero con puntos de miles en tiempo real ---------- */
+const grp = n => String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+const getMoney = el => +el.value.replace(/\D/g, "") || 0;          // valor numérico puro (sin puntos)
+const setMoney = (el, n) => { el.value = n > 0 ? grp(n) : ""; };
+document.addEventListener("input", e => {
+  const el = e.target; if (!el.matches?.("[data-money]")) return;
+  const pos = el.selectionStart ?? el.value.length;
+  const before = el.value.slice(0, pos).replace(/\D/g, "").length;
+  el.value = el.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  let i = 0, n = 0;
+  while (i < el.value.length && n < before) if (/\d/.test(el.value[i++])) n++;
+  try { el.setSelectionRange(i, i); } catch {}
+});
 const dateOf = x => x?.toDate?.() || new Date();
 const sameMonth = d => { const n = new Date(); return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear(); };
 
@@ -314,7 +383,7 @@ function render() {
 
 $("#debtors").addEventListener("click", e => {
   const k = e.target.dataset.pay; if (k === undefined) return;
-  currentKey = k; lastReceipt = null; renderPay(); $("#dPay").showModal();
+  currentKey = k; lastReceipt = null; marks.clear(); draft = null; renderPay(); $("#dPay").showModal();
 });
 
 /* ---------- Métodos de pago ---------- */
@@ -325,16 +394,29 @@ const payLabel = p => `${money(p.amount)}${MS[p.method] ? " - " + MS[p.method] :
 
 /* ---------- Escritura en Firestore con recálculo de saldos ---------- */
 const clientErrs = k => errands.filter(e => norm(e.client) === k);
-const clientPays = k => payments.filter(p => p.key === k);
+// Abonos vigentes del cliente. Los "settled" son cobros de préstamos ya borrados: solo cuentan en "Cobrado este mes"
+const clientPays = k => payments.filter(p => p.key === k && !p.settled);
 const pendingErrs = k => clientErrs(k).filter(e => pendingOf(e) > 0);
 
-// Reparte el total abonado entre los préstamos, del más antiguo al más reciente
-function allocate(errs, pays) {
-  let left = pays.reduce((s, p) => s + p.amount, 0);
-  const out = {};
-  for (const e of [...errs].sort(byDay)) { out[e.id] = Math.min(left, e.total); left -= out[e.id]; }
-  return out;
+// Reparte los abonos entre los préstamos:
+// 1) un abono con "covers" paga primero los préstamos que el usuario marcó como Pago
+// 2) lo que sobra (y los abonos sin "covers") se reparte del préstamo más antiguo al más reciente
+function allocateDetailed(errs, pays) {
+  const sorted = [...errs].sort(byDay), cap = {}, paid = {}, from = {}, pool = [];
+  for (const e of sorted) { cap[e.id] = e.total; paid[e.id] = 0; from[e.id] = {}; }
+  const give = (id, p, a) => { cap[id] -= a; paid[id] += a; from[id][p.id] = (from[id][p.id] || 0) + a; };
+  for (const p of [...pays].sort(byDay)) {
+    let left = p.amount;
+    for (const id of p.covers || []) if (id in cap && left > 0) { const a = Math.min(left, cap[id]); if (a > 0) { give(id, p, a); left -= a; } }
+    if (left > 0) pool.push({ p, left });
+  }
+  for (const e of sorted) for (const q of pool) {
+    if (cap[e.id] <= 0) break;
+    const a = Math.min(q.left, cap[e.id]); if (a > 0) { give(e.id, q.p, a); q.left -= a; }
+  }
+  return { paid, from };
 }
+const allocate = (errs, pays) => allocateDetailed(errs, pays).paid;
 // Aplica el cambio y actualiza el campo "paid" de los préstamos afectados, todo en un solo lote
 function commit(errs, pays, ops) {
   const paid = allocate(errs, pays), batch = writeBatch(db);
@@ -343,9 +425,10 @@ function commit(errs, pays, ops) {
   batch.commit().catch(onErr); // sin await: también funciona sin conexión
 }
 
-const ask = msg => new Promise(res => {
+const ask = (msg, o = {}) => new Promise(res => {
   const d = $("#dConfirm"); $("#cMsg").textContent = msg; d.returnValue = "";
-  d.onclose = () => res(d.returnValue === "ok"); d.showModal();
+  $("#cPaid").hidden = !o.paid; $("#cOk").textContent = o.ok || "Eliminar";
+  d.onclose = () => res(d.returnValue); d.showModal();
 });
 
 /* ---------- Nuevo mandado ---------- */
@@ -354,7 +437,7 @@ $("#btnNew").onclick = () => { $("#fNew").reset(); $("#fDate").max = $("#fDate")
 document.addEventListener("click", e => { if (e.target.closest("[data-close]")) e.target.closest("dialog").close(); });
 
 $("#fNew").addEventListener("submit", () => {
-  const client = $("#fClient").value.trim(), lent = +$("#fLent").value || 0, k = norm(client);
+  const client = $("#fClient").value.trim(), lent = getMoney($("#fLent")), k = norm(client);
   const data = { client, concept: $("#fConcept").value.trim(), lent, total: lent, date: $("#fDate").value || today() };
   const ref = doc(collection(db, "mandados"));
   commit([...clientErrs(k), { id: ref.id, ...data, paid: 0, isNew: true }], clientPays(k),
@@ -363,7 +446,9 @@ $("#fNew").addEventListener("submit", () => {
 });
 
 /* ---------- Cobrar ---------- */
-let lastReceipt = null, lastData = null, lastImg = null;
+let lastReceipt = null, lastData = null, lastImg = null, lastImgUrl = null;
+const marks = new Set(); // préstamos marcados como "Pago" (se guardan como "covers" del abono al registrarlo)
+let draft = null;        // monto/fecha/método a restaurar al volver del comprobante
 
 function renderPay() {
   const list = pendingErrs(currentKey);
@@ -372,9 +457,10 @@ function renderPay() {
   const body = $("#payBody");
 
   if (lastReceipt) {
+    const saved = lastData.saved, canReg = !saved && lastData.amount > 0, canDel = saved && lastData.coveredIds.length > 0;
     body.innerHTML = `
-      <h3>${lastData.amount > 0 ? "Pago registrado" : "Estado de cuenta"}</h3>
-      ${receiptHTML(lastData)}
+      <h3>${saved ? "Pago registrado" : "Estado de cuenta"}</h3>
+      <div class="rcpt-prev" id="rPrev">${lastImgUrl ? prevImg() : `<p class="empty">Generando comprobante…</p>`}</div>
       <div class="actions">
         <button class="ghost" id="bSave">⬇️ Guardar imagen</button>
         <button class="primary" id="bShare">📤 Compartir imagen</button>
@@ -383,36 +469,64 @@ function renderPay() {
         <button class="ghost" id="bCopy">Copiar texto</button>
         <button class="wa" id="bWa">WhatsApp</button>
       </div>
-      <button class="ghost" data-close>Cerrar</button>`;
+      ${canReg ? `<button class="primary" id="bReg">✅ Registrar pago (${money(lastData.amount)})</button>
+      <p class="hint">Guarda el abono en la base de datos. Puedes enviar el comprobante antes.</p>` : ""}
+      ${canDel ? `<button class="primary" id="bDel">🗑️ Borrar préstamos pagados (${lastData.coveredIds.length})</button>
+      <p class="hint">Opcional: deja la lista solo con las deudas pendientes. El cobro se conserva.</p>` : ""}
+      <div class="actions">
+        <button class="ghost" id="bBack">← Volver</button>
+        <button class="ghost" data-close>Cerrar</button>
+      </div>`;
+    $("#bBack").onclick = () => {
+      if (lastData.saved) marks.clear(); else draft = { ...lastData.pay };
+      lastReceipt = null; renderPay();
+    };
+    if (canReg) $("#bReg").onclick = () => {
+      const q = lastData.pay, plan = buildPlan(currentKey, q.amount, q.date, q.method, q.covers, true);
+      if (plan.amount <= 0) return toast("No hay saldo pendiente para abonar");
+      registerPay(currentKey, plan); finishPay(plan);
+    };
+    if (canDel) $("#bDel").onclick = confirmDeletePaid;
     $("#bSave").onclick = e => imageAction(e.currentTarget, false);
     $("#bShare").onclick = e => imageAction(e.currentTarget, true);
-    getImage().catch(() => {}); // prepara la imagen en segundo plano para compartir al instante
+    // La vista previa es la propia imagen que se guarda/comparte; se prepara en segundo plano
+    if (!lastImgUrl) {
+      const snap = lastData, show = html => { const el = $("#rPrev"); if (el && lastData === snap) el.innerHTML = html; };
+      getImage().then(f => { if (lastData !== snap) return; lastImgUrl ||= URL.createObjectURL(f); show(prevImg()); })
+        .catch(() => show(`<pre class="msg">${esc(lastReceipt)}</pre>`));
+    }
     $("#bCopy").onclick = () => navigator.clipboard.writeText(lastReceipt).then(() => toast("Copiado"));
     $("#bWa").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(lastReceipt), "_blank");
     return;
   }
 
-  const keep = $("#pAmt")?.value, keepDate = $("#pDate")?.value, keepM = $("#pMethod")?.value;
+  for (const id of [...marks]) if (!list.some(e => e.id === id)) marks.delete(id);
+  const keep = $("#pAmt")?.value ?? (draft?.amount > 0 ? grp(draft.amount) : undefined);
+  const keepDate = $("#pDate")?.value ?? draft?.date, keepM = $("#pMethod")?.value ?? draft?.method;
+  draft = null;
   const hist = clientPays(currentKey).sort(byDay);
   const tot = totalsFrom(clientErrs(currentKey), hist);
-  const acts = (t, id) => `<span class="act"><button type="button" data-act="edit-${t}" data-id="${id}" aria-label="Editar">✏️</button><button type="button" data-act="del-${t}" data-id="${id}" aria-label="Eliminar">🗑️</button></span>`;
+  const acts = (t, id) => `<span class="act">${t === "pay" ? `<button type="button" data-act="view-pay" data-id="${id}" aria-label="Ver detalle / Reenviar comprobante" title="Ver detalle / Reenviar comprobante">📄</button>` : ""}<button type="button" data-act="edit-${t}" data-id="${id}" aria-label="Editar">✏️</button><button type="button" data-act="del-${t}" data-id="${id}" aria-label="Eliminar">🗑️</button></span>`;
   body.innerHTML = `
     <h3>${esc(name)}</h3>
     <h4>Préstamos pendientes</h4>
-    <ul class="items">${list.length ? list.map(e => `<li>
-      <span class="main">${esc(e.concept)}<small>${fmtDate(dayOf(e))}</small></span>
-      <span class="amt">${money(e.total)}</span>${acts("err", e.id)}</li>`).join("") : `<li><span class="main">Sin préstamos pendientes</span></li>`}</ul>
+    ${list.length > 1 ? `<div class="chips"><button type="button" data-markall="1">Todos: Pago</button><button type="button" data-markall="0">Todos: Debe</button></div>` : ""}
+    <ul class="items">${list.length ? list.map(e => { const on = marks.has(e.id); return `<li class="${on ? "paid" : ""}">
+      <span class="main">${esc(e.concept)}<small>${fmtDate(dayOf(e))}</small>
+        <span class="sw" role="group" aria-label="Estado del préstamo"><button type="button" data-mark="${e.id}" data-v="debe" class="${on ? "" : "on-debe"}">Debe</button><button type="button" data-mark="${e.id}" data-v="pago" class="${on ? "on-pago" : ""}">Pago</button></span></span>
+      <span class="amt">${money(e.total)}</span>${acts("err", e.id)}</li>`; }).join("") : `<li><span class="main">Sin préstamos pendientes</span></li>`}</ul>
+    ${list.length ? `<p class="hint">Marca "Pago" en lo que el cliente cubre: el monto recibido se llena solo y puedes ajustarlo.</p>` : ""}
     ${hist.length ? `<h4>Historial de abonos</h4>
     <ul class="items">${hist.map(p => `<li>
       <span class="main"><span class="amt">${esc(payLabel(p))}</span><small>${fmtDate(dayOf(p))}</small></span>${acts("pay", p.id)}</li>`).join("")}</ul>` : ""}
     <div class="sum" aria-label="Resumen de cuenta">
       <div class="s-loan"><small>Total préstamos / cargos</small><strong>${money(tot.loans)}</strong></div>
-      <div class="s-paid"><small>Total abonado</small><strong>${money(tot.paid)}</strong></div>
-      <div class="s-bal"><small>Saldo pendiente</small><strong>${money(tot.balance)}</strong></div>
+      <div class="s-paid"><small>Total abonado</small><strong id="sPaid"></strong><em id="sHint"></em></div>
+      <div class="s-bal"><small>Saldo pendiente</small><strong id="sBal"></strong></div>
     </div>
-    <div class="total"><span>Saldo actual</span><strong>${money(balance)}</strong></div>
+    <div class="total"><span id="sLbl"></span><strong id="sBalT"></strong></div>
     <label>Monto recibido
-      <input id="pAmt" type="number" inputmode="decimal" min="0" max="${balance}" step="any" placeholder="0" value="${keep ?? ""}">
+      <input id="pAmt" data-money inputmode="numeric" autocomplete="off" placeholder="0" value="${keep ?? ""}">
     </label>
     <div class="chips">
       <button type="button" data-frac="1">Todo</button>
@@ -425,44 +539,145 @@ function renderPay() {
       <input id="pDate" type="date" max="${today()}" value="${keepDate || today()}">
     </label>
     <div class="actions">
-      <button class="ghost" id="bStmt">Estado de cuenta</button>
+      <button class="ghost" id="bStmt">Generar comprobante</button>
       <button class="primary" id="bPay">Registrar pago</button>
     </div>
     <button class="ghost" data-close>Cerrar</button>`;
 
+  // Vista previa en vivo: el monto recibido se suma al total abonado y se resta del saldo
+  const refresh = () => {
+    const M = Math.min(getMoney($("#pAmt")), balance);
+    $("#sPaid").textContent = money(tot.paid + M);
+    $("#sHint").textContent = M > 0 ? `+ ${money(M)} este abono` : "";
+    $("#sBal").textContent = $("#sBalT").textContent = money(Math.max(0, balance - M));
+    $("#sLbl").textContent = M > 0 ? "Saldo tras este abono" : "Saldo actual";
+  };
+  refresh();
+  $("#pAmt").addEventListener("input", refresh);
+
   body.querySelectorAll("[data-frac]").forEach(b =>
-    b.onclick = () => { $("#pAmt").value = Math.round(balance * +b.dataset.frac); });
-  $("#bPay").onclick = () => pay(list, name, balance);
+    b.onclick = () => { setMoney($("#pAmt"), Math.round(balance * +b.dataset.frac)); refresh(); });
+  body.querySelectorAll("[data-markall]").forEach(b =>
+    b.onclick = () => { list.forEach(e => toggleMark(e, b.dataset.markall === "1")); renderPay(); });
+  $("#bPay").onclick = () => pay(balance);
   $("#bStmt").onclick = () => {
-    setReceipt({ name, amount: 0, detail: list.map(e => ({ concept: e.concept, date: dayOf(e), applied: 0, rest: e.total })), remaining: balance, date: today(), hist, method: "", totals: totalsFrom(clientErrs(currentKey), hist) });
+    const M = Math.min(getMoney($("#pAmt")), balance);
+    setReceipt(buildPlan(currentKey, M, $("#pDate").value || today(), $("#pMethod").value, [...marks], false));
     renderPay();
   };
 }
 
-function pay(list, name, balance) {
-  const amount = Math.min(+$("#pAmt").value || 0, balance);
-  if (amount <= 0) return toast("Escribe un monto válido");
-  const date = $("#pDate").value || today(), method = $("#pMethod").value;
+// Marcar/desmarcar un préstamo como Pago suma/resta su valor exacto en "Monto recibido" (que sigue siendo editable)
+function toggleMark(e, on) {
+  if (on === marks.has(e.id)) return;
+  on ? marks.add(e.id) : marks.delete(e.id);
+  const inp = $("#pAmt");
+  if (inp) setMoney(inp, Math.max(0, getMoney(inp) + (on ? 1 : -1) * pendingOf(e)));
+}
 
-  const errs = clientErrs(currentKey), ref = doc(collection(db, "pagos"));
-  const pays = [...clientPays(currentKey), { id: ref.id, amount, date, method }];
-  const paid = allocate(errs, pays);
-  const detail = list.filter(e => paid[e.id] > (e.paid || 0)).map(e => ({
-    concept: e.concept, date: dayOf(e), applied: paid[e.id] - (e.paid || 0), rest: e.total - paid[e.id] }));
-  commit(errs, pays, b => b.set(ref, { client: name, key: currentKey, amount, date, method, createdAt: serverTimestamp() }));
+// Simula el abono para saber qué préstamos quedan cubiertos (Pago) y cuáles siguen pendientes (Debe)
+function buildPlan(k, amount, date, method, covers, saved) {
+  const errs = clientErrs(k), list = pendingErrs(k), name = errs[0]?.client || "";
+  const hist = clientPays(k).sort(byDay);
+  amount = Math.min(amount, list.reduce((s, e) => s + pendingOf(e), 0));
+  const cov = covers.filter(id => list.some(e => e.id === id));
+  const after = allocate(errs, amount > 0 ? [...hist, { id: "__nuevo", amount, date, method, covers: cov }] : hist);
+  const detail = list.map(e => {
+    const applied = Math.max(0, after[e.id] - (e.paid || 0)), left = e.total - after[e.id];
+    return { id: e.id, concept: e.concept, date: dayOf(e), total: e.total, applied, left, status: left <= 0 ? "pago" : "debe" };
+  });
+  const loans = errs.reduce((s, e) => s + e.total, 0), paid = hist.reduce((s, p) => s + p.amount, 0) + amount;
+  return {
+    name, amount, detail, hist, method: amount > 0 ? method : "", saved, date: amount > 0 ? date : today(),
+    remaining: Math.max(0, loans - paid), totals: { loans, paid, balance: Math.max(0, loans - paid) },
+    pay: { amount, date, method, covers: cov }, coveredIds: detail.filter(x => x.status === "pago").map(x => x.id)
+  };
+}
 
-  setReceipt({ name, amount, detail, remaining: balance - amount, date, hist: [], method, totals: totalsFrom(errs, pays) });
-  toast(balance - amount <= 0 ? "Cuenta saldada" : "Pago registrado");
+// Guarda el abono en Firestore (con los préstamos que cubre) y recalcula el "paid" de cada préstamo
+function registerPay(k, plan) {
+  const p = plan.pay, errs = clientErrs(k), name = errs[0]?.client || "", ref = doc(collection(db, "pagos"));
+  // Detalle de la transacción: cuentas en "Pago" (concepto, fecha y montos), lo que siguió en "Debe" y los totales de ese momento
+  const row = x => ({ id: x.id, concept: x.concept || "", date: x.date, total: x.total, applied: x.applied });
+  const detalle = {
+    amount: p.amount,
+    items: plan.detail.filter(x => x.status === "pago").map(row),
+    pending: plan.detail.filter(x => x.status !== "pago").map(x => ({ ...row(x), left: x.left })),
+    totals: { loans: plan.totals.loans, paid: plan.totals.paid, balance: plan.totals.balance }
+  };
+  const data = { client: name, key: k, amount: p.amount, date: p.date, method: p.method, detalle, createdAt: serverTimestamp(), ...(p.covers.length ? { covers: p.covers } : {}) };
+  commit(errs, [...clientPays(k), { id: ref.id, amount: p.amount, date: p.date, method: p.method, covers: p.covers }], b => b.set(ref, data));
+}
+
+function finishPay(plan) {
+  setReceipt(plan); marks.clear();
+  toast(plan.remaining <= 0 ? "Cuenta saldada" : "Pago registrado");
   renderPay();
+}
+
+function pay(balance) {
+  const amount = Math.min(getMoney($("#pAmt")), balance);
+  if (amount <= 0) return toast("Escribe un monto válido");
+  const plan = buildPlan(currentKey, amount, $("#pDate").value || today(), $("#pMethod").value, [...marks], true);
+  registerPay(currentKey, plan); finishPay(plan);
 }
 
 /* ---------- Editar y eliminar ---------- */
 let editing = null;
 $("#payBody").addEventListener("click", e => {
+  const m = e.target.closest("[data-mark]");
+  if (m) {
+    const loan = pendingErrs(currentKey).find(x => x.id === m.dataset.mark);
+    if (loan) toggleMark(loan, m.dataset.v === "pago");
+    renderPay(); return;
+  }
   const b = e.target.closest("[data-act]"); if (!b) return;
   const [op, t] = b.dataset.act.split("-");
+  if (op === "view") return openDetail(b.dataset.id);
   op === "edit" ? openEdit(t, b.dataset.id) : remove(t, b.dataset.id);
 });
+
+/* Borra préstamos de Firestore sin descuadrar las cuentas: los abonos que los habían pagado se marcan "settled"
+   (siguen sumando en "Cobrado este mes", pero ya no en el saldo del cliente) y lo que faltaba por pagar se registra como cobro. */
+function settleLoans(k, ids, method = "otro", onlyPaid = false) {
+  const errs = clientErrs(k), pays = clientPays(k), name = errs[0]?.client || "";
+  const { paid, from } = allocateDetailed(errs, pays);
+  const gone = errs.filter(e => ids.includes(e.id) && (!onlyPaid || paid[e.id] >= e.total));
+  if (!gone.length) return null;
+  const used = {}; let X = 0;
+  for (const e of gone) {
+    X += Math.max(0, e.total - paid[e.id]);
+    for (const [pid, a] of Object.entries(from[e.id])) used[pid] = (used[pid] || 0) + a;
+  }
+  const keep = [], ops = [];
+  for (const p of pays) {
+    const c = used[p.id] || 0;
+    if (c <= 0) { keep.push(p); continue; }
+    if (c >= p.amount) ops.push(b => b.update(doc(db, "pagos", p.id), { settled: true }));
+    else {
+      ops.push(b => {
+        b.update(doc(db, "pagos", p.id), { amount: p.amount - c });
+        b.set(doc(collection(db, "pagos")), { client: name, key: k, amount: c, date: dayOf(p), method: p.method || "otro", settled: true, createdAt: serverTimestamp() });
+      });
+      keep.push({ ...p, amount: p.amount - c });
+    }
+  }
+  if (X > 0) ops.push(b => b.set(doc(collection(db, "pagos")), { client: name, key: k, amount: X, date: today(), method, settled: true, createdAt: serverTimestamp() }));
+  commit(errs.filter(e => !gone.includes(e)), keep, b => { gone.forEach(e => b.delete(doc(db, "mandados", e.id))); ops.forEach(f => f(b)); });
+  return { n: gone.length, empty: gone.length === errs.length };
+}
+
+async function confirmDeletePaid() {
+  const k = currentKey, n = clientErrs(k).filter(e => lastData.coveredIds.includes(e.id)).length;
+  if (!n) return toast("Esos préstamos ya no existen");
+  const r = await ask(`¿Borrar ${n} préstamo${n > 1 ? "s" : ""} ya pagado${n > 1 ? "s" : ""} de la base de datos? Quedarán solo las deudas pendientes; el cobro se conserva en "Cobrado este mes".`, { ok: "Borrar pagados" });
+  if (r !== "ok") return;
+  const res = settleLoans(k, lastData.coveredIds, "otro", true);
+  if (!res) return toast("El pago aún se está guardando; inténtalo de nuevo");
+  marks.clear(); lastReceipt = null;
+  toast(`${res.n} préstamo${res.n > 1 ? "s" : ""} borrado${res.n > 1 ? "s" : ""}`);
+  res.empty ? $("#dPay").close() : renderPay();
+}
 
 function openEdit(t, id) {
   const item = (t === "err" ? errands : payments).find(x => x.id === id); if (!item) return;
@@ -472,14 +687,14 @@ function openEdit(t, id) {
   $("#eConceptL").hidden = !isErr; $("#eConcept").required = isErr;
   $("#eMethodL").hidden = isErr;
   $("#eConcept").value = item.concept || "";
-  $("#eAmt").value = isErr ? item.total : item.amount;
+  setMoney($("#eAmt"), isErr ? item.total : item.amount);
   $("#eDate").max = today(); $("#eDate").value = dayOf(item);
   $("#eMethod").innerHTML = methodOptions(item.method || "efectivo");
   $("#dEdit").showModal();
 }
 
 $("#fEdit").addEventListener("submit", () => {
-  const { t, id } = editing, amount = +$("#eAmt").value || 0, date = $("#eDate").value || today();
+  const { t, id } = editing, amount = getMoney($("#eAmt")), date = $("#eDate").value || today();
   if (t === "err") {
     const k = norm(errands.find(x => x.id === id).client), concept = $("#eConcept").value.trim();
     const errs = clientErrs(k).map(x => x.id === id ? { ...x, concept, total: amount, date } : x);
@@ -495,8 +710,13 @@ $("#fEdit").addEventListener("submit", () => {
 async function remove(t, id) {
   const item = (t === "err" ? errands : payments).find(x => x.id === id); if (!item) return;
   const k = t === "err" ? norm(item.client) : item.key;
-  const what = t === "err" ? `el préstamo "${item.concept}" por ${money(item.total)}` : `el abono de ${payLabel(item)} del ${fmtDate(dayOf(item))}`;
-  if (!(await ask(`¿Eliminar ${what}? El saldo del cliente se recalculará.`))) return;
+  const isErr = t === "err";
+  const what = isErr ? `el préstamo "${item.concept}" por ${money(item.total)}` : `el abono de ${payLabel(item)} del ${fmtDate(dayOf(item))}`;
+  const r = await ask(isErr
+    ? `¿Qué hacer con ${what}? "Eliminar" lo borra sin registrar cobro. "Ya pagado" lo borra y suma ${money(pendingOf(item))} a lo cobrado.`
+    : `¿Eliminar ${what}? El saldo del cliente se recalculará.`, { paid: isErr && pendingOf(item) > 0 });
+  if (r === "paid") { settleLoans(k, [id]); toast("Préstamo pagado y borrado"); return; }
+  if (r !== "ok") return;
   const errs = clientErrs(k).filter(e => t !== "err" || e.id !== id);
   const pays = clientPays(k).filter(p => t !== "pay" || p.id !== id);
   commit(errs, pays, b => b.delete(doc(db, t === "err" ? "mandados" : "pagos", id)));
@@ -504,20 +724,22 @@ async function remove(t, id) {
 }
 
 /* ---------- Comprobante WhatsApp ---------- */
-function receipt(name, amount, detail, remaining, date, hist = [], method = "", totals = null) {
-  const lines = detail.map(d => `• ${fmtDate(d.date)} · ${d.concept}: ` +
-    (d.applied > 0 ? `abono ${money(d.applied)} (queda ${money(d.rest)})` : money(d.rest))).join("\n");
+function receipt(name, amount, detail, remaining, date, hist = [], method = "", totals = null, saved = false) {
+  const pago = detail.filter(d => d.status === "pago"), debe = detail.filter(d => d.status !== "pago");
+  const debeLine = d => `• ${fmtDate(d.date)} · ${d.concept}: ${money(d.total)}` + (d.applied > 0 ? ` (abono ${money(d.applied)}, queda ${money(d.left)})` : "");
   const abonos = hist.map(p => `• ${fmtDate(dayOf(p))}: ${payLabel(p)}`).join("\n");
+  const t = totals || { loans: 0, paid: 0, balance: remaining };
   return [
-    amount > 0 ? "🧾 *Comprobante de pago*" : "📋 *Estado de cuenta*",
+    saved ? "🧾 *Comprobante de pago*" : "📋 *Estado de cuenta*",
     `📅 ${amount > 0 ? "Fecha del abono" : "Fecha"}: ${fmtDate(date)}`,
     `👤 Cliente: ${name}`,
-    amount > 0 ? `💵 Pago recibido: *${money(amount)}*${MS[method] ? " - " + MS[method] : ""}` : "",
-    "", "Préstamos:", lines,
-    ...(abonos ? ["", "Abonos:", abonos] : []),
+    ...(amount > 0 ? [`💵 Monto abonado: *${money(amount)}*${MS[method] ? " - " + MS[method] : ""}`] : []),
+    ...(pago.length ? ["", "✅ PAGO (cubiertos con este abono):", pago.map(d => `• ${fmtDate(d.date)} · ${d.concept}: ${money(d.applied)}`).join("\n")] : []),
+    ...(debe.length ? ["", "⏳ DEBE (pendientes):", debe.map(debeLine).join("\n")] : []),
+    ...(abonos ? ["", amount > 0 ? "Abonos anteriores:" : "Abonos:", abonos] : []),
     "",
-    ...(totals ? [`Total préstamos: ${money(totals.loans)}`, `Total abonos: ${money(totals.paid)}`, `📌 Saldo total a pagar: *${money(totals.balance)}*`]
-               : [`📌 Saldo total a pagar: *${money(remaining)}*`]),
+    `Total préstamos: ${money(t.loans)}`, `Total abonos: ${money(t.paid)}`,
+    `📌 ${amount > 0 ? "Saldo restante" : "Saldo total a pagar"}: *${money(t.balance)}*`,
     ...(remaining > 0 ? [] : ["✅ *Cuenta saldada. ¡Gracias!*"])
   ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n");
 }
@@ -527,44 +749,84 @@ const BUSINESS = "AMBV MAO"; // nombre del negocio que aparece en la imagen
 
 function setReceipt(d) {
   lastData = d; lastImg = null;
-  lastReceipt = receipt(d.name, d.amount, d.detail, d.remaining, d.date, d.hist, d.method, d.totals);
+  if (lastImgUrl) URL.revokeObjectURL(lastImgUrl);
+  lastImgUrl = null;
+  lastReceipt = receipt(d.name, d.amount, d.detail, d.remaining, d.date, d.hist, d.method, d.totals, d.saved);
 }
 
+const IC = {
+  cal: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/></svg>',
+  bag: '<svg width="64" height="64" viewBox="0 0 64 64"><path d="M22 10l5 8h10l5-8c-4 2-6-1-10-1s-6 3-10 1z" fill="#c98a2b" stroke="#6b3f0a" stroke-width="2" stroke-linejoin="round"/><path d="M27 18C12 26 8 40 10 49c1.5 7 10 10 22 10s20.5-3 22-10c2-9-2-23-17-31z" fill="#f0b64a" stroke="#6b3f0a" stroke-width="2.4" stroke-linejoin="round"/><path d="M26 18.5h12" stroke="#6b3f0a" stroke-width="3" stroke-linecap="round"/><text x="32" y="49" text-anchor="middle" font-size="22" font-weight="800" fill="#10285f" font-family="Arial,sans-serif">$</text></svg>',
+  user: '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#10285f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="11" r="5.5"/><path d="M5 28c1.5-6 6-8.5 11-8.5S25.5 22 27 28z"/></svg>',
+  wallet: '<svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#10285f" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="6" width="20" height="15" rx="3.5"/><path d="M3 10.5h14.5a1.5 1.5 0 0 1 1.5 1.5"/><circle cx="18.5" cy="15.5" r="1.4" fill="#10285f"/></svg>',
+  hand: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#1f7a2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="8" r="6"/><text x="14" y="11.5" text-anchor="middle" font-size="9" font-weight="800" fill="#1f7a2e" stroke="none" font-family="Arial,sans-serif">$</text><path d="M3 20c4-1.5 8-1.5 11 1h4a2 2 0 0 1 0 4h-6M3 18v7"/></svg>',
+  list: '<svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="3" width="18" height="20" rx="3.5"/><path d="M8.5 9h.01M8.5 13.5h.01M8.5 18h.01M12.5 9h6M12.5 13.5h6M12.5 18h6"/></svg>',
+  coins: '<svg width="40" height="40" viewBox="0 0 40 40" stroke="#0b1c45" stroke-width="2" stroke-linejoin="round"><path d="M8 29v-6h24v6c0 2.8-5.4 5-12 5S8 31.8 8 29z" fill="#fff3b0"/><ellipse cx="20" cy="23" rx="12" ry="5" fill="#fff3b0"/><path d="M8 22v-6h24v6c0 2.8-5.4 5-12 5S8 24.8 8 22z" fill="#fff3b0"/><ellipse cx="20" cy="16" rx="12" ry="5" fill="#ffe27a"/></svg>'
+};
+
 function receiptHTML(d) {
-  const paid = d.amount > 0;
-  const t = d.totals || { loans: 0, paid: 0, balance: d.remaining };
-  const loans = d.detail.length ? d.detail.map(x => `
-    <div class="r-row">
-      <div class="r-main">${esc(x.concept)}<small>${fmtDate(x.date)}${x.applied > 0 ? " · abono " + money(x.applied) : ""}</small></div>
-      <div class="r-amt">${money(x.rest)}</div>
-    </div>`).join("") : `<div class="r-row"><div class="r-main">Sin préstamos pendientes</div></div>`;
-  const abonos = d.hist.length ? `<div><p class="r-sec">Abonos</p>${d.hist.map(p => `
-    <div class="r-row">
-      <div class="r-main">${esc(MS[p.method] || "Abono")}<small>${fmtDate(dayOf(p))}</small></div>
-      <div class="r-amt">${money(p.amount)}</div>
-    </div>`).join("")}</div>` : "";
-  return `<div class="rcpt">
+  const ok = d.remaining <= 0, t = d.totals, abono = d.amount > 0;
+  const item = (title, sub, amt) => `
+    <div class="r-it"><div class="r-t"><b>${esc(title)}</b><small>${sub}</small></div><span class="r-pill">${money(amt)}</span></div>`;
+  // Con muchos registros la imagen se ensancha y las listas pasan a 2 columnas (la 1.ª mitad a la izquierda, la 2.ª a la derecha)
+  const two = abono; // con abono: dos columnas, DEBE a la izquierda y PAGO (cruce) a la derecha
+  const wide = !two && (d.detail.length > 6 || d.hist.length > 6);
+  const rows = (arr, mk) => {
+    const html = arr.map(mk);
+    if (!wide || html.length < 2) return html.join("");
+    const h = Math.ceil(html.length / 2);
+    return `<div class="r-grid"><div class="r-gc">${html.slice(0, h).join("")}</div><div class="r-gc">${html.slice(h).join("")}</div></div>`;
+  };
+  const sec = (cls, icon, title, inner) => `<div class="r-blk ${cls}"><div class="r-sh"><span class="r-ic">${icon}</span><span class="r-sn hand">${title}</span></div>${inner}</div>`;
+  const payRows = d.detail.filter(x => x.status === "pago"), debeRows = d.detail.filter(x => x.status !== "pago");
+  const hasPaid = payRows.length > 0;
+  const paidItem = x => item(x.concept, fmtDate(x.date) + (x.applied < x.total ? " · préstamo " + money(x.total) : ""), x.applied);
+  const debeItem = x => item(x.concept, fmtDate(x.date) + (x.applied > 0 ? " · abono " + money(x.applied) + " · queda " + money(x.left) : ""), x.total);
+  const sum = (arr, f) => arr.reduce((s, x) => s + f(x), 0);
+  const noPay = `<div class="r-it"><div class="r-t"><b>Ningún ítem cubierto por completo</b></div></div>`;
+  const twoCols = `<div class="r-two">
+        <div class="r-col">${sec("", IC.wallet, "DEBE (PENDIENTES)",
+          (debeRows.length ? rows(debeRows, debeItem) : `<div class="r-it"><div class="r-t"><b>Sin ítems pendientes</b></div></div>`) +
+          `<div class="r-ap"><span>Pendiente tras el abono</span><strong>${money(sum(debeRows, x => x.left))}</strong></div>`)}</div>
+        <div class="r-col">${sec("green", IC.hand, "PAGO (CRUCE)",
+          (hasPaid ? rows(payRows, paidItem) : noPay) +
+          `<div class="r-ap"><span>Monto abonado${MS[d.method] ? " · " + MS[d.method] : ""}</span><strong>${money(d.amount)}</strong></div>`)}</div>
+      </div>`;
+  const none = `<div class="r-it"><div class="r-t"><b>Sin préstamos pendientes</b></div></div>`;
+  return `<div class="rcpt${wide ? " wide" : ""}${two ? " two" : ""}">
     <div class="r-head">
-      <p class="r-biz">${esc(BUSINESS)}</p>
-      <p class="r-title">${paid ? "Comprobante de pago" : "Estado de cuenta"}</p>
-      <p class="r-date">${paid ? "Fecha del abono" : "Fecha"}: ${fmtDate(d.date)}</p>
+      <div class="r-hl">
+        <p class="r-biz hand">${esc(BUSINESS)}</p>
+        <p class="r-tw"><span class="r-title hand">${d.saved ? "Comprobante de pago" : "Estado de cuenta"}</span></p>
+        <p class="r-date">${IC.cal}<span><small>${abono ? "Fecha del abono" : "Fecha"}</small><b>${fmtDate(d.date)}</b></span></p>
+      </div>
+      <div class="r-hr"><p class="r-tag hand">¡Tu esfuerzo también cuenta!</p>${IC.bag}</div>
     </div>
-    <div class="r-body">
-      <div class="r-client"><small>Cliente</small><b>${esc(d.name)}</b></div>
-      ${paid ? `<div class="r-paid"><span>Pago recibido${MS[d.method] ? `<em>${esc(MS[d.method])}</em>` : ""}</span><strong>${money(d.amount)}</strong></div>` : ""}
-      <div><p class="r-sec">Préstamos</p>${loans}</div>
-      ${abonos}
+    <div class="r-frame">
+      <div class="r-cli">
+        <span class="r-av">${IC.user}</span>
+        <div class="r-cn"><small>CLIENTE</small><b class="hand">${esc(d.name)}</b></div>
+        <p class="r-thx hand">¡Gracias por confiar!</p>
+      </div>
+      ${two ? twoCols : sec("", IC.wallet, "DEBE (PENDIENTES)", debeRows.length ? rows(debeRows, debeItem) : none)}
+      ${d.hist.length ? sec("green", IC.hand, abono ? "ABONOS ANTERIORES" : "ABONOS", rows(d.hist, p => item(MS[p.method] || "Abono", fmtDate(dayOf(p)), p.amount))) : ""}
       <div class="r-tot">
-        <div class="r-row"><div class="r-main">Total préstamos</div><div class="r-amt">${money(t.loans)}</div></div>
-        <div class="r-row"><div class="r-main">Total abonos</div><div class="r-amt">${money(t.paid)}</div></div>
+        <span class="r-ti">${IC.list}</span>
+        <div class="r-tl">
+          <div class="r-tr hand"><span>Total préstamos</span><strong>${money(t.loans)}</strong></div>
+          <div class="r-tr hand"><span>Total abonos</span><strong>${money(t.paid)}</strong></div>
+        </div>
+      </div>
+      <div class="r-sal${ok ? " ok" : ""}">
+        <div class="r-sl hand">${IC.coins}<span>Saldo ${abono ? "restante" : "total a pagar"}${ok ? "<em>✅ Cuenta saldada</em>" : ""}</span></div>
+        <span class="r-big">${money(t.balance)}</span>
       </div>
     </div>
-    <div class="r-foot ${d.remaining > 0 ? "pend" : "ok"}">
-      <span>Saldo total a pagar${d.remaining > 0 ? "" : "<em>✅ Cuenta saldada</em>"}</span><strong>${money(t.balance)}</strong>
-    </div>
-    <p class="r-thanks">${d.remaining > 0 ? "Gracias por tu pago" : "¡Gracias!"} · ${esc(BUSINESS)}</p>
+    <div class="r-foot"><p class="a hand">${ok ? "¡Gracias!" : "Gracias por tu pago"}</p><p class="b">• ${esc(BUSINESS)} •</p></div>
   </div>`;
 }
+
+const prevImg = () => `<img alt="Vista previa del comprobante" src="${lastImgUrl}">`;
 
 async function makeImage(d) {
   if (!window.html2canvas) throw new Error("No se cargó html2canvas. Revisa tu conexión.");
@@ -572,10 +834,15 @@ async function makeImage(d) {
   stage.className = "rcpt-stage"; stage.innerHTML = receiptHTML(d);
   document.body.appendChild(stage);
   try {
-    if (document.fonts?.ready) await document.fonts.ready;
+    try { // espera las tipografías (máx. 3 s) para que la imagen salga con el diseño correcto
+      await Promise.race([
+        Promise.all(["700 24px Kalam", "800 16px Nunito", "600 16px Nunito"].map(f => document.fonts.load(f))).then(() => document.fonts.ready),
+        new Promise(r => setTimeout(r, 3000))
+      ]);
+    } catch {}
     const canvas = await html2canvas(stage, {
       scale: Math.min(3, Math.max(2, window.devicePixelRatio || 2)),
-      backgroundColor: "#eef2f6", useCORS: true, logging: false, scrollX: 0, scrollY: 0
+      backgroundColor: "#ffffff", useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: Math.max(window.innerWidth, 800)
     });
     const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
     if (!blob) throw new Error("No se pudo generar la imagen");
@@ -595,12 +862,12 @@ function downloadFile(file) {
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
-async function imageAction(btn, share) {
+async function imageAction(btn, share, get = getImage, who = () => lastData.name) {
   const label = btn.textContent; btn.disabled = true; btn.textContent = "Generando…";
   try {
-    const file = await getImage();
+    const file = await get();
     if (share && navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], title: BUSINESS + " - " + lastData.name });
+      await navigator.share({ files: [file], title: BUSINESS + " - " + who() });
     } else {
       downloadFile(file);
       toast(share ? "Tu dispositivo no permite compartir; imagen descargada" : "Imagen guardada");
@@ -609,6 +876,80 @@ async function imageAction(btn, share) {
     if (e.name !== "AbortError") toast(e.message || "No se pudo crear la imagen");
   } finally { btn.disabled = false; btn.textContent = label; }
 }
+
+/* ---------- Detalle / reenvío de un abono del historial ---------- */
+let det = null; // { d, note, text, img, url } del abono abierto
+const detImage = () => (det.img ||= makeImage(det.d).catch(e => { det.img = null; throw e; }));
+
+// Arma los datos del comprobante de un abono ya registrado.
+// Con detalle guardado se usa tal cual; sin él (abonos viejos o modificados después) se reconstruye con los préstamos actuales.
+function abonoData(p) {
+  const k = p.key, errs = clientErrs(k), pays = clientPays(k), s = p.detalle;
+  const name = p.client || errs[0]?.client || "";
+  let detail, totals, note = "";
+  if (s && s.amount === p.amount) {
+    detail = [...(s.items || []).map(x => ({ ...x, left: 0, status: "pago" })), ...(s.pending || []).map(x => ({ ...x, status: "debe" }))];
+    totals = s.totals;
+  } else {
+    // Reconstrucción aproximada a la fecha del abono: solo los préstamos y abonos de ese día o anteriores.
+    // Incluye también los préstamos que seguían debiéndose (aunque este abono no los tocara).
+    const day = dayOf(p), errs2 = errs.filter(e => dayOf(e) <= day), pays2 = pays.filter(q => q.id === p.id || dayOf(q) <= day);
+    const { paid, from } = allocateDetailed(errs2, pays2);
+    detail = errs2.map(e => {
+      const applied = from[e.id]?.[p.id] || 0, left = Math.max(0, e.total - paid[e.id]);
+      return { id: e.id, concept: e.concept, date: dayOf(e), total: e.total, applied, left, status: left <= 0 ? "pago" : "debe" };
+    }).filter(x => x.applied > 0 || x.left > 0);
+    totals = totalsFrom(errs2, pays2);
+    note = s ? "Este abono se modificó después de registrarse: el desglose se recalculó con los datos disponibles."
+             : "Abono sin detalle guardado: el desglose se reconstruyó con los datos disponibles a la fecha del abono.";
+  }
+  return { note, d: { name, amount: p.amount, detail, hist: [], method: p.method || "", saved: true, date: dayOf(p), remaining: totals.balance, totals } };
+}
+
+function openDetail(id) {
+  const p = payments.find(x => x.id === id); if (!p) return;
+  if (det?.url) URL.revokeObjectURL(det.url);
+  const { d, note } = abonoData(p);
+  det = { d, note, img: null, url: null, text: receipt(d.name, d.amount, d.detail, d.remaining, d.date, d.hist, d.method, d.totals, true) };
+  renderDetail(); $("#dDetail").showModal();
+  const snap = det, show = html => { const el = $("#dPrev"); if (el && det === snap) el.innerHTML = html; };
+  detImage().then(f => { if (det !== snap) return; snap.url ||= URL.createObjectURL(f); show(`<img alt="Vista previa del comprobante" src="${snap.url}">`); })
+    .catch(() => show(`<pre class="msg">${esc(snap.text)}</pre>`));
+}
+
+function renderDetail() {
+  const { d, note } = det, t = d.totals;
+  const pago = d.detail.filter(x => x.status === "pago"), debe = d.detail.filter(x => x.status !== "pago");
+  const li = (x, amt, sub) => `<li><span class="main">${esc(x.concept)}<small>${fmtDate(x.date)}${sub}</small></span><span class="amt">${money(amt)}</span></li>`;
+  $("#detBody").innerHTML = `
+    <h3>${esc(d.name)}</h3>
+    <div class="total"><span>Abono · ${fmtDate(d.date)}${MS[d.method] ? " · " + MS[d.method] : ""}</span><strong>${money(d.amount)}</strong></div>
+    ${note ? `<p class="hint">${esc(note)}</p>` : ""}
+    <h4>Pago · cuentas pagadas con este abono</h4>
+    <ul class="items">${pago.length ? pago.map(x => li(x, x.applied, x.applied < x.total ? ` · préstamo ${money(x.total)}` : "")).join("") : `<li><span class="main">Ninguna cuenta quedó cubierta por completo</span></li>`}</ul>
+    ${debe.length ? `<h4>Debe · quedó pendiente</h4>
+    <ul class="items">${debe.map(x => li(x, x.left, x.applied > 0 ? ` · abonó ${money(x.applied)} de ${money(x.total)}` : ` · préstamo ${money(x.total)}`)).join("")}</ul>` : ""}
+    <div class="sum">
+      <div class="s-loan"><small>Total préstamos / cargos</small><strong>${money(t.loans)}</strong></div>
+      <div class="s-paid"><small>Total abonado</small><strong>${money(t.paid)}</strong></div>
+      <div class="s-bal"><small>Saldo restante</small><strong>${money(t.balance)}</strong></div>
+    </div>
+    <div class="rcpt-prev" id="dPrev"><p class="empty">Generando comprobante…</p></div>
+    <div class="actions">
+      <button class="ghost" id="bdSave">⬇️ Guardar imagen</button>
+      <button class="primary" id="bdShare">📤 Compartir imagen</button>
+    </div>
+    <div class="actions">
+      <button class="ghost" id="bdCopy">Copiar texto</button>
+      <button class="wa" id="bdWa">WhatsApp</button>
+    </div>
+    <button class="ghost" data-close>Cerrar</button>`;
+  $("#bdSave").onclick = e => imageAction(e.currentTarget, false, detImage, () => det.d.name);
+  $("#bdShare").onclick = e => imageAction(e.currentTarget, true, detImage, () => det.d.name);
+  $("#bdCopy").onclick = () => navigator.clipboard.writeText(det.text).then(() => toast("Copiado"));
+  $("#bdWa").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(det.text), "_blank");
+}
+$("#dDetail").addEventListener("close", () => { if (det?.url) URL.revokeObjectURL(det.url); det = null; });
 
 /* ---------- Estado de conexión ---------- */
 const netEl = $("#net");
