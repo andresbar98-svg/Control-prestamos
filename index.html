@@ -8,6 +8,7 @@
 <title>Mandados</title>
 <link rel="icon" id="appIcon">
 <link rel="manifest" id="appManifest">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{
   --bg:#0f1720; --card:#182330; --line:#26364a; --text:#e8eef5; --mute:#8ea0b4;
@@ -48,7 +49,7 @@ button{font:inherit;color:inherit;border:0;border-radius:12px;min-height:48px;pa
 .pill{background:var(--ok);color:#06241a;font-weight:700;min-height:44px}
 button:active{transform:scale(.97)}
 .debtors li:active{transform:scale(.99);border-color:var(--pend)}
-button:focus-visible,input:focus-visible{outline:2px solid var(--com);outline-offset:2px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--com);outline-offset:2px}
 .fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));background:var(--pend);color:#2b1c00;font-weight:700;box-shadow:0 6px 24px #0008;min-height:54px;padding:0 24px;border-radius:99px}
 
 dialog{max-height:92vh;overflow:auto;border:0;padding:0;background:var(--card);color:var(--text);width:100%;max-width:560px;margin:auto auto 0;border-radius:24px 24px 0 0;border-top:1px solid var(--line)}
@@ -58,19 +59,62 @@ dialog[open]{animation:up .22s ease-out}
 @keyframes up{from{transform:translateY(40px);opacity:0}}
 h3{margin:0;font-size:1.1rem}
 label{display:grid;gap:6px;font-size:.85rem;color:var(--mute)}
-input{font:inherit;font-size:1rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:0 14px;min-height:50px;width:100%}
+input,select{font:inherit;font-size:1rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:0 14px;min-height:50px;width:100%}
 .row,.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .total{display:flex;justify-content:space-between;align-items:baseline;background:var(--bg);border-radius:12px;padding:14px;border:1px dashed var(--line)}
 .total strong{font-size:1.5rem;color:var(--pend)}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chips button{min-height:38px;font-size:.85rem;background:var(--bg);border:1px solid var(--line)}
 .items{margin:0;padding:0;list-style:none;font-size:.88rem;color:var(--mute);display:grid;gap:6px}
-.items li{display:flex;justify-content:space-between;gap:10px}
+.items li{display:flex;align-items:center;gap:8px}
 .items small{display:block;font-size:.78rem;opacity:.85}
-.items span:last-child{color:var(--text);font-variant-numeric:tabular-nums}
+.items .main{flex:1;min-width:0;overflow-wrap:anywhere}
+.items .amt{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.act{display:flex;gap:6px}
+.act button{min-height:40px;min-width:40px;padding:0;font-size:1rem;background:var(--bg);border:1px solid var(--line)}
+.danger{background:var(--bad);color:#2a0606;font-weight:700}
+#cMsg{margin:0;color:var(--mute)}
+[hidden]{display:none!important}
 h4{margin:2px 0 -6px;font-size:.85rem;color:var(--mute);font-weight:600}
 pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:var(--bg);border-radius:12px;padding:14px;border:1px solid var(--line);max-height:38vh;overflow:auto}
 
+/* Resumen de totales (detalle del cliente) */
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sum div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;min-width:0}
+.sum small{display:block;font-size:.7rem;color:var(--mute);line-height:1.2;min-height:2.4em}
+.sum strong{display:block;margin-top:4px;font-size:.98rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sum .s-loan strong{color:var(--text)} .sum .s-paid strong{color:var(--ok)} .sum .s-bal{border-color:var(--pend)} .sum .s-bal strong{color:var(--pend)}
+/* Comprobante (imagen) */
+.rcpt{background:#fff;color:#111827;border:1px solid #d5dbe3;border-radius:16px;overflow:hidden;font-family:var(--font);line-height:1.35;text-align:left}
+.rcpt *{box-sizing:border-box}
+.r-head{background:#0f1720;color:#fff;padding:16px 18px}
+.r-biz{margin:0;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:#f2b84b;font-weight:700}
+.r-title{margin:4px 0 0;font-size:1.3rem;font-weight:700;color:#fff}
+.r-date{margin:2px 0 0;font-size:.85rem;color:#c5d0dc}
+.r-body{padding:16px 18px;display:grid;gap:14px}
+.r-client small{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;font-weight:600}
+.r-client b{font-size:1.15rem;color:#111827;overflow-wrap:anywhere}
+.r-paid{background:#e3f7ee;border:1px solid #8fd8b7;border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.r-paid span{font-size:.85rem;color:#14532d;font-weight:600}
+.r-paid strong{font-size:1.45rem;color:#0b5a37}
+.r-paid em{display:block;font-style:normal;font-size:.78rem;color:#166534;font-weight:500}
+.r-sec{margin:0 0 4px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;font-weight:700}
+.r-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid #e5e9ef}
+.r-row:last-child{border-bottom:0}
+.r-main{flex:1;min-width:0;overflow-wrap:anywhere;color:#111827;font-weight:600;font-size:.95rem}
+.r-main small{display:block;font-weight:400;font-size:.78rem;color:#4b5563}
+.r-amt{font-weight:700;color:#111827;white-space:nowrap;font-size:.95rem}
+.r-tot{background:#f3f5f8;border:1px solid #d5dbe3;border-radius:12px;padding:4px 14px}
+.r-tot .r-row{align-items:baseline}
+.r-tot .r-main{font-weight:600;font-size:.9rem}
+.r-foot em{display:block;font-style:normal;font-size:.75rem;font-weight:600}
+.r-foot{padding:14px 18px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.r-foot.pend{background:#fff4d6;border-top:2px solid #f2b84b;color:#5b3d00}
+.r-foot.ok{background:#e3f7ee;border-top:2px solid #5fd0a0;color:#0b5a37}
+.r-foot span{font-weight:600;font-size:.9rem}
+.r-foot strong{font-size:1.5rem}
+.r-thanks{margin:0;padding:8px 18px 12px;text-align:center;font-size:.72rem;color:#6b7280}
+.rcpt-stage{position:fixed;left:-10000px;top:0;width:420px;padding:16px;background:#eef2f6;pointer-events:none}
 .toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:.9rem;opacity:0;pointer-events:none;transition:.2s;z-index:99}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -132,12 +176,47 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
   <div id="payBody"></div>
 </dialog>
 
+<!-- Editar préstamo / abono -->
+<dialog id="dEdit">
+  <form id="fEdit" method="dialog" autocomplete="off">
+    <h3 id="eTitle"></h3>
+    <label id="eConceptL">Concepto
+      <input id="eConcept">
+    </label>
+    <label>Monto
+      <input id="eAmt" type="number" inputmode="decimal" min="1" step="any" required>
+    </label>
+    <label>Fecha
+      <input id="eDate" type="date" required>
+    </label>
+    <label id="eMethodL">Método de pago
+      <select id="eMethod"></select>
+    </label>
+    <div class="actions">
+      <button type="button" class="ghost" data-close>Cancelar</button>
+      <button type="submit" class="primary">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Confirmar eliminación -->
+<dialog id="dConfirm">
+  <form method="dialog">
+    <h3>Confirmar eliminación</h3>
+    <p id="cMsg"></p>
+    <div class="actions">
+      <button value="cancel" class="ghost">Cancelar</button>
+      <button value="ok" class="danger">Eliminar</button>
+    </div>
+  </form>
+</dialog>
+
 <div id="toast" class="toast" role="status"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
   initializeFirestore, persistentLocalCache, collection, onSnapshot, query, orderBy,
-  addDoc, doc, writeBatch, increment, serverTimestamp
+  doc, writeBatch, increment, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 // Credenciales del proyecto de Firebase
@@ -196,6 +275,11 @@ onSnapshot(query(collection(db, "mandados"), orderBy("createdAt", "asc")),
 onSnapshot(query(collection(db, "pagos"), orderBy("createdAt", "asc")),
   s => { payments = s.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, onErr);
 
+// Totales del cliente: préstamos, abonos y saldo (préstamos − abonos)
+const totalsFrom = (errs, pays) => {
+  const loans = errs.reduce((s, e) => s + e.total, 0), paid = pays.reduce((s, p) => s + p.amount, 0);
+  return { loans, paid, balance: Math.max(0, loans - paid) };
+};
 const pendingOf = e => Math.max(0, e.total - (e.paid || 0));
 
 function groups() {
@@ -233,63 +317,113 @@ $("#debtors").addEventListener("click", e => {
   currentKey = k; lastReceipt = null; renderPay(); $("#dPay").showModal();
 });
 
+/* ---------- Métodos de pago ---------- */
+const METHODS = { efectivo: "💵 Efectivo", transferencia: "🏦 Transferencia / Nequi / Daviplata", encargo: "📦 Encargo / Producto", otro: "📝 Otro" };
+const MS = { efectivo: "Efectivo", transferencia: "Transferencia", encargo: "Encargo / Producto", otro: "Otro" };
+const methodOptions = sel => Object.entries(METHODS).map(([k, v]) => `<option value="${k}"${k === sel ? " selected" : ""}>${v}</option>`).join("");
+const payLabel = p => `${money(p.amount)}${MS[p.method] ? " - " + MS[p.method] : ""}`;
+
+/* ---------- Escritura en Firestore con recálculo de saldos ---------- */
+const clientErrs = k => errands.filter(e => norm(e.client) === k);
+const clientPays = k => payments.filter(p => p.key === k);
+const pendingErrs = k => clientErrs(k).filter(e => pendingOf(e) > 0);
+
+// Reparte el total abonado entre los préstamos, del más antiguo al más reciente
+function allocate(errs, pays) {
+  let left = pays.reduce((s, p) => s + p.amount, 0);
+  const out = {};
+  for (const e of [...errs].sort(byDay)) { out[e.id] = Math.min(left, e.total); left -= out[e.id]; }
+  return out;
+}
+// Aplica el cambio y actualiza el campo "paid" de los préstamos afectados, todo en un solo lote
+function commit(errs, pays, ops) {
+  const paid = allocate(errs, pays), batch = writeBatch(db);
+  ops(batch, paid);
+  for (const e of errs) if (!e.isNew && (e.paid || 0) !== paid[e.id]) batch.update(doc(db, "mandados", e.id), { paid: paid[e.id] });
+  batch.commit().catch(onErr); // sin await: también funciona sin conexión
+}
+
+const ask = msg => new Promise(res => {
+  const d = $("#dConfirm"); $("#cMsg").textContent = msg; d.returnValue = "";
+  d.onclose = () => res(d.returnValue === "ok"); d.showModal();
+});
+
 /* ---------- Nuevo mandado ---------- */
 const dNew = $("#dNew");
 $("#btnNew").onclick = () => { $("#fNew").reset(); $("#fDate").max = $("#fDate").value = today(); dNew.showModal(); };
 document.addEventListener("click", e => { if (e.target.closest("[data-close]")) e.target.closest("dialog").close(); });
 
 $("#fNew").addEventListener("submit", () => {
-  const lent = +$("#fLent").value || 0;
-  addDoc(collection(db, "mandados"), {
-    client: $("#fClient").value.trim(), concept: $("#fConcept").value.trim(),
-    lent, total: lent, paid: 0, date: $("#fDate").value || today(), createdAt: serverTimestamp()
-  }).catch(onErr);
+  const client = $("#fClient").value.trim(), lent = +$("#fLent").value || 0, k = norm(client);
+  const data = { client, concept: $("#fConcept").value.trim(), lent, total: lent, date: $("#fDate").value || today() };
+  const ref = doc(collection(db, "mandados"));
+  commit([...clientErrs(k), { id: ref.id, ...data, paid: 0, isNew: true }], clientPays(k),
+    (b, paid) => b.set(ref, { ...data, paid: paid[ref.id], createdAt: serverTimestamp() }));
   toast("Mandado guardado");
 });
 
 /* ---------- Cobrar ---------- */
-let lastReceipt = null;
-const clientErrands = k => errands.filter(e => norm(e.client) === k && pendingOf(e) > 0);
+let lastReceipt = null, lastData = null, lastImg = null;
 
 function renderPay() {
-  const list = clientErrands(currentKey);
-  const name = list[0]?.client || errands.find(e => norm(e.client) === currentKey)?.client || "";
+  const list = pendingErrs(currentKey);
+  const name = clientErrs(currentKey)[0]?.client || "";
   const balance = list.reduce((s, e) => s + pendingOf(e), 0);
   const body = $("#payBody");
 
   if (lastReceipt) {
     body.innerHTML = `
-      <h3>Pago registrado</h3>
-      <pre class="msg">${esc(lastReceipt)}</pre>
+      <h3>${lastData.amount > 0 ? "Pago registrado" : "Estado de cuenta"}</h3>
+      ${receiptHTML(lastData)}
       <div class="actions">
-        <button class="ghost" id="bCopy">Copiar</button>
+        <button class="ghost" id="bSave">⬇️ Guardar imagen</button>
+        <button class="primary" id="bShare">📤 Compartir imagen</button>
+      </div>
+      <div class="actions">
+        <button class="ghost" id="bCopy">Copiar texto</button>
         <button class="wa" id="bWa">WhatsApp</button>
       </div>
       <button class="ghost" data-close>Cerrar</button>`;
+    $("#bSave").onclick = e => imageAction(e.currentTarget, false);
+    $("#bShare").onclick = e => imageAction(e.currentTarget, true);
+    getImage().catch(() => {}); // prepara la imagen en segundo plano para compartir al instante
     $("#bCopy").onclick = () => navigator.clipboard.writeText(lastReceipt).then(() => toast("Copiado"));
     $("#bWa").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(lastReceipt), "_blank");
     return;
   }
 
-  const keep = $("#pAmt")?.value, keepDate = $("#pDate")?.value;
-  const hist = payments.filter(p => p.key === currentKey).sort(byDay);
+  const keep = $("#pAmt")?.value, keepDate = $("#pDate")?.value, keepM = $("#pMethod")?.value;
+  const hist = clientPays(currentKey).sort(byDay);
+  const tot = totalsFrom(clientErrs(currentKey), hist);
+  const acts = (t, id) => `<span class="act"><button type="button" data-act="edit-${t}" data-id="${id}" aria-label="Editar">✏️</button><button type="button" data-act="del-${t}" data-id="${id}" aria-label="Eliminar">🗑️</button></span>`;
   body.innerHTML = `
     <h3>${esc(name)}</h3>
     <h4>Préstamos pendientes</h4>
-    <ul class="items">${list.map(e => `<li><span>${esc(e.concept)}<small>${fmtDate(dayOf(e))}</small></span><span>${money(pendingOf(e))}</span></li>`).join("")}</ul>
+    <ul class="items">${list.length ? list.map(e => `<li>
+      <span class="main">${esc(e.concept)}<small>${fmtDate(dayOf(e))}</small></span>
+      <span class="amt">${money(e.total)}</span>${acts("err", e.id)}</li>`).join("") : `<li><span class="main">Sin préstamos pendientes</span></li>`}</ul>
     ${hist.length ? `<h4>Historial de abonos</h4>
-    <ul class="items">${hist.map(p => `<li><span>${fmtDate(dayOf(p))}</span><span>${money(p.amount)}</span></li>`).join("")}</ul>` : ""}
+    <ul class="items">${hist.map(p => `<li>
+      <span class="main"><span class="amt">${esc(payLabel(p))}</span><small>${fmtDate(dayOf(p))}</small></span>${acts("pay", p.id)}</li>`).join("")}</ul>` : ""}
+    <div class="sum" aria-label="Resumen de cuenta">
+      <div class="s-loan"><small>Total préstamos / cargos</small><strong>${money(tot.loans)}</strong></div>
+      <div class="s-paid"><small>Total abonado</small><strong>${money(tot.paid)}</strong></div>
+      <div class="s-bal"><small>Saldo pendiente</small><strong>${money(tot.balance)}</strong></div>
+    </div>
     <div class="total"><span>Saldo actual</span><strong>${money(balance)}</strong></div>
     <label>Monto recibido
       <input id="pAmt" type="number" inputmode="decimal" min="0" max="${balance}" step="any" placeholder="0" value="${keep ?? ""}">
-    </label>
-    <label>Fecha del abono
-      <input id="pDate" type="date" max="${today()}" value="${keepDate || today()}">
     </label>
     <div class="chips">
       <button type="button" data-frac="1">Todo</button>
       <button type="button" data-frac=".5">La mitad</button>
     </div>
+    <label>Método de pago
+      <select id="pMethod">${methodOptions(keepM || "efectivo")}</select>
+    </label>
+    <label>Fecha del abono
+      <input id="pDate" type="date" max="${today()}" value="${keepDate || today()}">
+    </label>
     <div class="actions">
       <button class="ghost" id="bStmt">Estado de cuenta</button>
       <button class="primary" id="bPay">Registrar pago</button>
@@ -299,46 +433,181 @@ function renderPay() {
   body.querySelectorAll("[data-frac]").forEach(b =>
     b.onclick = () => { $("#pAmt").value = Math.round(balance * +b.dataset.frac); });
   $("#bPay").onclick = () => pay(list, name, balance);
-  $("#bStmt").onclick = () => { lastReceipt = receipt(name, 0, list.map(e => ({ concept: e.concept, date: dayOf(e), applied: 0, rest: pendingOf(e) })), balance, today(), hist); renderPay(); };
+  $("#bStmt").onclick = () => {
+    setReceipt({ name, amount: 0, detail: list.map(e => ({ concept: e.concept, date: dayOf(e), applied: 0, rest: e.total })), remaining: balance, date: today(), hist, method: "", totals: totalsFrom(clientErrs(currentKey), hist) });
+    renderPay();
+  };
 }
 
 function pay(list, name, balance) {
   const amount = Math.min(+$("#pAmt").value || 0, balance);
   if (amount <= 0) return toast("Escribe un monto válido");
-  const date = $("#pDate").value || today();
+  const date = $("#pDate").value || today(), method = $("#pMethod").value;
 
-  // El abono se aplica primero a los mandados más antiguos
-  let left = amount; const batch = writeBatch(db), detail = [];
-  for (const e of list) {
-    if (left <= 0) break;
-    const d = Math.min(left, pendingOf(e));
-    batch.update(doc(db, "mandados", e.id), { paid: increment(d) });
-    detail.push({ concept: e.concept, date: dayOf(e), applied: d, rest: pendingOf(e) - d });
-    left -= d;
-  }
-  batch.set(doc(collection(db, "pagos")), { client: name, key: currentKey, amount, date, createdAt: serverTimestamp() });
-  batch.commit().catch(onErr); // sin await: también funciona sin conexión
+  const errs = clientErrs(currentKey), ref = doc(collection(db, "pagos"));
+  const pays = [...clientPays(currentKey), { id: ref.id, amount, date, method }];
+  const paid = allocate(errs, pays);
+  const detail = list.filter(e => paid[e.id] > (e.paid || 0)).map(e => ({
+    concept: e.concept, date: dayOf(e), applied: paid[e.id] - (e.paid || 0), rest: e.total - paid[e.id] }));
+  commit(errs, pays, b => b.set(ref, { client: name, key: currentKey, amount, date, method, createdAt: serverTimestamp() }));
 
-  lastReceipt = receipt(name, amount, detail, balance - amount, date);
+  setReceipt({ name, amount, detail, remaining: balance - amount, date, hist: [], method, totals: totalsFrom(errs, pays) });
   toast(balance - amount <= 0 ? "Cuenta saldada" : "Pago registrado");
   renderPay();
 }
 
+/* ---------- Editar y eliminar ---------- */
+let editing = null;
+$("#payBody").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const [op, t] = b.dataset.act.split("-");
+  op === "edit" ? openEdit(t, b.dataset.id) : remove(t, b.dataset.id);
+});
+
+function openEdit(t, id) {
+  const item = (t === "err" ? errands : payments).find(x => x.id === id); if (!item) return;
+  const isErr = t === "err";
+  editing = { t, id };
+  $("#eTitle").textContent = isErr ? "Editar préstamo" : "Editar abono";
+  $("#eConceptL").hidden = !isErr; $("#eConcept").required = isErr;
+  $("#eMethodL").hidden = isErr;
+  $("#eConcept").value = item.concept || "";
+  $("#eAmt").value = isErr ? item.total : item.amount;
+  $("#eDate").max = today(); $("#eDate").value = dayOf(item);
+  $("#eMethod").innerHTML = methodOptions(item.method || "efectivo");
+  $("#dEdit").showModal();
+}
+
+$("#fEdit").addEventListener("submit", () => {
+  const { t, id } = editing, amount = +$("#eAmt").value || 0, date = $("#eDate").value || today();
+  if (t === "err") {
+    const k = norm(errands.find(x => x.id === id).client), concept = $("#eConcept").value.trim();
+    const errs = clientErrs(k).map(x => x.id === id ? { ...x, concept, total: amount, date } : x);
+    commit(errs, clientPays(k), b => b.update(doc(db, "mandados", id), { concept, lent: amount, total: amount, date }));
+  } else {
+    const k = payments.find(x => x.id === id).key, method = $("#eMethod").value;
+    const pays = clientPays(k).map(x => x.id === id ? { ...x, amount, date, method } : x);
+    commit(clientErrs(k), pays, b => b.update(doc(db, "pagos", id), { amount, date, method }));
+  }
+  toast("Cambios guardados");
+});
+
+async function remove(t, id) {
+  const item = (t === "err" ? errands : payments).find(x => x.id === id); if (!item) return;
+  const k = t === "err" ? norm(item.client) : item.key;
+  const what = t === "err" ? `el préstamo "${item.concept}" por ${money(item.total)}` : `el abono de ${payLabel(item)} del ${fmtDate(dayOf(item))}`;
+  if (!(await ask(`¿Eliminar ${what}? El saldo del cliente se recalculará.`))) return;
+  const errs = clientErrs(k).filter(e => t !== "err" || e.id !== id);
+  const pays = clientPays(k).filter(p => t !== "pay" || p.id !== id);
+  commit(errs, pays, b => b.delete(doc(db, t === "err" ? "mandados" : "pagos", id)));
+  toast("Eliminado");
+}
+
 /* ---------- Comprobante WhatsApp ---------- */
-function receipt(name, amount, detail, remaining, date, hist = []) {
+function receipt(name, amount, detail, remaining, date, hist = [], method = "", totals = null) {
   const lines = detail.map(d => `• ${fmtDate(d.date)} · ${d.concept}: ` +
     (d.applied > 0 ? `abono ${money(d.applied)} (queda ${money(d.rest)})` : money(d.rest))).join("\n");
-  const abonos = hist.map(p => `• ${fmtDate(dayOf(p))}: ${money(p.amount)}`).join("\n");
+  const abonos = hist.map(p => `• ${fmtDate(dayOf(p))}: ${payLabel(p)}`).join("\n");
   return [
     amount > 0 ? "🧾 *Comprobante de pago*" : "📋 *Estado de cuenta*",
     `📅 ${amount > 0 ? "Fecha del abono" : "Fecha"}: ${fmtDate(date)}`,
     `👤 Cliente: ${name}`,
-    amount > 0 ? `💵 Pago recibido: *${money(amount)}*` : "",
+    amount > 0 ? `💵 Pago recibido: *${money(amount)}*${MS[method] ? " - " + MS[method] : ""}` : "",
     "", "Préstamos:", lines,
     ...(abonos ? ["", "Abonos:", abonos] : []),
     "",
-    remaining > 0 ? `📌 Saldo pendiente: *${money(remaining)}*` : "✅ *Cuenta saldada. ¡Gracias!*"
+    ...(totals ? [`Total préstamos: ${money(totals.loans)}`, `Total abonos: ${money(totals.paid)}`, `📌 Saldo total a pagar: *${money(totals.balance)}*`]
+               : [`📌 Saldo total a pagar: *${money(remaining)}*`]),
+    ...(remaining > 0 ? [] : ["✅ *Cuenta saldada. ¡Gracias!*"])
   ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n");
+}
+
+/* ---------- Comprobante como imagen (PNG) ---------- */
+const BUSINESS = "AMBV MAO"; // nombre del negocio que aparece en la imagen
+
+function setReceipt(d) {
+  lastData = d; lastImg = null;
+  lastReceipt = receipt(d.name, d.amount, d.detail, d.remaining, d.date, d.hist, d.method, d.totals);
+}
+
+function receiptHTML(d) {
+  const paid = d.amount > 0;
+  const t = d.totals || { loans: 0, paid: 0, balance: d.remaining };
+  const loans = d.detail.length ? d.detail.map(x => `
+    <div class="r-row">
+      <div class="r-main">${esc(x.concept)}<small>${fmtDate(x.date)}${x.applied > 0 ? " · abono " + money(x.applied) : ""}</small></div>
+      <div class="r-amt">${money(x.rest)}</div>
+    </div>`).join("") : `<div class="r-row"><div class="r-main">Sin préstamos pendientes</div></div>`;
+  const abonos = d.hist.length ? `<div><p class="r-sec">Abonos</p>${d.hist.map(p => `
+    <div class="r-row">
+      <div class="r-main">${esc(MS[p.method] || "Abono")}<small>${fmtDate(dayOf(p))}</small></div>
+      <div class="r-amt">${money(p.amount)}</div>
+    </div>`).join("")}</div>` : "";
+  return `<div class="rcpt">
+    <div class="r-head">
+      <p class="r-biz">${esc(BUSINESS)}</p>
+      <p class="r-title">${paid ? "Comprobante de pago" : "Estado de cuenta"}</p>
+      <p class="r-date">${paid ? "Fecha del abono" : "Fecha"}: ${fmtDate(d.date)}</p>
+    </div>
+    <div class="r-body">
+      <div class="r-client"><small>Cliente</small><b>${esc(d.name)}</b></div>
+      ${paid ? `<div class="r-paid"><span>Pago recibido${MS[d.method] ? `<em>${esc(MS[d.method])}</em>` : ""}</span><strong>${money(d.amount)}</strong></div>` : ""}
+      <div><p class="r-sec">Préstamos</p>${loans}</div>
+      ${abonos}
+      <div class="r-tot">
+        <div class="r-row"><div class="r-main">Total préstamos</div><div class="r-amt">${money(t.loans)}</div></div>
+        <div class="r-row"><div class="r-main">Total abonos</div><div class="r-amt">${money(t.paid)}</div></div>
+      </div>
+    </div>
+    <div class="r-foot ${d.remaining > 0 ? "pend" : "ok"}">
+      <span>Saldo total a pagar${d.remaining > 0 ? "" : "<em>✅ Cuenta saldada</em>"}</span><strong>${money(t.balance)}</strong>
+    </div>
+    <p class="r-thanks">${d.remaining > 0 ? "Gracias por tu pago" : "¡Gracias!"} · ${esc(BUSINESS)}</p>
+  </div>`;
+}
+
+async function makeImage(d) {
+  if (!window.html2canvas) throw new Error("No se cargó html2canvas. Revisa tu conexión.");
+  const stage = document.createElement("div");
+  stage.className = "rcpt-stage"; stage.innerHTML = receiptHTML(d);
+  document.body.appendChild(stage);
+  try {
+    if (document.fonts?.ready) await document.fonts.ready;
+    const canvas = await html2canvas(stage, {
+      scale: Math.min(3, Math.max(2, window.devicePixelRatio || 2)),
+      backgroundColor: "#eef2f6", useCORS: true, logging: false, scrollX: 0, scrollY: 0
+    });
+    const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
+    if (!blob) throw new Error("No se pudo generar la imagen");
+    const slug = norm(d.name).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cliente";
+    return new File([blob], `${d.amount > 0 ? "comprobante" : "estado-cuenta"}-${slug}-${d.date}.png`, { type: "image/png" });
+  } finally { stage.remove(); }
+}
+
+function getImage() {
+  if (!lastImg) lastImg = makeImage(lastData).catch(e => { lastImg = null; throw e; });
+  return lastImg;
+}
+
+function downloadFile(file) {
+  const url = URL.createObjectURL(file), a = document.createElement("a");
+  a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+async function imageAction(btn, share) {
+  const label = btn.textContent; btn.disabled = true; btn.textContent = "Generando…";
+  try {
+    const file = await getImage();
+    if (share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: BUSINESS + " - " + lastData.name });
+    } else {
+      downloadFile(file);
+      toast(share ? "Tu dispositivo no permite compartir; imagen descargada" : "Imagen guardada");
+    }
+  } catch (e) {
+    if (e.name !== "AbortError") toast(e.message || "No se pudo crear la imagen");
+  } finally { btn.disabled = false; btn.textContent = label; }
 }
 
 /* ---------- Estado de conexión ---------- */
