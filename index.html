@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1720">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Mandados</title>
+<link rel="icon" id="appIcon">
+<link rel="manifest" id="appManifest">
+<style>
+:root{
+  --bg:#0f1720; --card:#182330; --line:#26364a; --text:#e8eef5; --mute:#8ea0b4;
+  --pend:#f2b84b; --ok:#5fd0a0; --com:#a99bff; --bad:#ff7a7a;
+  --r:18px; color-scheme:dark;
+  --font:"Sora",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.4}
+body{padding:env(safe-area-inset-top) 16px calc(96px + env(safe-area-inset-bottom));max-width:560px;margin:0 auto}
+.num,.big,.mid,.bal,.total strong{font-variant-numeric:tabular-nums}
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 0 10px}
+h1{font-size:1.25rem;margin:0;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1rem;margin:26px 0 10px;color:var(--mute);font-weight:600}
+.net{font-size:.75rem;color:var(--pend);border:1px solid var(--pend);border-radius:99px;padding:3px 10px}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:linear-gradient(160deg,var(--card),#131d29);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 6px 20px #0006;transition:transform .15s,border-color .15s}
+.card:active{transform:scale(.98)}
+.card.pend{border-top:3px solid var(--pend)} .card.cob{border-top:3px solid var(--ok)}
+.lbl{margin:0;font-size:.8rem;color:var(--mute)}
+.big{margin:8px 0 0;font-size:1.45rem;font-weight:700;letter-spacing:-.02em;overflow-wrap:anywhere}
+.pend .big{color:var(--pend)} .cob .big{color:var(--ok)}
+
+.debtors{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.debtors li{transition:transform .15s,border-color .15s;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.who{flex:1;min-width:0}
+.who b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who small{color:var(--mute)}
+.bal{font-weight:700;color:var(--pend)}
+.empty{color:var(--mute);text-align:center;padding:24px 0}
+
+button{font:inherit;color:inherit;border:0;border-radius:12px;min-height:48px;padding:0 18px;cursor:pointer}
+.primary{background:var(--ok);color:#06241a;font-weight:700}
+.ghost{background:transparent;border:1px solid var(--line)}
+.wa{background:#25d366;color:#04210f;font-weight:700}
+.pill{background:var(--ok);color:#06241a;font-weight:700;min-height:44px}
+button:active{transform:scale(.97)}
+.debtors li:active{transform:scale(.99);border-color:var(--pend)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--com);outline-offset:2px}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));background:var(--pend);color:#2b1c00;font-weight:700;box-shadow:0 6px 24px #0008;min-height:54px;padding:0 24px;border-radius:99px}
+
+dialog{max-height:92vh;overflow:auto;border:0;padding:0;background:var(--card);color:var(--text);width:100%;max-width:560px;margin:auto auto 0;border-radius:24px 24px 0 0;border-top:1px solid var(--line)}
+dialog::backdrop{background:#000a}
+dialog>form,dialog>div{padding:20px 18px calc(20px + env(safe-area-inset-bottom));display:grid;gap:14px}
+dialog[open]{animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+h3{margin:0;font-size:1.1rem}
+label{display:grid;gap:6px;font-size:.85rem;color:var(--mute)}
+input{font:inherit;font-size:1rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:0 14px;min-height:50px;width:100%}
+.row,.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.total{display:flex;justify-content:space-between;align-items:baseline;background:var(--bg);border-radius:12px;padding:14px;border:1px dashed var(--line)}
+.total strong{font-size:1.5rem;color:var(--pend)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{min-height:38px;font-size:.85rem;background:var(--bg);border:1px solid var(--line)}
+.items{margin:0;padding:0;list-style:none;font-size:.88rem;color:var(--mute);display:grid;gap:6px}
+.items li{display:flex;justify-content:space-between;gap:10px}
+.items small{display:block;font-size:.78rem;opacity:.85}
+.items span:last-child{color:var(--text);font-variant-numeric:tabular-nums}
+h4{margin:2px 0 -6px;font-size:.85rem;color:var(--mute);font-weight:600}
+pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:var(--bg);border-radius:12px;padding:14px;border:1px solid var(--line);max-height:38vh;overflow:auto}
+
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:.9rem;opacity:0;pointer-events:none;transition:.2s;z-index:99}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Mandados</h1>
+  <span id="net" class="net" hidden>Sin conexión</span>
+</header>
+
+<main>
+  <section class="cards" aria-label="Resumen">
+    <article class="card pend">
+      <p class="lbl">Pendiente por cobrar</p>
+      <p class="big" id="sPend">$0</p>
+    </article>
+    <article class="card cob">
+      <p class="lbl">Cobrado este mes</p>
+      <p class="big" id="sCob">$0</p>
+    </article>
+  </section>
+
+  <section aria-label="Deudores">
+    <h2>Quién me debe</h2>
+    <ul id="debtors" class="debtors"></ul>
+    <p id="empty" class="empty" hidden>Nadie te debe nada. Registra un mandado con el botón +.</p>
+  </section>
+</main>
+
+<button class="fab" id="btnNew" aria-label="Nuevo mandado">+ Mandado</button>
+
+<!-- Nuevo mandado -->
+<dialog id="dNew">
+  <form id="fNew" method="dialog" autocomplete="off">
+    <h3>Nuevo mandado</h3>
+    <label>Cliente
+      <input id="fClient" list="clientList" required placeholder="Nombre">
+      <datalist id="clientList"></datalist>
+    </label>
+    <label>Concepto
+      <input id="fConcept" required placeholder="Ej. Pago de recibo, compra en farmacia">
+    </label>
+    <label>Dinero prestado / gastado
+      <input id="fLent" type="number" inputmode="decimal" min="1" step="any" required placeholder="0">
+    </label>
+    <label>Fecha del préstamo
+      <input id="fDate" type="date" required>
+    </label>
+    <div class="actions">
+      <button type="button" class="ghost" data-close>Cancelar</button>
+      <button type="submit" class="primary">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Cobrar -->
+<dialog id="dPay">
+  <div id="payBody"></div>
+</dialog>
+
+<div id="toast" class="toast" role="status"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import {
+  initializeFirestore, persistentLocalCache, collection, onSnapshot, query, orderBy,
+  addDoc, doc, writeBatch, increment, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+// Credenciales del proyecto de Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBRhbzLFtKR41IXqLJlSSTkkbNvGpHBlCY",
+  authDomain: "cuenta-personal-da750.firebaseapp.com",
+  projectId: "cuenta-personal-da750",
+  storageBucket: "cuenta-personal-da750.firebasestorage.app",
+  messagingSenderId: "332207701046",
+  appId: "1:332207701046:web:8a46f21530e809839dec97",
+  measurementId: "G-9WZ73BQZSH"
+};
+
+// Formato de dinero (cámbialo a tu país)
+const LOCALE = "es-CO";
+const CURRENCY = "COP";
+
+/* ---------- Ícono y manifest (PWA sin archivos externos) ---------- */
+const icon = "data:image/svg+xml," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0f1720"/><circle cx="32" cy="32" r="19" fill="#f2b84b"/></svg>');
+document.getElementById("appIcon").href = icon;
+document.getElementById("appManifest").href = URL.createObjectURL(new Blob([JSON.stringify({
+  name: "Mandados", short_name: "Mandados", display: "standalone",
+  background_color: "#0f1720", theme_color: "#0f1720",
+  icons: [{ src: icon, sizes: "any", type: "image/svg+xml", purpose: "any maskable" }]
+})], { type: "application/manifest+json" }));
+
+const app = initializeApp(firebaseConfig);
+// Caché local: funciona sin conexión y sincroniza al volver internet
+const db = initializeFirestore(app, { localCache: persistentLocalCache() });
+
+const $ = s => document.querySelector(s);
+const money = n => new Intl.NumberFormat(LOCALE, { style: "currency", currency: CURRENCY, maximumFractionDigits: 0 }).format(n || 0);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const norm = s => s.trim().toLowerCase();
+const dateOf = x => x?.toDate?.() || new Date();
+const sameMonth = d => { const n = new Date(); return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear(); };
+
+const ymd = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const today = () => ymd(new Date());
+const fmtDate = s => new Date(s + "T12:00:00").toLocaleDateString(LOCALE, { day: "numeric", month: "short", year: "numeric" });
+const dayOf = x => x.date || ymd(dateOf(x.createdAt)); // registros viejos usan su fecha de creación
+const byDay = (a, b) => dayOf(a).localeCompare(dayOf(b));
+
+let errands = [], payments = [], currentKey = null;
+
+function toast(t) {
+  const el = $("#toast"); el.textContent = t; el.classList.add("show");
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("show"), 2400);
+}
+
+/* ---------- Datos en tiempo real ---------- */
+const onErr = e => toast("Error: " + e.message);
+onSnapshot(query(collection(db, "mandados"), orderBy("createdAt", "asc")),
+  s => { errands = s.docs.map(d => ({ id: d.id, ...d.data() })).sort(byDay); render(); }, onErr);
+onSnapshot(query(collection(db, "pagos"), orderBy("createdAt", "asc")),
+  s => { payments = s.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, onErr);
+
+const pendingOf = e => Math.max(0, e.total - (e.paid || 0));
+
+function groups() {
+  const m = new Map();
+  for (const e of errands) {
+    const k = norm(e.client);
+    const g = m.get(k) || { key: k, name: e.client, balance: 0, count: 0 };
+    const p = pendingOf(e);
+    g.balance += p; if (p > 0) g.count++;
+    m.set(k, g);
+  }
+  return [...m.values()];
+}
+
+/* ---------- Dashboard ---------- */
+function render() {
+  const gs = groups();
+  const debtors = gs.filter(g => g.balance > 0).sort((a, b) => b.balance - a.balance);
+  $("#sPend").textContent = money(debtors.reduce((s, g) => s + g.balance, 0));
+  $("#sCob").textContent = money(payments.filter(p => sameMonth(new Date(dayOf(p) + "T12:00:00"))).reduce((s, p) => s + p.amount, 0));
+
+  $("#debtors").innerHTML = debtors.map(g => `
+    <li>
+      <div class="who"><b>${esc(g.name)}</b><small>${g.count} mandado${g.count > 1 ? "s" : ""} pendiente${g.count > 1 ? "s" : ""}</small></div>
+      <span class="bal">${money(g.balance)}</span>
+      <button class="pill" data-pay="${esc(g.key)}">Cobrar</button>
+    </li>`).join("");
+  $("#empty").hidden = debtors.length > 0;
+  $("#clientList").innerHTML = gs.map(g => `<option value="${esc(g.name)}">`).join("");
+  if ($("#dPay").open && currentKey) renderPay(); // refresca el saldo en vivo
+}
+
+$("#debtors").addEventListener("click", e => {
+  const k = e.target.dataset.pay; if (k === undefined) return;
+  currentKey = k; lastReceipt = null; renderPay(); $("#dPay").showModal();
+});
+
+/* ---------- Nuevo mandado ---------- */
+const dNew = $("#dNew");
+$("#btnNew").onclick = () => { $("#fNew").reset(); $("#fDate").max = $("#fDate").value = today(); dNew.showModal(); };
+document.addEventListener("click", e => { if (e.target.closest("[data-close]")) e.target.closest("dialog").close(); });
+
+$("#fNew").addEventListener("submit", () => {
+  const lent = +$("#fLent").value || 0;
+  addDoc(collection(db, "mandados"), {
+    client: $("#fClient").value.trim(), concept: $("#fConcept").value.trim(),
+    lent, total: lent, paid: 0, date: $("#fDate").value || today(), createdAt: serverTimestamp()
+  }).catch(onErr);
+  toast("Mandado guardado");
+});
+
+/* ---------- Cobrar ---------- */
+let lastReceipt = null;
+const clientErrands = k => errands.filter(e => norm(e.client) === k && pendingOf(e) > 0);
+
+function renderPay() {
+  const list = clientErrands(currentKey);
+  const name = list[0]?.client || errands.find(e => norm(e.client) === currentKey)?.client || "";
+  const balance = list.reduce((s, e) => s + pendingOf(e), 0);
+  const body = $("#payBody");
+
+  if (lastReceipt) {
+    body.innerHTML = `
+      <h3>Pago registrado</h3>
+      <pre class="msg">${esc(lastReceipt)}</pre>
+      <div class="actions">
+        <button class="ghost" id="bCopy">Copiar</button>
+        <button class="wa" id="bWa">WhatsApp</button>
+      </div>
+      <button class="ghost" data-close>Cerrar</button>`;
+    $("#bCopy").onclick = () => navigator.clipboard.writeText(lastReceipt).then(() => toast("Copiado"));
+    $("#bWa").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(lastReceipt), "_blank");
+    return;
+  }
+
+  const keep = $("#pAmt")?.value, keepDate = $("#pDate")?.value;
+  const hist = payments.filter(p => p.key === currentKey).sort(byDay);
+  body.innerHTML = `
+    <h3>${esc(name)}</h3>
+    <h4>Préstamos pendientes</h4>
+    <ul class="items">${list.map(e => `<li><span>${esc(e.concept)}<small>${fmtDate(dayOf(e))}</small></span><span>${money(pendingOf(e))}</span></li>`).join("")}</ul>
+    ${hist.length ? `<h4>Historial de abonos</h4>
+    <ul class="items">${hist.map(p => `<li><span>${fmtDate(dayOf(p))}</span><span>${money(p.amount)}</span></li>`).join("")}</ul>` : ""}
+    <div class="total"><span>Saldo actual</span><strong>${money(balance)}</strong></div>
+    <label>Monto recibido
+      <input id="pAmt" type="number" inputmode="decimal" min="0" max="${balance}" step="any" placeholder="0" value="${keep ?? ""}">
+    </label>
+    <label>Fecha del abono
+      <input id="pDate" type="date" max="${today()}" value="${keepDate || today()}">
+    </label>
+    <div class="chips">
+      <button type="button" data-frac="1">Todo</button>
+      <button type="button" data-frac=".5">La mitad</button>
+    </div>
+    <div class="actions">
+      <button class="ghost" id="bStmt">Estado de cuenta</button>
+      <button class="primary" id="bPay">Registrar pago</button>
+    </div>
+    <button class="ghost" data-close>Cerrar</button>`;
+
+  body.querySelectorAll("[data-frac]").forEach(b =>
+    b.onclick = () => { $("#pAmt").value = Math.round(balance * +b.dataset.frac); });
+  $("#bPay").onclick = () => pay(list, name, balance);
+  $("#bStmt").onclick = () => { lastReceipt = receipt(name, 0, list.map(e => ({ concept: e.concept, date: dayOf(e), applied: 0, rest: pendingOf(e) })), balance, today(), hist); renderPay(); };
+}
+
+function pay(list, name, balance) {
+  const amount = Math.min(+$("#pAmt").value || 0, balance);
+  if (amount <= 0) return toast("Escribe un monto válido");
+  const date = $("#pDate").value || today();
+
+  // El abono se aplica primero a los mandados más antiguos
+  let left = amount; const batch = writeBatch(db), detail = [];
+  for (const e of list) {
+    if (left <= 0) break;
+    const d = Math.min(left, pendingOf(e));
+    batch.update(doc(db, "mandados", e.id), { paid: increment(d) });
+    detail.push({ concept: e.concept, date: dayOf(e), applied: d, rest: pendingOf(e) - d });
+    left -= d;
+  }
+  batch.set(doc(collection(db, "pagos")), { client: name, key: currentKey, amount, date, createdAt: serverTimestamp() });
+  batch.commit().catch(onErr); // sin await: también funciona sin conexión
+
+  lastReceipt = receipt(name, amount, detail, balance - amount, date);
+  toast(balance - amount <= 0 ? "Cuenta saldada" : "Pago registrado");
+  renderPay();
+}
+
+/* ---------- Comprobante WhatsApp ---------- */
+function receipt(name, amount, detail, remaining, date, hist = []) {
+  const lines = detail.map(d => `• ${fmtDate(d.date)} · ${d.concept}: ` +
+    (d.applied > 0 ? `abono ${money(d.applied)} (queda ${money(d.rest)})` : money(d.rest))).join("\n");
+  const abonos = hist.map(p => `• ${fmtDate(dayOf(p))}: ${money(p.amount)}`).join("\n");
+  return [
+    amount > 0 ? "🧾 *Comprobante de pago*" : "📋 *Estado de cuenta*",
+    `📅 ${amount > 0 ? "Fecha del abono" : "Fecha"}: ${fmtDate(date)}`,
+    `👤 Cliente: ${name}`,
+    amount > 0 ? `💵 Pago recibido: *${money(amount)}*` : "",
+    "", "Préstamos:", lines,
+    ...(abonos ? ["", "Abonos:", abonos] : []),
+    "",
+    remaining > 0 ? `📌 Saldo pendiente: *${money(remaining)}*` : "✅ *Cuenta saldada. ¡Gracias!*"
+  ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n");
+}
+
+/* ---------- Estado de conexión ---------- */
+const netEl = $("#net");
+const net = () => netEl.hidden = navigator.onLine;
+addEventListener("online", net); addEventListener("offline", net); net();
+</script>
+</body>
+</html>
