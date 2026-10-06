@@ -204,6 +204,110 @@ dialog .hist li{background:var(--bg)}
 .r-foot{margin-top:14px;background:#10285f;border-top:5px solid #ffc933;border-radius:36px 36px 0 0;padding:14px 20px 16px;text-align:center}
 .r-foot .a{font-size:1.25rem;font-weight:700;color:#ffc933}
 .r-foot .b{margin-top:2px;font-size:.8rem;letter-spacing:.06em;color:#dbe6ff}
+/* ===== Comprobante de registro: diseño premium (fondo azul con ondas doradas, tarjeta blanca, relieve 3D) ===== */
+.rcpt.reg{position:relative;width:480px;min-height:720px;background:#0a1f55;color:#10285f;overflow:hidden}
+.rg-bg{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+.rg-in{position:relative;z-index:1;padding:56px 22px 26px;display:flex;flex-direction:column;min-height:720px}
+.rg-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+.rg-tl{min-width:0;flex:1;margin-left:44px;margin-top:16px;transform:translateY(-15px)}
+.rcpt.rg-2c .rg-tl{margin-left:98px;margin-top:20px}
+.rcpt.rg-2c .rg-title span{display:inline}
+.rcpt.rg-2c .rg-title{line-height:1.05}
+.rcpt.rg-2c .rg-sw{margin:-2px 0 4px 18px}
+.rcpt.rg-2c .rg-bag{width:100px;height:108px;margin:-6px 30px 0 0}
+.rcpt.rg-2c .rg-bag svg{width:100px;height:108px}
+.rcpt.rg-2c .rg-date{margin-top:14px}
+.rg-biz{display:block;padding-left:20px;font-size:1.7rem;line-height:1.1;font-weight:700;font-style:italic;color:#ffd23f;letter-spacing:.02em;transform:rotate(-4deg);transform-origin:left bottom;text-shadow:0 0 12px rgba(255,201,51,.55),0 2px 4px rgba(0,0,0,.45)}
+.rg-sw{display:block;width:210px;height:18px;margin:-2px 0 6px 18px}
+.rg-title{margin:0;font-family:"Nunito",system-ui,sans-serif;font-size:2.1rem;line-height:1.1;font-weight:800;color:#fff;letter-spacing:-.02em;white-space:nowrap;text-shadow:0 3px 8px rgba(0,0,0,.45)}
+.rg-title span{display:block;color:#ffd23f;text-shadow:0 0 16px rgba(255,201,51,.5),0 3px 8px rgba(0,0,0,.45)}
+.rg-bag{flex:none;width:118px;height:128px;margin:-6px -4px 0 0}
+.rg-bag svg{display:block;width:118px;height:128px}
+/* tarjeta FECHA: sobresale de la tarjeta blanca sin tapar el título */
+.rg-date{position:relative;z-index:3;display:flex;align-items:center;gap:14px;width:max-content;max-width:96%;margin:20px 0 0 8px;padding:10px 26px 10px 10px;border-radius:44px;background:linear-gradient(180deg,#fff0a0 0%,#ffd23f 45%,#f5ac00 100%);overflow:hidden;box-shadow:0 12px 22px rgba(0,0,0,.38)}
+.rg-dic{flex:none;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,#ffe68a,#f3a712 80%);box-shadow:0 3px 6px rgba(120,70,0,.35)}
+.rg-sep{flex:none;width:2px;align-self:stretch;margin:6px 0;background:#5b9be8;border-radius:2px}
+.rg-date .rg-sep{background:#6fa4ee}
+.rg-lb{display:block;font-size:.95rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1559d6;line-height:1.1}
+.rg-date b{display:block;font-size:1.72rem;line-height:1.15;font-weight:900;color:#0b1c45;white-space:nowrap}
+.rg-card{position:relative;z-index:2;margin-top:-40px;padding:58px 14px 24px;border-radius:32px;background:#ffffff;border-bottom:4px solid #ffc933;box-shadow:0 18px 34px rgba(0,0,0,.45);overflow:hidden;display:grid;gap:12px}
+.rg-gold{position:absolute;right:0;bottom:0;width:62%;height:46px;display:block;z-index:0}
+.rg-row{position:relative;z-index:1;display:flex;align-items:center;gap:14px;padding:14px 16px 14px 14px;border-radius:24px;background:#f0f7ff;box-shadow:none;overflow:hidden}
+.rg-ic{flex:none;width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 28%,#2a62c4,#0d2a66 70%,#081a45);border:4px solid #ffc933;box-shadow:0 5px 10px rgba(11,28,69,.4)}
+.rg-tx{min-width:0;flex:1}
+.rg-sub{display:block;font-size:1.05rem;font-weight:700;color:#1559d6;line-height:1.15;margin-top:2px}
+.rg-v{display:block;font-size:1.75rem;line-height:1.15;font-weight:900;color:#0b1c45;overflow-wrap:anywhere}
+.rg-lb+.rg-v.hand{margin-top:6px}
+.rg-v.rg-cv{margin-top:3px;line-height:1.1}
+.rg-v.hand{font-family:"Kalam","Segoe Print","Comic Sans MS",cursive;font-weight:700;font-size:2rem;line-height:1.1}
+.rg-val{position:relative;z-index:1;display:flex;align-items:center;gap:14px;padding:16px 16px 18px 14px;border-radius:26px;background:#12337a;box-shadow:none;overflow:hidden}
+.rg-val .rg-sep{background:#ffc933}
+.rg-val .rg-tx{display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.rg-val .rg-lb{color:#cfe0ff;font-size:.95rem;margin-bottom:6px}
+.rg-pill{display:block;max-width:100%;padding:6px 24px 8px;border-radius:99px;overflow:hidden;background:linear-gradient(180deg,#ffe680 0%,#ffd23f 55%,#f5ac00 100%);font-size:2.05rem;line-height:1.2;font-weight:900;color:#0b1c45;white-space:nowrap;text-align:center}
+.rg-foot{margin-top:auto;padding-top:26px;text-align:center}
+.rg-thx{display:inline-flex;align-items:center;gap:12px;font-family:"Kalam","Segoe Print","Comic Sans MS",cursive;font-size:1.65rem;font-weight:700;color:#ffd23f;text-shadow:0 0 12px rgba(255,201,51,.5),0 2px 4px rgba(0,0,0,.4)}
+.rg-thx svg{width:34px;height:34px;flex:none}
+.rg-nm{margin-top:2px;font-size:1rem;font-weight:800;letter-spacing:.12em;color:#bcd2f7}
+/* ===== Comprobantes de abono / estado de cuenta: misma línea gráfica AMBV MAO (1 columna o 2 columnas según la cantidad de datos) ===== */
+.rg-two{display:flex;align-items:stretch}
+.rg-pn{flex:1;min-width:0;border-radius:22px;padding:12px;background:#f0f7ff;position:relative;z-index:1;overflow:hidden}
+.rg-pn.gr{background:#f1fbe9}
+.rg-two .rg-pn+.rg-pn{margin-left:12px}
+.rg-ph{display:flex;align-items:center;margin-bottom:10px}
+.rg-pi{flex:none;width:38px;height:38px;border-radius:50%;background:#cfe0fb;display:flex;align-items:center;justify-content:center;margin-right:10px}
+.rg-pi svg{width:24px;height:24px}
+.gr .rg-pi{background:#c4ecab}
+.rg-pt{font-family:"Kalam","Segoe Print","Comic Sans MS",cursive;font-weight:700;font-size:1.1rem;letter-spacing:.02em;color:#10285f;border-bottom:3px solid #3a86ef;line-height:1.25}
+.gr .rg-pt{border-bottom-color:#2fb344}
+.rg-it{display:flex;align-items:center;justify-content:space-between;background:#dce9fb;border-radius:12px;padding:8px 10px;margin-bottom:8px}
+.gr .rg-it{background:#e0f4d2}
+.rg-it .t{min-width:0;flex:1;margin-right:8px;overflow-wrap:anywhere}
+.rg-it b{display:block;font-size:.95rem;font-weight:800;color:#0b1c45;line-height:1.2}
+.rg-it small{display:block;font-size:.74rem;font-weight:700;color:#2c4a8f;line-height:1.2;margin-top:2px}
+.rg-ip{flex:none;background:#ffe38a;border-radius:99px;padding:4px 11px;font-weight:900;font-size:.92rem;color:#0b1c45;white-space:nowrap}
+.gr .rg-ip{background:#c6f09c}
+.rg-pf{display:flex;justify-content:space-between;align-items:baseline;border-top:2px dashed #a9c6ef;padding-top:8px;margin-top:2px;font-weight:800;font-size:.92rem;color:#10285f}
+.rg-pf strong{font-weight:900;font-size:1.05rem;color:#0b1c45;margin-left:8px;white-space:nowrap}
+.rg-pf small{display:block;font-size:.74rem;font-weight:700;opacity:.85}
+.gr .rg-pf{border-top-color:#9bd67f;color:#14532d}
+.rg-tots{position:relative;z-index:1;background:#e3eefb;border-radius:18px;padding:6px 16px}
+.rg-tr{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;font-weight:800;font-size:1.05rem;color:#10285f}
+.rg-tr+.rg-tr{border-top:2px solid #a9c6ef}
+.rg-tr strong{font-weight:900;color:#0b1c45}
+.rg-sal{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;background:#ffd54a;border-radius:22px;padding:10px 12px;overflow:hidden}
+.rg-sal.ok{background:#b9ecc6}
+.rg-sl{display:flex;align-items:center;min-width:0;font-family:"Kalam","Segoe Print","Comic Sans MS",cursive;font-weight:700;font-size:1.2rem;line-height:1.1;color:#0b1c45}
+.rg-sl svg{flex:none;margin-right:8px;width:38px;height:38px}
+.rg-sl em{display:block;font-style:normal;font-family:"Nunito",system-ui,sans-serif;font-size:.78rem;font-weight:800;color:#0b3d22;margin-top:2px}
+.rg-big{flex:none;margin-left:8px;background:#0b1c45;color:#ffd54a;border-radius:14px;padding:6px 16px;font-weight:900;font-size:1.5rem;white-space:nowrap}
+.rg-sal.ok .rg-big{color:#b9ecc6}
+.rg-vs{display:block;margin-top:7px;font-size:.85rem;font-weight:700;color:#cfe0ff}
+/* ===== Plantilla ancha (2 columnas): tabla más amplia y holgada; el fondo, la tarjeta flotante y el encabezado no cambian ===== */
+.rcpt.rg-2c .rg-in{padding-left:14px;padding-right:14px}
+.rcpt.rg-2c .rg-card{padding-left:10px;padding-right:10px;gap:14px}
+.rcpt.rg-2c .rg-two .rg-pn+.rg-pn{margin-left:10px}
+.rcpt.rg-2c .rg-pn{padding:14px 10px 16px;border-radius:24px}
+.rcpt.rg-2c .rg-ph{margin-bottom:14px}
+.rcpt.rg-2c .rg-pi{width:44px;height:44px;margin-right:12px}
+.rcpt.rg-2c .rg-pi svg{width:28px;height:28px}
+.rcpt.rg-2c .rg-pt{font-size:1.5rem}
+.rcpt.rg-2c .rg-it{padding:14px 14px;margin-bottom:12px;border-radius:14px}
+.rcpt.rg-2c .rg-it .t{margin-right:12px}
+.rcpt.rg-2c .rg-it b{font-size:1.32rem}
+.rcpt.rg-2c .rg-it small{font-size:1.02rem;font-weight:800;margin-top:3px}
+.rcpt.rg-2c .rg-ip{padding:7px 16px;font-size:1.28rem}
+.rcpt.rg-2c .rg-pf{padding-top:12px;margin-top:4px;font-size:1.25rem}
+.rcpt.rg-2c .rg-pf strong{font-size:1.5rem}
+.rcpt.rg-2c .rg-pf small{font-size:1.02rem}
+.rcpt.rg-2c .rg-tots{padding:8px 18px;border-radius:20px}
+.rcpt.rg-2c .rg-tr{padding:9px 0;font-size:1.35rem}
+.rcpt.rg-2c .rg-sal{padding:12px 14px;border-radius:24px}
+.rcpt.rg-2c .rg-sl{font-size:1.5rem}
+.rcpt.rg-2c .rg-sl svg{width:42px;height:42px}
+.rcpt.rg-2c .rg-big{padding:7px 18px;font-size:1.9rem}
+.rcpt.rg-2c .rg-row .rg-lb{font-size:1.05rem}
+.rcpt.rg-2c .rg-row .rg-v.hand{font-size:2.25rem}
 .toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:99px;font-size:.9rem;opacity:0;pointer-events:none;transition:.2s;z-index:99}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -883,53 +987,97 @@ $("#payBody").addEventListener("click", e => {
   op === "edit" ? openEdit(t, b.dataset.id) : remove(t, b.dataset.id);
 });
 
-/* Comparte UN solo registro como imagen (concepto, monto y fecha de ese ítem); sin saldos ni otros préstamos */
-function loanItemHTML(client, concept, amount, date) {
-  const row = (ic, label, val) => `<div class="r-it"><div class="r-t"><small>${ic} ${label}</small><b>${esc(val)}</b></div></div>`;
-  return `<div class="rcpt">
-    <div class="r-head">
-      <div class="r-hl">
-        <p class="r-biz hand">${esc(BUSINESS)}</p>
-        <p class="r-tw"><span class="r-title hand">Comprobante de registro</span></p>
-        <p class="r-date">${IC.cal}<span><small>Fecha</small><b>${fmtDate(date)}</b></span></p>
+const RG = {
+  cal: '<svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="#0b1c45" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="26" height="23" rx="5"/><path d="M4 14h26M11 3.5v6M23 3.5v6"/><path d="M10 19.5h.01M17 19.5h.01M24 19.5h.01M10 25h.01M17 25h.01M24 25h.01" stroke-width="3.4"/></svg>',
+  user: '<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="12" r="6.5"/><path d="M5.5 31c1.2-7 6.4-9.8 12.5-9.8S29.3 24 30.5 31z"/></svg>',
+  card: '<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="28" height="20" rx="4.5"/><path d="M4 14.5h28M9 22.5h7"/><circle cx="26" cy="22.5" r="1.6" fill="#fff" stroke="none"/></svg>',
+  coin: '<svg width="68" height="68" viewBox="0 0 68 68"><defs><radialGradient id="rgc1" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#2a62c4"/><stop offset=".7" stop-color="#0d2a66"/><stop offset="1" stop-color="#081a45"/></radialGradient><radialGradient id="rgc2" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#fff0a0"/><stop offset=".55" stop-color="#ffd23f"/><stop offset="1" stop-color="#e29a00"/></radialGradient></defs><circle cx="34" cy="34" r="32" fill="url(#rgc1)" stroke="#ffc933" stroke-width="3"/><circle cx="34" cy="34" r="24.5" fill="url(#rgc2)" stroke="#cf8a00" stroke-width="2"/><text x="34" y="45" text-anchor="middle" font-size="31" font-weight="900" fill="#0b1c45" font-family="Arial,sans-serif">$</text></svg>',
+  bag: '<svg viewBox="0 0 140 150" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="rgb1" cx=".34" cy=".3" r=".85"><stop offset="0" stop-color="#fff3a8"/><stop offset=".35" stop-color="#ffd23f"/><stop offset=".78" stop-color="#f0a200"/><stop offset="1" stop-color="#c17700"/></radialGradient><linearGradient id="rgb2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe27a"/><stop offset="1" stop-color="#e29a00"/></linearGradient><linearGradient id="rgb3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d4fa8"/><stop offset="1" stop-color="#0a1f55"/></linearGradient><radialGradient id="rgb4" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd23f" stop-opacity=".75"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></radialGradient></defs><ellipse cx="70" cy="140" rx="62" ry="12" fill="url(#rgb4)"/><path d="M70 38C30 52 8 88 14 116c4 20 28 28 56 28s52-8 56-28c6-28-16-64-56-78z" fill="url(#rgb1)" stroke="#b87400" stroke-width="2.2" stroke-linejoin="round"/><path d="M42 12l10 14 8-18 10 16 10-16 8 18 10-14-8 30c-10 6-30 6-40 0z" fill="url(#rgb2)" stroke="#b87400" stroke-width="2.2" stroke-linejoin="round"/><path d="M47 40c13 8 33 8 46 0l2 10c-14 8-36 8-50 0z" fill="url(#rgb3)" stroke="#06143a" stroke-width="1.6" stroke-linejoin="round"/><ellipse cx="38" cy="92" rx="10" ry="26" transform="rotate(14 38 92)" fill="#fff" opacity=".28"/><text x="72" y="116" text-anchor="middle" font-size="58" font-weight="900" fill="#06143a" opacity=".35" font-family="Arial,sans-serif">$</text><text x="70" y="113" text-anchor="middle" font-size="58" font-weight="900" fill="#10285f" font-family="Arial,sans-serif">$</text><path d="M114 30l12-9M122 46l14-3M108 16l4-12" stroke="#ffd23f" stroke-width="4.5" stroke-linecap="round" fill="none"/></svg>',
+  spark: '<svg viewBox="0 0 34 34" fill="none" stroke="#ffd23f" stroke-width="3.2" stroke-linecap="round"><path d="M4 17h10M8 6l8 7M8 28l8-7"/></svg>',
+  sparkR: '<svg viewBox="0 0 34 34" fill="none" stroke="#ffd23f" stroke-width="3.2" stroke-linecap="round"><path d="M30 17H20M26 6l-8 7M26 28l-8-7"/></svg>',
+  // Fondo: azul con degradado, ondas azules claras y ondas doradas (esquina superior izquierda, borde derecho y esquinas inferiores)
+  bg: '<svg class="rg-bg" viewBox="0 0 480 720" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rgg0" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="#0c2a6e"/><stop offset=".5" stop-color="#0a2159"/><stop offset="1" stop-color="#061442"/></linearGradient><linearGradient id="rgg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe27a"/><stop offset=".5" stop-color="#ffc933"/><stop offset="1" stop-color="#f09a00"/></linearGradient><linearGradient id="rgg2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1a4aa3" stop-opacity=".0"/><stop offset="1" stop-color="#2f6bd0" stop-opacity=".55"/></linearGradient></defs><rect width="480" height="720" fill="url(#rgg0)"/><path d="M0 120C90 95 150 160 260 150S420 90 480 130V0H0z" fill="url(#rgg2)" opacity=".7"/><path d="M0 250C110 210 200 300 320 270S440 200 480 215V420C380 380 300 450 190 430S60 380 0 410z" fill="#12388a" opacity=".35"/><path d="M0 560C100 520 190 610 310 585S430 530 480 548V720H0z" fill="#12388a" opacity=".45"/><path d="M0 0H58C42 26 22 46 0 58z" fill="url(#rgg1)"/><path d="M0 74C30 60 56 40 72 12" stroke="#ffd23f" stroke-width="2.2" fill="none" opacity=".65"/><path d="M480 316C458 338 432 352 400 366L480 354z" fill="url(#rgg1)" opacity=".95"/><path d="M0 668C58 684 112 706 150 720H0z" fill="url(#rgg1)"/><path d="M0 650C70 668 130 700 176 720" stroke="#ffd23f" stroke-width="2.5" fill="none" opacity=".7"/><path d="M480 676C410 694 340 708 276 720H480z" fill="url(#rgg1)"/><path d="M480 658C400 676 330 696 262 720" stroke="#ffd23f" stroke-width="2.5" fill="none" opacity=".7"/></svg>',
+  swoosh: '<svg class="rg-sw" viewBox="0 0 210 18" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rgs1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffd23f" stop-opacity=".1"/><stop offset=".3" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f" stop-opacity=".9"/></linearGradient></defs><path d="M2 14C60 6 130 3 208 3C140 8 70 12 2 14z" fill="url(#rgs1)"/></svg>',
+  // Borde dorado curvo en la base de la tarjeta blanca
+  gold: '<svg class="rg-gold" viewBox="0 0 300 46" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rgd1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffd23f" stop-opacity="0"/><stop offset=".55" stop-color="#ffd23f" stop-opacity=".9"/><stop offset="1" stop-color="#f5ac00"/></linearGradient></defs><path d="M0 46C110 44 230 34 300 0V46z" fill="url(#rgd1)"/></svg>'
+};
+
+/* Carcasa común de TODOS los comprobantes: fondo azul con ondas doradas, cabecera con saco de dinero, cápsula de fecha, tarjeta blanca y pie */
+function shell(o) {
+  const w = o.w || 480, minH = o.minH || 0;
+  return `<div class="rcpt reg${o.wide ? " rg-2c" : ""}" style="width:${w}px;min-height:${minH}px">
+    ${RG.bg}
+    <div class="rg-in" style="min-height:${minH}px">
+      <div class="rg-top">
+        <div class="rg-tl">
+          <span class="rg-biz">${esc(BUSINESS)}</span>
+          ${RG.swoosh}
+          <p class="rg-title">${o.t1}${o.wide ? " " : ""}<span>${o.t2}</span></p>
+        </div>
+        <div class="rg-bag">${RG.bag}</div>
       </div>
-      <div class="r-hr">${IC.bag}</div>
+      <div class="rg-date">
+        <span class="rg-dic">${RG.cal}</span><span class="rg-sep"></span>
+        <span><span class="rg-lb">${o.dl}</span><b>${o.dt}</b></span>
+      </div>
+      <div class="rg-card">
+        ${RG.gold}
+        ${o.body}
+      </div>
+      <div class="rg-foot">
+        <div class="rg-thx">${RG.spark}<span>¡Gracias por confiar!</span>${RG.sparkR}</div>
+        <p class="rg-nm">• ${esc(BUSINESS)} •</p>
+      </div>
     </div>
-    <div class="r-frame">
-      <div class="r-cli">
-        <span class="r-av">${IC.user}</span>
-        <div class="r-cn"><small>CLIENTE</small><b class="hand">${esc(client)}</b></div>
-      </div>
-      <div class="r-blk">
-        <div class="r-sh"><span class="r-ic">${IC.wallet}</span><span class="r-sn hand">REGISTRO</span></div>
-        <div class="r-it"><div class="r-t"><small>Concepto</small><b>${esc(concept)}</b></div><span class="r-pill">${money(amount)}</span></div>
-      </div>
-    </div>
-    <div class="r-foot"><p class="a hand">¡Gracias por confiar!</p><p class="b">• ${esc(BUSINESS)} •</p></div>
   </div>`;
 }
+const cliRow = name => `<div class="rg-row"><span class="rg-ic">${RG.user}</span><span class="rg-sep"></span><span class="rg-tx"><span class="rg-lb">Cliente</span><span class="rg-v hand">${esc(name)}</span></span></div>`;
+const conRow = (concept, sub = "") => `<div class="rg-row"><span class="rg-ic">${RG.card}</span><span class="rg-sep"></span><span class="rg-tx"><span class="rg-lb">Concepto de:</span><span class="rg-v rg-cv">${esc(concept)}</span>${sub ? `<span class="rg-sub">${sub}</span>` : ""}</span></div>`;
 
-async function loanItemImage(client, concept, amount, date) {
+/* Registro simple (1 solo ítem): plantilla vertical de 1 columna */
+function loanItemHTML(client, concept, amount, date, w = 480) {
+  return shell({ w, minH: Math.round(w * 1.5), t1: "Comprobante de", t2: "registro", dl: "Fecha", dt: fmtLong(date), body: `
+        ${cliRow(client)}
+        ${conRow(concept)}
+        <div class="rg-val">
+          ${RG.coin}<span class="rg-sep"></span>
+          <span class="rg-tx"><span class="rg-lb">Valor</span><span class="rg-pill">${money(amount)}</span></span>
+        </div>` });
+}
+
+/* Arma el stage fuera de pantalla probando anchos crecientes hasta que la altura no pase de la proporción 9:16 (WhatsApp / Historias).
+   La altura es la del contenido; si hay muchísimos datos se ensancha en vez de alargar. */
+async function stageFit(build, widths) {
   if (!window.html2canvas) throw new Error("No se cargó html2canvas. Revisa tu conexión.");
   const stage = document.createElement("div");
-  stage.className = "rcpt-stage"; stage.innerHTML = loanItemHTML(client, concept, amount, date);
-  document.body.appendChild(stage);
+  stage.className = "rcpt-stage"; document.body.appendChild(stage);
   try {
-    try {
+    try { // espera las tipografías (máx. 3 s) para medir con las fuentes definitivas
       await Promise.race([
-        Promise.all(["700 24px Kalam", "800 16px Nunito", "600 16px Nunito"].map(f => document.fonts.load(f))).then(() => document.fonts.ready),
+        Promise.all(["700 24px Kalam", "800 16px Nunito", "900 16px Nunito", "600 16px Nunito"].map(f => document.fonts.load(f))).then(() => document.fonts.ready),
         new Promise(r => setTimeout(r, 3000))
       ]);
     } catch {}
+    for (const w of widths) { stage.innerHTML = build(w); if (stage.firstElementChild.offsetHeight <= w * 16 / 9) break; }
+    return stage;
+  } catch (e) { stage.remove(); throw e; }
+}
+async function stageToFile(stage, name) {
+  try {
     const canvas = await html2canvas(stage, {
       scale: Math.min(3, Math.max(2, window.devicePixelRatio || 2)),
-      backgroundColor: "#ffffff", useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: Math.max(window.innerWidth, 800)
+      backgroundColor: "#ffffff", useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: Math.max(window.innerWidth, 1100)
     });
     const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
     if (!blob) throw new Error("No se pudo generar la imagen");
-    const slug = s => norm(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    return new File([blob], `registro-${slug(client) || "cliente"}-${slug(concept) || "item"}-${date}.png`, { type: "image/png" });
+    return new File([blob], name, { type: "image/png" });
   } finally { stage.remove(); }
+}
+
+async function loanItemImage(client, concept, amount, date) {
+  const slug = x => norm(x).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const stage = await stageFit(w => loanItemHTML(client, concept, amount, date, w), [480, 540, 620, 720]);
+  return stageToFile(stage, `registro-${slug(client) || "cliente"}-${slug(concept) || "item"}-${date}.png`);
 }
 
 async function shareLoanItem(btn, client, concept, amount, date) {
@@ -1080,93 +1228,62 @@ const IC = {
   coins: '<svg width="40" height="40" viewBox="0 0 40 40" stroke="#0b1c45" stroke-width="2" stroke-linejoin="round"><path d="M8 29v-6h24v6c0 2.8-5.4 5-12 5S8 31.8 8 29z" fill="#fff3b0"/><ellipse cx="20" cy="23" rx="12" ry="5" fill="#fff3b0"/><path d="M8 22v-6h24v6c0 2.8-5.4 5-12 5S8 24.8 8 22z" fill="#fff3b0"/><ellipse cx="20" cy="16" rx="12" ry="5" fill="#ffe27a"/></svg>'
 };
 
-function receiptHTML(d) {
-  const ok = d.remaining <= 0, t = d.totals, abono = d.amount > 0, dTxt = d.dateText || fmtLong(d.date);
-  const item = (title, sub, amt) => `
-    <div class="r-it"><div class="r-t"><b>${esc(title)}</b><small>${sub}</small></div><span class="r-pill">${money(amt)}</span></div>`;
-  // Con muchos registros la imagen se ensancha y las listas pasan a 2 columnas (la 1.ª mitad a la izquierda, la 2.ª a la derecha)
-  const two = abono; // con abono: dos columnas, DEBE a la izquierda y PAGO (cruce) a la derecha
-  const wide = !two && (d.detail.length > 6 || d.hist.length > 6);
-  const rows = (arr, mk) => {
-    const html = arr.map(mk);
-    if (!wide || html.length < 2) return html.join("");
-    const h = Math.ceil(html.length / 2);
-    return `<div class="r-grid"><div class="r-gc">${html.slice(0, h).join("")}</div><div class="r-gc">${html.slice(h).join("")}</div></div>`;
-  };
-  const sec = (cls, icon, title, inner) => `<div class="r-blk ${cls}"><div class="r-sh"><span class="r-ic">${icon}</span><span class="r-sn hand">${title}</span></div>${inner}</div>`;
+// ¿Mucha información? Con abono: más de un ítem en juego. Sin abono (estado de cuenta): deudas y abonos a la vez. Entonces se usan 2 columnas.
+const isMulti = d => d.amount > 0 ? d.detail.length > 1 : (d.detail.length > 0 && d.hist.length > 0 && d.detail.length + d.hist.length > 3);
+const receiptWidths = d => isMulti(d) ? [620, 700, 780, 880, 980] : [480, 540, 620, 720, 820];
+
+function receiptHTML(d, w) {
+  const ok = d.remaining <= 0, t = d.totals, abono = d.amount > 0, dTxt = d.dateText || fmtLong(d.date), multi = isMulti(d);
+  w = w || receiptWidths(d)[0];
   const payRows = d.detail.filter(x => x.status === "pago"), debeRows = d.detail.filter(x => x.status !== "pago");
-  const hasPaid = payRows.length > 0;
-  const paidItem = x => item(x.concept, fmtDate(x.date) + (x.applied < x.total ? " · préstamo " + money(x.total) : ""), x.applied);
-  // DEBE: muestra el valor reducido (lo que aún se debe) y la nota del abono aplicado
-  const debeItem = x => item(x.concept, fmtDate(x.date) + (x.applied > 0 ? " · abono " + money(x.applied) + " aplicado · préstamo " + money(x.total)
-    : (x.total - x.left > 0 ? " · préstamo " + money(x.total) + " · abonado " + money(x.total - x.left) : "")), x.left);
-  const sum = (arr, f) => arr.reduce((s, x) => s + f(x), 0);
-  const noPay = `<div class="r-it"><div class="r-t"><b>Ningún ítem cubierto por completo - Monto abonado: ${money(d.amount)}</b></div></div>`;
-  const twoCols = `<div class="r-two">
-        <div class="r-col">${sec("", IC.wallet, "DEBE (PENDIENTES)",
-          (debeRows.length ? rows(debeRows, debeItem) : `<div class="r-it"><div class="r-t"><b>Sin ítems pendientes</b></div></div>`) +
-          `<div class="r-ap"><span>Pendiente tras el abono</span><strong>${money(sum(debeRows, x => x.left))}</strong></div>`)}</div>
-        <div class="r-col">${sec("green", IC.hand, "PAGO (CRUCE)",
-          (hasPaid ? rows(payRows, paidItem) : noPay) +
-          `<div class="r-ap"><span>Monto abonado<small style="display:block;font-weight:700;font-size:.78em;line-height:1.25">${dTxt} • ${esc(mTxt(d.method, d.methodNote) || "Abono")}</small></span><strong>${money(d.amount)}</strong></div>`)}</div>
-      </div>`;
-  const none = `<div class="r-it"><div class="r-t"><b>Sin préstamos pendientes</b></div></div>`;
-  return `<div class="rcpt${wide ? " wide" : ""}${two ? " two" : ""}">
-    <div class="r-head">
-      <div class="r-hl">
-        <p class="r-biz hand">${esc(BUSINESS)}</p>
-        <p class="r-tw"><span class="r-title hand">${d.saved ? "Comprobante de pago" : "Estado de cuenta"}</span></p>
-        <p class="r-date">${IC.cal}<span><small>${abono ? "Fecha del abono" : "Fecha"}</small><b>${dTxt}</b></span></p>
-      </div>
-      <div class="r-hr"><p class="r-tag hand">¡Tu esfuerzo también cuenta!</p>${IC.bag}</div>
-    </div>
-    <div class="r-frame">
-      <div class="r-cli">
-        <span class="r-av">${IC.user}</span>
-        <div class="r-cn"><small>CLIENTE</small><b class="hand">${esc(d.name)}</b></div>
-        <p class="r-thx hand">¡Gracias por confiar!</p>
-      </div>
-      ${two ? twoCols : sec("", IC.wallet, "DEBE (PENDIENTES)", debeRows.length ? rows(debeRows, debeItem) : none)}
-      ${d.hist.length && !abono ? sec("green", IC.hand, abono ? "ABONOS ANTERIORES" : "ABONOS", rows(d.hist, p => item(mTxt(p.method, p.methodNote) || "Abono", fmtDate(dayOf(p)), p.amount))) : ""}
-      <div class="r-tot">
-        <span class="r-ti">${IC.list}</span>
-        <div class="r-tl">
-          <div class="r-tr hand"><span>Total préstamos</span><strong>${money(t.loans)}</strong></div>
-          <div class="r-tr hand"><span>Total abonos</span><strong>${money(t.paid)}</strong></div>
+  const sum = (arr, f) => arr.reduce((s, x) => s + f(x), 0), meth = mTxt(d.method, d.methodNote) || "Abono";
+  const it = (title, sub, amt) => `<div class="rg-it"><span class="t"><b>${esc(title)}</b>${sub ? `<small>${sub}</small>` : ""}</span><span class="rg-ip">${money(amt)}</span></div>`;
+  const none = txt => `<div class="rg-it"><span class="t"><b>${txt}</b></span></div>`;
+  const paidSub = x => fmtDate(x.date) + (x.applied < x.total ? " · préstamo " + money(x.total) : "");
+  // DEBE: valor reducido (lo que aún se debe) y nota del abono aplicado
+  const debeSub = x => fmtDate(x.date) + (x.applied > 0 ? " · abono " + money(x.applied) + " aplicado · préstamo " + money(x.total)
+    : (x.total - x.left > 0 ? " · préstamo " + money(x.total) + " · abonado " + money(x.total - x.left) : ""));
+  const pn = (cls, icon, title, inner, foot) => `<div class="rg-pn ${cls}"><div class="rg-ph"><span class="rg-pi">${icon}</span><span class="rg-pt">${title}</span></div>${inner}${foot || ""}</div>`;
+  const debeInner = debeRows.length ? debeRows.map(x => it(x.concept, debeSub(x), x.left)).join("") : none("Sin ítems pendientes");
+  const debeFoot = `<div class="rg-pf"><span>${abono ? "Pendiente tras el abono" : "Total pendiente"}</span><strong>${money(sum(debeRows, x => x.left))}</strong></div>`;
+  const debePanel = pn("", IC.wallet, "DEBE (PENDIENTES)", debeInner, debeFoot);
+
+  let main;
+  if (abono && multi) { // 2 columnas: DEBE (pendientes) | PAGO (cruce)
+    const payInner = payRows.length ? payRows.map(x => it(x.concept, paidSub(x), x.applied)).join("") : none(`Ningún ítem cubierto por completo`);
+    const payFoot = `<div class="rg-pf"><span>Monto abonado<small>${dTxt} • ${esc(meth)}</small></span><strong>${money(d.amount)}</strong></div>`;
+    main = `<div class="rg-two">${debePanel}${pn("gr", IC.hand, "PAGO (CRUCE)", payInner, payFoot)}</div>`;
+  } else if (abono) { // 1 columna: un solo ítem
+    const x = d.detail[0];
+    main = (x ? conRow(x.concept, esc(x.status === "pago" ? paidSub(x) : debeSub(x))) : "") + `
+        <div class="rg-val">
+          ${RG.coin}<span class="rg-sep"></span>
+          <span class="rg-tx"><span class="rg-lb">Monto abonado</span><span class="rg-pill">${money(d.amount)}</span><span class="rg-vs">${dTxt} • ${esc(meth)}</span></span>
+        </div>`;
+  } else { // estado de cuenta
+    const abPanel = d.hist.length ? pn("gr", IC.hand, "ABONOS", d.hist.map(q => it(mTxt(q.method, q.methodNote) || "Abono", fmtDate(dayOf(q)), q.amount)).join(""),
+      `<div class="rg-pf"><span>Total abonos</span><strong>${money(t.paid)}</strong></div>`) : "";
+    main = multi ? `<div class="rg-two">${debePanel}${abPanel}</div>` : debePanel + abPanel;
+  }
+  return shell({ w, wide: multi, t1: abono && d.saved ? "Comprobante de" : "Estado de", t2: abono && d.saved ? "pago" : "cuenta", dl: abono ? "Fecha del abono" : "Fecha", dt: dTxt, body: `
+        ${cliRow(d.name)}
+        ${main}
+        <div class="rg-tots">
+          <div class="rg-tr"><span>Total préstamos</span><strong>${money(t.loans)}</strong></div>
+          <div class="rg-tr"><span>Total abonos</span><strong>${money(t.paid)}</strong></div>
         </div>
-      </div>
-      <div class="r-sal${ok ? " ok" : ""}">
-        <div class="r-sl hand">${IC.coins}<span>Saldo ${abono ? "restante" : "total a pagar"}${ok ? "<em>✅ Cuenta saldada</em>" : ""}</span></div>
-        <span class="r-big">${money(t.balance)}</span>
-      </div>
-    </div>
-    <div class="r-foot"><p class="a hand">${ok ? "¡Gracias!" : "Gracias por tu pago"}</p><p class="b">• ${esc(BUSINESS)} •</p></div>
-  </div>`;
+        <div class="rg-sal${ok ? " ok" : ""}">
+          <div class="rg-sl">${IC.coins}<span>Saldo ${abono ? "restante" : "total a pagar"}${ok ? "<em>✅ Cuenta saldada</em>" : ""}</span></div>
+          <span class="rg-big">${money(t.balance)}</span>
+        </div>` });
 }
 
 const prevImg = () => `<img alt="Vista previa del comprobante" src="${lastImgUrl}">`;
 
 async function makeImage(d) {
-  if (!window.html2canvas) throw new Error("No se cargó html2canvas. Revisa tu conexión.");
-  const stage = document.createElement("div");
-  stage.className = "rcpt-stage"; stage.innerHTML = receiptHTML(d);
-  document.body.appendChild(stage);
-  try {
-    try { // espera las tipografías (máx. 3 s) para que la imagen salga con el diseño correcto
-      await Promise.race([
-        Promise.all(["700 24px Kalam", "800 16px Nunito", "600 16px Nunito"].map(f => document.fonts.load(f))).then(() => document.fonts.ready),
-        new Promise(r => setTimeout(r, 3000))
-      ]);
-    } catch {}
-    const canvas = await html2canvas(stage, {
-      scale: Math.min(3, Math.max(2, window.devicePixelRatio || 2)),
-      backgroundColor: "#ffffff", useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: Math.max(window.innerWidth, 800)
-    });
-    const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
-    if (!blob) throw new Error("No se pudo generar la imagen");
-    const slug = norm(d.name).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cliente";
-    return new File([blob], `${d.amount > 0 ? "comprobante" : "estado-cuenta"}-${slug}-${d.date}.png`, { type: "image/png" });
-  } finally { stage.remove(); }
+  const stage = await stageFit(w => receiptHTML(d, w), receiptWidths(d));
+  const slug = norm(d.name).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cliente";
+  return stageToFile(stage, `${d.amount > 0 ? "comprobante" : "estado-cuenta"}-${slug}-${d.date}.png`);
 }
 
 function getImage() {
