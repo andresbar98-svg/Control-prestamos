@@ -121,6 +121,23 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
 /* Comprobante (imagen) - diseño AMBV MAO */
 .rcpt-prev{text-align:center}
 .rcpt-prev img{display:block;margin:0 auto;width:auto;max-width:100%;max-height:46vh;border-radius:12px;border:1px solid var(--line)}
+/* Historial de abonos (lista resumida, cada fila abre su comprobante) */
+.hist{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.hist li{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;transition:transform .15s,border-color .15s}
+.hist li:active{transform:scale(.99);border-color:var(--ok)}
+.hist .main b{display:block;font-size:.95rem;color:var(--text);font-variant-numeric:tabular-nums}
+.hist .main small{display:block;color:var(--mute);font-size:.78rem;margin-top:2px}
+.hist .chev{color:var(--mute);font-size:1.4rem;line-height:1;flex:none}
+dialog .hist li{background:var(--bg)}
+#dPrev img{width:100%;max-height:none}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs button{min-height:40px;font-size:.85rem;background:transparent;color:var(--mute);border-radius:10px;padding:0 8px}
+.tabs button.on{background:var(--ok);color:#06241a;font-weight:700}
+/* Barra inferior de la ventana de cobro: queda a la vista al desplazar (pantalla 9:16) */
+.bar{position:sticky;bottom:0;z-index:2;display:grid;gap:8px;margin:0 -18px;padding:10px 18px calc(8px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);box-shadow:0 -8px 16px #0006}
+.bar .main button{min-height:54px;font-size:.98rem;font-weight:700}
+.bar .sec button{min-height:42px;font-size:.85rem}
+.btn-new{background:#14304d;color:#cfe6ff;border:1.5px solid #4aa3ff}
 .rcpt-stage{position:fixed;left:-10000px;top:0;width:max-content;background:#fff;pointer-events:none}
 .rcpt{width:480px;background:#fff;color:#10285f;font-family:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.25;text-align:left;overflow:hidden}
 .rcpt.wide{width:760px}
@@ -269,6 +286,7 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
     <ul id="debtors" class="debtors"></ul>
     <p id="empty" class="empty" hidden>Nadie te debe nada. Registra un mandado con el botón +.</p>
   </section>
+
 </main>
 
 <button class="fab" id="btnNew" aria-label="Nuevo mandado">+ Mandado</button>
@@ -276,7 +294,7 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
 <!-- Nuevo mandado -->
 <dialog id="dNew">
   <form id="fNew" method="dialog" autocomplete="off">
-    <h3>Nuevo mandado</h3>
+    <h3 id="nTitle">Nuevo mandado</h3>
     <label>Cliente
       <input id="fClient" list="clientList" required placeholder="Nombre">
       <datalist id="clientList"></datalist>
@@ -329,6 +347,21 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
     <div class="actions">
       <button type="button" class="ghost" data-close>Cancelar</button>
       <button type="submit" class="primary">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Corregir la fecha de un abono -->
+<dialog id="dDate">
+  <form id="fDateEdit" method="dialog" autocomplete="off">
+    <h3>Corregir fecha del abono</h3>
+    <p id="dtInfo" class="hint"></p>
+    <label>Fecha del abono
+      <input id="dtDate" type="date" required>
+    </label>
+    <div class="actions">
+      <button type="button" class="ghost" data-close>Cancelar</button>
+      <button type="submit" class="primary">Guardar fecha</button>
     </div>
   </form>
 </dialog>
@@ -409,11 +442,14 @@ const sameMonth = d => { const n = new Date(); return d.getMonth() === n.getMont
 
 const ymd = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 const today = () => ymd(new Date());
-const fmtDate = s => new Date(s + "T12:00:00").toLocaleDateString(LOCALE, { day: "numeric", month: "short", year: "numeric" });
+const MON = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sept", "oct", "nov", "dic"];
+const parts = s => { const [y, m, d] = String(s).slice(0, 10).split("-").map(Number); return { y, m: MON[(m || 1) - 1], d }; };
+const fmtDate = s => { const t = parts(s); return `${t.d} ${t.m} ${t.y}`; };          // "28 sept 2026"
+const fmtLong = s => { const t = parts(s); return `${t.d} de ${t.m} de ${t.y}`; };    // "28 de sept de 2026"
 const dayOf = x => x.date || ymd(dateOf(x.createdAt)); // registros viejos usan su fecha de creación
 const byDay = (a, b) => dayOf(a).localeCompare(dayOf(b));
 
-let errands = [], payments = [], currentKey = null;
+let errands = [], payments = [], currentKey = null, tab = "cobrar"; // tab: "cobrar" | "hist"
 
 function toast(t) {
   const el = $("#toast"); el.textContent = t; el.classList.add("show");
@@ -500,9 +536,16 @@ function render() {
   if ($("#dPay").open && currentKey) renderPay(); // refresca el saldo en vivo
 }
 
+/* ---------- Historial de abonos (por cliente, dentro de su ventana) ---------- */
+const methodOf = p => p.comprobante?.metodoPago || mTxt(p.method, p.methodNote) || "Abono";
+const histTitle = p => `${money(p.comprobante?.montoAbonado ?? p.amount)} · ${fmtDate(p.comprobante?.fechaISO || dayOf(p))}`;
+// Solo los abonos de ESE cliente (por su clave). Se incluyen los que conservan comprobante aunque sus préstamos ya se hayan borrado.
+const histOf = k => payments.map((p, i) => ({ p, i })).filter(x => x.p.key === k && (!x.p.settled || x.p.comprobante))
+  .sort((a, b) => dayOf(b.p).localeCompare(dayOf(a.p)) || b.i - a.i).map(x => x.p);
+
 $("#debtors").addEventListener("click", e => {
   const k = e.target.dataset.pay; if (k === undefined) return;
-  currentKey = k; lastReceipt = null; marks.clear(); draft = null; renderPay(); $("#dPay").showModal();
+  currentKey = k; tab = "cobrar"; lastReceipt = null; marks.clear(); draft = null; renderPay(); $("#dPay").showModal();
 });
 
 /* ---------- Métodos de pago ---------- */
@@ -562,7 +605,15 @@ const ask = (msg, o = {}) => new Promise(res => {
 
 /* ---------- Nuevo mandado ---------- */
 const dNew = $("#dNew");
-$("#btnNew").onclick = () => { $("#fNew").reset(); $("#fDate").max = $("#fDate").value = today(); dNew.showModal(); };
+function openNew(client) { // client: nombre fijo (desde la cuenta de un cliente) o undefined (mandado general)
+  $("#fNew").reset();
+  $("#fClient").readOnly = !!client; $("#fClient").value = client || "";
+  $("#nTitle").textContent = client ? "Nuevo préstamo · " + client : "Nuevo mandado";
+  $("#fDate").max = $("#fDate").value = today(); dNew.showModal();
+  setTimeout(() => $("#fConcept").focus(), 50);
+}
+const openNewFor = openNew;
+$("#btnNew").onclick = () => openNew();
 document.addEventListener("click", e => { if (e.target.closest("[data-close]")) e.target.closest("dialog").close(); });
 
 $("#fNew").addEventListener("submit", () => {
@@ -578,6 +629,10 @@ $("#fNew").addEventListener("submit", () => {
 let lastReceipt = null, lastData = null, lastImg = null, lastImgUrl = null;
 const marks = new Set(); // préstamos marcados como "Pago" (se guardan como "covers" del abono al registrarlo)
 let draft = null;        // monto/fecha/método a restaurar al volver del comprobante
+
+const tabsHTML = () => `<div class="tabs" role="tablist">
+  <button type="button" role="tab" data-tab="cobrar" class="${tab === "cobrar" ? "on" : ""}">💵 Cobrar</button>
+  <button type="button" role="tab" data-tab="hist" class="${tab === "hist" ? "on" : ""}">📜 Historial de Abonos</button></div>`;
 
 function renderPay() {
   const list = pendingErrs(currentKey);
@@ -598,7 +653,7 @@ function renderPay() {
         <button class="ghost" id="bCopy">Copiar texto</button>
         <button class="wa" id="bWa">WhatsApp</button>
       </div>
-      ${canReg ? `<button class="primary" id="bReg">✅ Registrar pago (${money(lastData.amount)})</button>
+      ${canReg ? `<button class="primary" id="bReg">✅ Registrar abono (${money(lastData.amount)})</button>
       <p class="hint">Guarda el abono en la base de datos. Puedes enviar el comprobante antes.</p>` : ""}
       ${canDel ? `<button class="primary" id="bDel">🗑️ Borrar préstamos pagados (${lastData.coveredIds.length})</button>
       <p class="hint">Opcional: deja la lista solo con las deudas pendientes. El cobro se conserva.</p>` : ""}
@@ -613,7 +668,7 @@ function renderPay() {
     if (canReg) $("#bReg").onclick = () => {
       const q = lastData.pay, plan = buildPlan(currentKey, q.amount, q.date, q.method, q.covers, true, q.methodNote);
       if (plan.amount <= 0) return toast("No hay saldo pendiente para abonar");
-      registerPay(currentKey, plan); finishPay(plan);
+      finishPay(plan, registerPay(currentKey, plan));
     };
     if (canDel) $("#bDel").onclick = confirmDeletePaid;
     $("#bSave").onclick = e => imageAction(e.currentTarget, false);
@@ -625,7 +680,22 @@ function renderPay() {
         .catch(() => show(`<pre class="msg">${esc(lastReceipt)}</pre>`));
     }
     $("#bCopy").onclick = () => navigator.clipboard.writeText(lastReceipt).then(() => toast("Copiado"));
-    $("#bWa").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(lastReceipt), "_blank");
+    $("#bWa").onclick = e => whatsappAction(e.currentTarget, getImage, lastReceipt, () => lastData.name);
+    return;
+  }
+
+  if (tab === "hist") { // Historial independiente de este cliente
+    const all = histOf(currentKey);
+    body.innerHTML = `
+      <h3>${esc(name)}</h3>
+      ${tabsHTML()}
+      ${all.length ? `<ul class="items hist">${all.map(p => `<li data-view="${esc(p.id)}" role="button" tabindex="0">
+        <span class="main"><b>${esc(histTitle(p))}</b><small>${esc(methodOf(p))}</small></span>
+        <span class="act"><button type="button" data-act="share-pay" data-id="${esc(p.id)}" aria-label="Compartir comprobante como imagen" title="Compartir comprobante">📤</button><button type="button" data-act="date-pay" data-id="${esc(p.id)}" aria-label="Corregir fecha" title="Corregir fecha">✏️</button><button type="button" data-act="del-pay" data-id="${esc(p.id)}" aria-label="Eliminar abono" title="Eliminar abono">🗑️</button></span></li>`).join("")}</ul>
+      <p class="hint">Toca un abono para ver su comprobante. 📤 comparte la imagen · ✏️ corrige la fecha.</p>`
+      : `<p class="empty">${esc(name)} aún no tiene abonos registrados.</p>`}
+      <button class="ghost" data-close>Cerrar</button>`;
+    (async () => { for (const p of all.slice(0, 3)) { if (tab !== "hist" || !$("#dPay").open) break; try { await abonoImage(p); } catch { break; } } })(); // deja listas las imágenes para compartir al instante
     return;
   }
 
@@ -638,6 +708,7 @@ function renderPay() {
   const acts = (t, id) => `<span class="act">${t === "pay" ? `<button type="button" data-act="view-pay" data-id="${id}" aria-label="Ver detalle / Reenviar comprobante" title="Ver detalle / Reenviar comprobante">📄</button>` : ""}${t === "err" ? `<button type="button" data-act="share-err" data-id="${id}" aria-label="Compartir este registro" title="Compartir este registro">📤</button>` : ""}<button type="button" data-act="edit-${t}" data-id="${id}" aria-label="Editar">✏️</button><button type="button" data-act="del-${t}" data-id="${id}" aria-label="Eliminar">🗑️</button></span>`;
   body.innerHTML = `
     <h3>${esc(name)}</h3>
+    ${tabsHTML()}
     <h4>Préstamos pendientes</h4>
     ${list.length > 1 ? `<div class="chips"><button type="button" data-markall="1">Todos: Pago</button><button type="button" data-markall="0">Todos: Debe</button></div>` : ""}
     <ul class="items">${list.length ? list.map(e => { const on = marks.has(e.id); return `<li class="${on ? "paid" : ""}">
@@ -645,9 +716,6 @@ function renderPay() {
         <span class="sw" role="group" aria-label="Estado del préstamo"><button type="button" data-mark="${e.id}" data-v="debe" class="${on ? "" : "on-debe"}">Debe</button><button type="button" data-mark="${e.id}" data-v="pago" class="${on ? "on-pago" : ""}">Pago</button></span></span>
       <span class="amt">${money(pendingOf(e))}</span>${acts("err", e.id)}</li>`; }).join("") : `<li><span class="main">Sin préstamos pendientes</span></li>`}</ul>
     ${list.length ? `<p class="hint">Marca "Pago" en lo que el cliente cubre: el monto recibido se llena solo y puedes ajustarlo.</p>` : ""}
-    ${hist.length ? `<h4>Historial de abonos</h4>
-    <ul class="items">${hist.map(p => `<li>
-      <span class="main"><span class="amt">${esc(payLabel(p))}</span><small>${fmtDate(dayOf(p))}</small></span>${acts("pay", p.id)}</li>`).join("")}</ul>` : ""}
     <div class="sum" aria-label="Resumen de cuenta">
       <div class="s-loan"><small>Total préstamos / cargos</small><strong>${money(tot.loans)}</strong></div>
       <div class="s-paid"><small>Total abonado</small><strong id="sPaid"></strong><em id="sHint"></em></div>
@@ -670,11 +738,16 @@ function renderPay() {
     <label>Fecha del abono
       <input id="pDate" type="date" max="${today()}" value="${keepDate || today()}">
     </label>
-    <div class="actions">
-      <button class="ghost" id="bStmt">Generar comprobante</button>
-      <button class="primary" id="bPay">Registrar pago</button>
-    </div>
-    <button class="ghost" data-close>Cerrar</button>`;
+    <div class="bar">
+      <div class="actions main">
+        <button type="button" class="btn-new" id="bNew">➕ Nuevo Préstamo</button>
+        <button type="button" class="primary" id="bPay">💵 Registrar Abono</button>
+      </div>
+      <div class="actions sec">
+        <button type="button" class="ghost" id="bStmt">Generar comprobante</button>
+        <button type="button" class="ghost" data-close>Cerrar</button>
+      </div>
+    </div>`;
 
   // Vista previa en vivo: el monto recibido se suma al total abonado y se resta del saldo
   const refresh = () => {
@@ -693,6 +766,7 @@ function renderPay() {
   body.querySelectorAll("[data-markall]").forEach(b =>
     b.onclick = () => { list.forEach(e => toggleMark(e, b.dataset.markall === "1")); renderPay(); });
   $("#bPay").onclick = () => pay(balance);
+  $("#bNew").onclick = () => openNewFor(name);
   $("#bStmt").onclick = () => {
     const M = Math.min(getMoney($("#pAmt")), balance);
     setReceipt(buildPlan(currentKey, M, $("#pDate").value || today(), $("#pMethod").value, [...marks], false, noteOf($("#pMethod").value, $("#pNote").value)));
@@ -727,23 +801,50 @@ function buildPlan(k, amount, date, method, covers, saved, methodNote = "") {
   };
 }
 
-// Guarda el abono en Firestore (con los préstamos que cubre) y recalcula el "paid" de cada préstamo
-function registerPay(k, plan) {
-  const p = plan.pay, errs = clientErrs(k), name = errs[0]?.client || "", ref = doc(collection(db, "pagos"));
-  // Detalle de la transacción: cuentas en "Pago" (concepto, fecha y montos), lo que siguió en "Debe" y los totales de ese momento
-  const row = x => ({ id: x.id, concept: x.concept || "", date: x.date, total: x.total, applied: x.applied });
-  const detalle = {
-    amount: p.amount,
-    items: plan.detail.filter(x => x.status === "pago").map(row),
-    pending: plan.detail.filter(x => x.status !== "pago").map(x => ({ ...row(x), left: x.left })),
-    totals: { loans: plan.totals.loans, paid: plan.totals.paid, balance: plan.totals.balance }
+/* SNAPSHOT: foto exacta del comprobante en el momento del abono. Se guarda dentro del abono (historial del cliente) y no se
+   recalcula nunca: si después se editan o borran préstamos, el comprobante histórico sigue mostrando lo que se entregó ese día. */
+function buildComprobante(refId, k, name, plan) {
+  const p = plan.pay, t = plan.totals;
+  return {
+    idComprobante: `CMP-${p.date.replace(/-/g, "")}-${refId.slice(0, 5).toUpperCase()}`,
+    fechaAbono: fmtLong(p.date),          // "28 de sept de 2026"
+    fechaISO: p.date,
+    cliente: name, clienteKey: k,
+    // Préstamos vigentes tras el abono (lo que sigue debiéndose)
+    deudasPendientes: plan.detail.filter(x => x.status !== "pago")
+      .map(x => ({ id: x.id, nombre: x.concept || "", fecha: x.date, valor: x.left, valorOriginal: x.total, abonoAplicado: x.applied })),
+    // Préstamos/cargos que cubrió este abono
+    pagosCruzados: plan.detail.filter(x => x.status === "pago")
+      .map(x => ({ id: x.id, nombre: x.concept || "", fecha: x.date, valor: x.applied, valorOriginal: x.total })),
+    montoAbonado: p.amount,
+    metodo: p.method, metodoNota: p.methodNote || "", metodoPago: mTxt(p.method, p.methodNote) || "Abono",
+    totalPrestamos: t.loans, totalAbonos: t.paid, saldoRestante: t.balance,   // acumulados al momento del abono
+    creadoEn: new Date().toISOString()
   };
-  const data = { client: name, key: k, amount: p.amount, date: p.date, method: p.method, ...(p.methodNote ? { methodNote: p.methodNote } : {}), detalle, createdAt: serverTimestamp(), ...(p.covers.length ? { covers: p.covers } : {}) };
-  commit(errs, [...clientPays(k), { id: ref.id, amount: p.amount, date: p.date, method: p.method, methodNote: p.methodNote, covers: p.covers }], b => b.set(ref, data));
 }
 
-function finishPay(plan) {
-  setReceipt(plan); marks.clear();
+// Convierte un snapshot en los datos que dibujan el comprobante (la misma plantilla sirve para el recibo nuevo y el histórico)
+function compToData(c) {
+  const detail = [
+    ...(c.deudasPendientes || []).map(x => ({ id: x.id || "", concept: x.nombre, date: x.fecha, total: x.valorOriginal ?? x.valor, applied: x.abonoAplicado || 0, left: x.valor, status: "debe" })),
+    ...(c.pagosCruzados || []).map(x => ({ id: x.id || "", concept: x.nombre, date: x.fecha, total: x.valorOriginal ?? x.valor, applied: x.valor, left: 0, status: "pago" }))
+  ];
+  const totals = { loans: c.totalPrestamos, paid: c.totalAbonos, balance: c.saldoRestante };
+  return { name: c.cliente, amount: c.montoAbonado, detail, hist: [], method: c.metodo || "", methodNote: c.metodoNota || "",
+    saved: true, date: c.fechaISO, dateText: c.fechaAbono, remaining: c.saldoRestante, totals };
+}
+
+// Guarda el abono en Firestore (con el snapshot del comprobante) y recalcula el "paid" de cada préstamo
+function registerPay(k, plan) {
+  const p = plan.pay, errs = clientErrs(k), name = errs[0]?.client || "", ref = doc(collection(db, "pagos"));
+  const comprobante = buildComprobante(ref.id, k, name, plan);
+  const data = { client: name, key: k, amount: p.amount, date: p.date, method: p.method, ...(p.methodNote ? { methodNote: p.methodNote } : {}), comprobante, createdAt: serverTimestamp(), ...(p.covers.length ? { covers: p.covers } : {}) };
+  commit(errs, [...clientPays(k), { id: ref.id, amount: p.amount, date: p.date, method: p.method, methodNote: p.methodNote, covers: p.covers }], b => b.set(ref, data));
+  return comprobante;
+}
+
+function finishPay(plan, c) {
+  setReceipt({ ...plan, ...compToData(c), hist: plan.hist }); marks.clear(); // el recibo se dibuja desde el snapshot guardado
   toast(plan.remaining <= 0 ? "Cuenta saldada" : "Pago registrado");
   renderPay();
 }
@@ -752,21 +853,29 @@ function pay(balance) {
   const amount = Math.min(getMoney($("#pAmt")), balance);
   if (amount <= 0) return toast("Escribe un monto válido");
   const plan = buildPlan(currentKey, amount, $("#pDate").value || today(), $("#pMethod").value, [...marks], true, noteOf($("#pMethod").value, $("#pNote").value));
-  registerPay(currentKey, plan); finishPay(plan);
+  finishPay(plan, registerPay(currentKey, plan));
 }
 
 /* ---------- Editar y eliminar ---------- */
 let editing = null, eBound = false;
 $("#payBody").addEventListener("click", e => {
+  const tb = e.target.closest("[data-tab]");
+  if (tb) { // al cambiar de pestaña no se pierde lo que se estaba escribiendo
+    if (tab === "cobrar" && $("#pAmt")) draft = { amount: getMoney($("#pAmt")), date: $("#pDate").value, method: $("#pMethod").value, methodNote: $("#pNote").value };
+    tab = tb.dataset.tab; renderPay(); return;
+  }
   const m = e.target.closest("[data-mark]");
   if (m) {
     const loan = pendingErrs(currentKey).find(x => x.id === m.dataset.mark);
     if (loan) toggleMark(loan, m.dataset.v === "pago");
     renderPay(); return;
   }
-  const b = e.target.closest("[data-act]"); if (!b) return;
+  const b = e.target.closest("[data-act]");
+  if (!b) { const v = e.target.closest("[data-view]"); if (v) openDetail(v.dataset.view); return; }
   const [op, t] = b.dataset.act.split("-");
   if (op === "view") return openDetail(b.dataset.id);
+  if (t === "pay" && op === "share") { const p = payments.find(x => x.id === b.dataset.id); if (p) shareAbono(b, p); return; }
+  if (op === "date") return openDate(b.dataset.id);
   if (op === "share") {
     const it = clientErrs(currentKey).find(x => x.id === b.dataset.id); if (!it) return;
     return shareLoanItem(b, it.client || "", it.concept, it.total, dayOf(it));
@@ -972,7 +1081,7 @@ const IC = {
 };
 
 function receiptHTML(d) {
-  const ok = d.remaining <= 0, t = d.totals, abono = d.amount > 0;
+  const ok = d.remaining <= 0, t = d.totals, abono = d.amount > 0, dTxt = d.dateText || fmtLong(d.date);
   const item = (title, sub, amt) => `
     <div class="r-it"><div class="r-t"><b>${esc(title)}</b><small>${sub}</small></div><span class="r-pill">${money(amt)}</span></div>`;
   // Con muchos registros la imagen se ensancha y las listas pasan a 2 columnas (la 1.ª mitad a la izquierda, la 2.ª a la derecha)
@@ -999,7 +1108,7 @@ function receiptHTML(d) {
           `<div class="r-ap"><span>Pendiente tras el abono</span><strong>${money(sum(debeRows, x => x.left))}</strong></div>`)}</div>
         <div class="r-col">${sec("green", IC.hand, "PAGO (CRUCE)",
           (hasPaid ? rows(payRows, paidItem) : noPay) +
-          `<div class="r-ap"><span>Monto abonado<small style="display:block;font-weight:700;font-size:.78em;line-height:1.25">${fmtDate(d.date)} • ${esc(mTxt(d.method, d.methodNote) || "Abono")}</small></span><strong>${money(d.amount)}</strong></div>`)}</div>
+          `<div class="r-ap"><span>Monto abonado<small style="display:block;font-weight:700;font-size:.78em;line-height:1.25">${dTxt} • ${esc(mTxt(d.method, d.methodNote) || "Abono")}</small></span><strong>${money(d.amount)}</strong></div>`)}</div>
       </div>`;
   const none = `<div class="r-it"><div class="r-t"><b>Sin préstamos pendientes</b></div></div>`;
   return `<div class="rcpt${wide ? " wide" : ""}${two ? " two" : ""}">
@@ -1007,7 +1116,7 @@ function receiptHTML(d) {
       <div class="r-hl">
         <p class="r-biz hand">${esc(BUSINESS)}</p>
         <p class="r-tw"><span class="r-title hand">${d.saved ? "Comprobante de pago" : "Estado de cuenta"}</span></p>
-        <p class="r-date">${IC.cal}<span><small>${abono ? "Fecha del abono" : "Fecha"}</small><b>${fmtDate(d.date)}</b></span></p>
+        <p class="r-date">${IC.cal}<span><small>${abono ? "Fecha del abono" : "Fecha"}</small><b>${dTxt}</b></span></p>
       </div>
       <div class="r-hr"><p class="r-tag hand">¡Tu esfuerzo también cuenta!</p>${IC.bag}</div>
     </div>
@@ -1018,7 +1127,7 @@ function receiptHTML(d) {
         <p class="r-thx hand">¡Gracias por confiar!</p>
       </div>
       ${two ? twoCols : sec("", IC.wallet, "DEBE (PENDIENTES)", debeRows.length ? rows(debeRows, debeItem) : none)}
-      ${d.hist.length ? sec("green", IC.hand, abono ? "ABONOS ANTERIORES" : "ABONOS", rows(d.hist, p => item(mTxt(p.method, p.methodNote) || "Abono", fmtDate(dayOf(p)), p.amount))) : ""}
+      ${d.hist.length && !abono ? sec("green", IC.hand, abono ? "ABONOS ANTERIORES" : "ABONOS", rows(d.hist, p => item(mTxt(p.method, p.methodNote) || "Abono", fmtDate(dayOf(p)), p.amount))) : ""}
       <div class="r-tot">
         <span class="r-ti">${IC.list}</span>
         <div class="r-tl">
@@ -1086,6 +1195,56 @@ async function imageAction(btn, share, get = getImage, who = () => lastData.name
   } finally { btn.disabled = false; btn.textContent = label; }
 }
 
+// WhatsApp: en celulares con compartir nativo se envía la IMAGEN (el menú ofrece WhatsApp); si no, se descarga la imagen y se abre WhatsApp con el texto
+async function whatsappAction(btn, get, text, who) {
+  const label = btn.textContent; btn.disabled = true; btn.textContent = "Generando…";
+  try {
+    const file = await get();
+    if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: BUSINESS + " - " + who() });
+    else { downloadFile(file); window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank"); toast("Imagen descargada: adjúntala en el chat de WhatsApp"); }
+  } catch (e) {
+    if (e.name !== "AbortError") toast(e.message || "No se pudo crear la imagen");
+  } finally { btn.disabled = false; btn.textContent = label; }
+}
+
+/* Comparte el comprobante (imagen) de UN abono del historial */
+const abonoImgs = new Map();
+const abonoImage = p => {
+  const key = `${p.id}|${dayOf(p)}|${p.amount}|${p.comprobante ? "c" : "l"}`;
+  if (!abonoImgs.has(key)) abonoImgs.set(key, makeImage(abonoData(p).d).catch(e => { abonoImgs.delete(key); throw e; }));
+  return abonoImgs.get(key);
+};
+async function shareAbono(btn, p) {
+  const label = btn.textContent; btn.disabled = true; btn.textContent = "⏳";
+  try {
+    const file = await abonoImage(p);
+    if (navigator.canShare?.({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: BUSINESS + " - " + (p.client || "") }); }
+      catch (e) { if (e.name === "NotAllowedError") { downloadFile(file); toast("Imagen descargada; toca 📤 otra vez para compartir"); } else throw e; }
+    } else { downloadFile(file); toast("Tu dispositivo no permite compartir; imagen descargada"); }
+  } catch (e) {
+    if (e.name !== "AbortError") toast(e.message || "No se pudo crear la imagen");
+  } finally { btn.disabled = false; btn.textContent = label; }
+}
+
+/* Corregir la fecha de un abono (también se corrige en su comprobante guardado; los montos del snapshot no cambian) */
+let dateEditId = null;
+function openDate(id) {
+  const p = payments.find(x => x.id === id); if (!p) return;
+  dateEditId = id;
+  $("#dtInfo").textContent = `${money(p.comprobante?.montoAbonado ?? p.amount)} · ${methodOf(p)}`;
+  $("#dtDate").max = today(); $("#dtDate").value = dayOf(p);
+  $("#dDate").showModal();
+}
+$("#fDateEdit").addEventListener("submit", () => {
+  const p = payments.find(x => x.id === dateEditId); if (!p) return;
+  const date = $("#dtDate").value || today(); if (date === dayOf(p)) return;
+  const pays = clientPays(p.key).map(x => x.id === p.id ? { ...x, date } : x); // el orden por fecha puede cambiar cómo se reparte el abono
+  commit(clientErrs(p.key), pays, b => b.update(doc(db, "pagos", p.id),
+    p.comprobante ? { date, "comprobante.fechaISO": date, "comprobante.fechaAbono": fmtLong(date) } : { date }));
+  toast("Fecha corregida");
+});
+
 /* ---------- Detalle / reenvío de un abono del historial ---------- */
 let det = null; // { d, note, text, img, url } del abono abierto
 const detImage = () => (det.img ||= makeImage(det.d).catch(e => { det.img = null; throw e; }));
@@ -1093,6 +1252,8 @@ const detImage = () => (det.img ||= makeImage(det.d).catch(e => { det.img = null
 // Arma los datos del comprobante de un abono ya registrado.
 // Con detalle guardado se usa tal cual; sin él (abonos viejos o modificados después) se reconstruye con los préstamos actuales.
 function abonoData(p) {
+  // Abonos nuevos: se reconstruye el comprobante con el snapshot guardado, sin recalcular nada
+  if (p.comprobante) return { note: "Comprobante histórico: muestra los datos exactos del momento del abono.", id: p.comprobante.idComprobante, d: compToData(p.comprobante) };
   const k = p.key, errs = clientErrs(k), pays = clientPays(k), s = p.detalle;
   const name = p.client || errs[0]?.client || "";
   let detail, totals, note = "";
@@ -1118,8 +1279,8 @@ function abonoData(p) {
 function openDetail(id) {
   const p = payments.find(x => x.id === id); if (!p) return;
   if (det?.url) URL.revokeObjectURL(det.url);
-  const { d, note } = abonoData(p);
-  det = { d, note, img: null, url: null, text: receipt(d.name, d.amount, d.detail, d.remaining, d.date, d.hist, mTxt(d.method, d.methodNote), d.totals, true) };
+  const { d, note, id: cid } = abonoData(p);
+  det = { d, note, cid, img: null, url: null, text: receipt(d.name, d.amount, d.detail, d.remaining, d.date, d.hist, mTxt(d.method, d.methodNote), d.totals, true) };
   renderDetail(); $("#dDetail").showModal();
   const snap = det, show = html => { const el = $("#dPrev"); if (el && det === snap) el.innerHTML = html; };
   detImage().then(f => { if (det !== snap) return; snap.url ||= URL.createObjectURL(f); show(`<img alt="Vista previa del comprobante" src="${snap.url}">`); })
@@ -1127,22 +1288,11 @@ function openDetail(id) {
 }
 
 function renderDetail() {
-  const { d, note } = det, t = d.totals;
-  const pago = d.detail.filter(x => x.status === "pago"), debe = d.detail.filter(x => x.status !== "pago");
-  const li = (x, amt, sub) => `<li><span class="main">${esc(x.concept)}<small>${fmtDate(x.date)}${sub}</small></span><span class="amt">${money(amt)}</span></li>`;
+  const { d, note, cid } = det;
   $("#detBody").innerHTML = `
-    <h3>${esc(d.name)}</h3>
-    <div class="total"><span>Abono · ${fmtDate(d.date)}${mTxt(d.method, d.methodNote) ? " · " + esc(mTxt(d.method, d.methodNote)) : ""}</span><strong>${money(d.amount)}</strong></div>
+    <h3>Comprobante de abono</h3>
+    <div class="total"><span>${esc(d.name)}<small style="display:block;color:var(--mute)">${d.dateText || fmtLong(d.date)}${mTxt(d.method, d.methodNote) ? " · " + esc(mTxt(d.method, d.methodNote)) : ""}${cid ? " · " + esc(cid) : ""}</small></span><strong>${money(d.amount)}</strong></div>
     ${note ? `<p class="hint">${esc(note)}</p>` : ""}
-    <h4>Pago · cuentas pagadas con este abono</h4>
-    <ul class="items">${pago.length ? pago.map(x => li(x, x.applied, x.applied < x.total ? ` · préstamo ${money(x.total)}` : "")).join("") : `<li><span class="main">Ningún ítem cubierto por completo - Monto abonado: ${money(d.amount)}</span></li>`}</ul>
-    ${debe.length ? `<h4>Debe · quedó pendiente</h4>
-    <ul class="items">${debe.map(x => li(x, x.left, x.applied > 0 ? ` · abonó ${money(x.applied)} de ${money(x.total)}` : ` · préstamo ${money(x.total)}`)).join("")}</ul>` : ""}
-    <div class="sum">
-      <div class="s-loan"><small>Total préstamos / cargos</small><strong>${money(t.loans)}</strong></div>
-      <div class="s-paid"><small>Total abonado</small><strong>${money(t.paid)}</strong></div>
-      <div class="s-bal"><small>Saldo restante</small><strong>${money(t.balance)}</strong></div>
-    </div>
     <div class="rcpt-prev" id="dPrev"><p class="empty">Generando comprobante…</p></div>
     <div class="actions">
       <button class="ghost" id="bdSave">⬇️ Guardar imagen</button>
@@ -1156,7 +1306,7 @@ function renderDetail() {
   $("#bdSave").onclick = e => imageAction(e.currentTarget, false, detImage, () => det.d.name);
   $("#bdShare").onclick = e => imageAction(e.currentTarget, true, detImage, () => det.d.name);
   $("#bdCopy").onclick = () => navigator.clipboard.writeText(det.text).then(() => toast("Copiado"));
-  $("#bdWa").onclick = () => window.open("https://wa.me/?text=" + encodeURIComponent(det.text), "_blank");
+  $("#bdWa").onclick = e => whatsappAction(e.currentTarget, detImage, det.text, () => det.d.name);
 }
 $("#dDetail").addEventListener("close", () => { if (det?.url) URL.revokeObjectURL(det.url); det = null; });
 
