@@ -1104,14 +1104,18 @@ function settleLoans(k, ids, method = "otro", onlyPaid = false) {
     for (const [pid, a] of Object.entries(from[e.id])) used[pid] = (used[pid] || 0) + a;
   }
   const keep = [], ops = [];
+  // Trazabilidad: con "Borrar pagados" cada abono guarda una copia de los préstamos que pagó (restore),
+  // para que, si luego se elimina ese abono, esos préstamos vuelvan a la lista de deudas.
+  const snapLoan = e => ({ id: e.id, client: e.client || name, concept: e.concept || "", lent: e.lent ?? e.total, total: e.total, date: dayOf(e), ...(e.createdAt ? { createdAt: e.createdAt } : {}) });
   for (const p of pays) {
     const c = used[p.id] || 0;
     if (c <= 0) { keep.push(p); continue; }
-    if (c >= p.amount) ops.push(b => b.update(doc(db, "pagos", p.id), { settled: true }));
+    const rest = onlyPaid ? gone.filter(e => from[e.id][p.id] > 0).map(snapLoan) : null;
+    if (c >= p.amount) ops.push(b => b.update(doc(db, "pagos", p.id), { settled: true, ...(rest ? { restore: rest } : {}) }));
     else {
       ops.push(b => {
         b.update(doc(db, "pagos", p.id), { amount: p.amount - c });
-        b.set(doc(collection(db, "pagos")), { client: name, key: k, amount: c, date: dayOf(p), method: p.method || "otro", ...(p.methodNote ? { methodNote: p.methodNote } : {}), settled: true, createdAt: serverTimestamp() });
+        b.set(doc(collection(db, "pagos")), { client: name, key: k, amount: c, date: dayOf(p), method: p.method || "otro", ...(p.methodNote ? { methodNote: p.methodNote } : {}), settled: true, ...(rest ? { restore: rest, parent: p.id, covers: rest.map(x => x.id) } : {}), createdAt: serverTimestamp() });
       });
       keep.push({ ...p, amount: p.amount - c });
     }
@@ -1120,6 +1124,9 @@ function settleLoans(k, ids, method = "otro", onlyPaid = false) {
   commit(errs.filter(e => !gone.includes(e)), keep, b => { gone.forEach(e => b.delete(doc(db, "mandados", e.id))); ops.forEach(f => f(b)); });
   return { n: gone.length, empty: gone.length === errs.length };
 }
+
+// Al cerrar el modal (Cerrar, Esc o al borrar todo) se limpia el estado del comprobante y se redibuja la lista con los saldos actuales
+$("#dPay").addEventListener("close", () => { lastReceipt = null; marks.clear(); draft = null; render(); });
 
 async function confirmDeletePaid() {
   const k = currentKey, n = clientErrs(k).filter(e => lastData.coveredIds.includes(e.id)).length;
@@ -1167,16 +1174,48 @@ $("#fEdit").addEventListener("submit", () => {
   toast("Cambios guardados");
 });
 
+/* Si el abono pagó préstamos que luego se borraron con "Borrar pagados", devuelve lo necesario para restaurarlos:
+   los préstamos guardados, los abonos que se eliminan con él (parte "settled" de un abono dividido) y los demás
+   abonos que también habían pagado esos préstamos (se reactivan para que el saldo quede igual que antes). */
+function restorePlan(k, item) {
+  const sp = payments.filter(p => p.key === k && p.settled && p.restore?.length);
+  const seeds = sp.filter(p => p.id === item.id || p.parent === item.id);
+  if (!seeds.length) return null;
+  const exists = new Set(clientErrs(k).map(e => e.id)), loans = new Map(), pays = new Map(), queue = [...seeds];
+  while (queue.length) {
+    const p = queue.pop(); if (pays.has(p.id)) continue; pays.set(p.id, p);
+    for (const l of p.restore) {
+      if (exists.has(l.id) || loans.has(l.id)) continue;
+      loans.set(l.id, l);
+      for (const q of sp) if (!pays.has(q.id) && q.restore.some(x => x.id === l.id)) queue.push(q);
+    }
+  }
+  const drop = new Set(seeds.map(p => p.id));
+  return { loans: [...loans.values()], drop, unsettle: [...pays.values()].filter(p => !drop.has(p.id)) };
+}
+
 async function remove(t, id) {
   const item = (t === "err" ? errands : payments).find(x => x.id === id); if (!item) return;
   const k = t === "err" ? norm(item.client) : item.key;
   const isErr = t === "err";
+  const rs = isErr ? null : restorePlan(k, item), nBack = rs ? rs.loans.length : 0;
   const what = isErr ? `el préstamo "${item.concept}" por ${money(item.total)}` : `el abono de ${payLabel(item)} del ${fmtDate(dayOf(item))}`;
   const r = await ask(isErr
     ? `¿Qué hacer con ${what}? "Eliminar" lo borra sin registrar cobro. "Ya pagado" lo borra y suma ${money(pendingOf(item))} a lo cobrado.`
-    : `¿Eliminar ${what}? El saldo del cliente se recalculará.`, { paid: isErr && pendingOf(item) > 0 });
+    : `¿Eliminar ${what}? ` + (nBack ? `${nBack === 1 ? "El préstamo que había pagado vuelve" : `Los ${nBack} préstamos que había pagado vuelven`} a la lista de deudas y el saldo del cliente se recalculará.` : "El saldo del cliente se recalculará."), { paid: isErr && pendingOf(item) > 0 });
   if (r === "paid") { settleLoans(k, [id]); toast("Préstamo pagado y borrado"); return; }
   if (r !== "ok") return;
+  if (rs) { // restaura los préstamos borrados con "Borrar pagados" y reactiva los abonos que también los habían pagado
+    const back = rs.loans.map(l => ({ ...l, paid: 0, isNew: true })), dropIds = new Set([item.id, ...rs.drop]);
+    const reopened = rs.unsettle.map(p => ({ ...p, settled: false, covers: p.covers?.length ? p.covers : p.restore.map(l => l.id) }));
+    commit([...clientErrs(k), ...back], [...clientPays(k).filter(p => !dropIds.has(p.id)), ...reopened], (b, paid) => {
+      dropIds.forEach(x => b.delete(doc(db, "pagos", x)));
+      reopened.forEach(p => b.update(doc(db, "pagos", p.id), { settled: false, restore: [], parent: null, covers: p.covers }));
+      back.forEach(l => { const { id: lid, isNew, paid: p0, ...data } = l; b.set(doc(db, "mandados", lid), { ...data, paid: paid[lid], createdAt: l.createdAt || serverTimestamp() }); });
+    });
+    toast(nBack ? `Eliminado · ${nBack} préstamo${nBack > 1 ? "s" : ""} restaurado${nBack > 1 ? "s" : ""}` : "Eliminado");
+    return;
+  }
   const errs = clientErrs(k).filter(e => t !== "err" || e.id !== id);
   const pays = clientPays(k).filter(p => t !== "pay" || p.id !== id);
   commit(errs, pays, b => b.delete(doc(db, t === "err" ? "mandados" : "pagos", id)));
