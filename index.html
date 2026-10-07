@@ -52,13 +52,37 @@ body.locked #lock{display:flex}
 #splash p{margin:0;color:var(--mute);font-size:.95rem;letter-spacing:.14em;text-transform:uppercase;animation:splashIn .9s .25s cubic-bezier(.2,.8,.2,1) both}
 @keyframes splashIn{from{opacity:0;transform:translateY(12px) scale(.94)}}
 
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{background:linear-gradient(160deg,var(--card),#131d29);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 6px 20px #0006;transition:transform .15s,border-color .15s}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(104px,1fr));gap:8px;align-items:stretch;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+.cards::-webkit-scrollbar{display:none}
+.card{background:linear-gradient(160deg,var(--card),#131d29);border:1px solid var(--line);border-radius:var(--r);padding:8px 5px;display:flex;flex-direction:column;min-width:0;box-shadow:0 6px 20px #0006;transition:transform .15s,border-color .15s}
 .card:active{transform:scale(.98)}
 .card.pend{border-top:3px solid var(--pend)} .card.cob{border-top:3px solid var(--ok)}
-.lbl{margin:0;font-size:.8rem;color:var(--mute)}
+.lbl{margin:0 0 2px;font-size:10px;line-height:1.2;color:var(--mute)}
 .big{margin:8px 0 0;font-size:1.45rem;font-weight:700;letter-spacing:-.02em;overflow-wrap:anywhere}
 .pend .big{color:var(--pend)} .cob .big{color:var(--ok)}
+button.card{display:flex;width:100%;text-align:left;cursor:pointer;min-height:0}
+/* Resumen: las 3 tarjetas en una sola fila, mismo alto; si la pantalla es muy angosta, la fila se desplaza horizontalmente */
+.cards .big{margin:4px 0 0;font-size:clamp(15px,4.6vw,20px);font-weight:700;letter-spacing:-.03em;white-space:nowrap;overflow-wrap:normal}
+.card.loan{border-top:3px solid #facc15} .loan .big{color:#facc15}
+.card.loan:active{border-color:#facc15}
+.card .more{display:block;margin-top:auto;padding-top:4px;font-size:9px;white-space:nowrap;color:var(--mute)}
+.card.cob:active{border-color:var(--ok)}
+/* Historial de cobros por mes */
+.mnav{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center}
+.mnav button{min-height:48px;padding:0;font-size:1.5rem;line-height:1;background:var(--bg);border:1px solid var(--line);color:var(--ok)}
+.mnav button:disabled{opacity:.35;cursor:default}
+.mnav select{text-align:center;text-align-last:center;font-weight:600;font-size:.95rem}
+.cobl{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:48vh;overflow:auto}
+.cobl li{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:12px;padding:10px 12px}
+.cobl .cw{flex:1;min-width:0}
+.cobl b{display:block;font-size:.875rem;overflow-wrap:anywhere}
+.cobl small{display:block;font-size:.8125rem;color:var(--mute);margin-top:2px;overflow-wrap:anywhere}
+.cobl .cm{flex:none;font-size:.9rem;font-weight:700;color:#facc15;font-variant-numeric:tabular-nums}
+.cobl .none{justify-content:center;border-left-color:var(--line);color:var(--mute);font-size:.875rem;padding:18px 12px}
+.cobt{border:1px solid #facc1566}
+.cobt span{font-size:.8125rem;color:var(--mute)}
+.cobt strong{color:#facc15}
 
 .debtors{list-style:none;margin:0;padding:0;display:grid;gap:10px}
 .debtors li{transition:transform .15s,border-color .15s;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
@@ -379,10 +403,16 @@ dialog .hist li{background:var(--bg)}
       <p class="lbl">Pendiente por cobrar</p>
       <p class="big" id="sPend">$0</p>
     </article>
-    <article class="card cob">
+    <button type="button" class="card cob" id="cCob" aria-label="Cobrado este mes: ver historial de cobros">
       <p class="lbl">Cobrado este mes</p>
       <p class="big" id="sCob">$0</p>
-    </article>
+      <span class="more">Ver historial ›</span>
+    </button>
+    <button type="button" class="card loan" id="cLoan" aria-label="Prestado este mes: ver historial de préstamos">
+      <p class="lbl">Prestado este mes</p>
+      <p class="big" id="sLoan">$0</p>
+      <span class="more">Ver historial ›</span>
+    </button>
   </section>
 
   <section aria-label="Deudores">
@@ -422,6 +452,36 @@ dialog .hist li{background:var(--bg)}
 <!-- Cobrar -->
 <dialog id="dPay">
   <div id="payBody"></div>
+</dialog>
+
+<!-- Historial de préstamos por mes (tarjeta "Prestado este mes") -->
+<dialog id="dLoan">
+  <div>
+    <h3>Historial de préstamos</h3>
+    <div class="mnav">
+      <button type="button" id="lPrev" aria-label="Mes anterior">‹</button>
+      <select id="lMonth" aria-label="Seleccionar mes y año"></select>
+      <button type="button" id="lNext" aria-label="Mes siguiente">›</button>
+    </div>
+    <ul class="cobl" id="lList"></ul>
+    <div class="total cobt"><span id="lTotL">Total prestado</span><strong id="lTot">$0</strong></div>
+    <button type="button" class="ghost" data-close>Cerrar</button>
+  </div>
+</dialog>
+
+<!-- Historial de cobros por mes (tarjeta "Cobrado este mes") -->
+<dialog id="dCob">
+  <div>
+    <h3>Historial de cobros</h3>
+    <div class="mnav">
+      <button type="button" id="cPrev" aria-label="Mes anterior">‹</button>
+      <select id="cMonth" aria-label="Seleccionar mes y año"></select>
+      <button type="button" id="cNext" aria-label="Mes siguiente">›</button>
+    </div>
+    <ul class="cobl" id="cList"></ul>
+    <div class="total cobt"><span id="cTotL">Total cobrado</span><strong id="cTot">$0</strong></div>
+    <button type="button" class="ghost" data-close>Cerrar</button>
+  </div>
 </dialog>
 
 <!-- Detalle de un abono del historial / reenvío del comprobante -->
@@ -622,12 +682,82 @@ function groups() {
   return [...m.values()];
 }
 
+/* ---------- Cobrado por mes: total de la tarjeta e historial ---------- */
+const MES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+// Fecha real del abono: la que el usuario eligió y se ve en el historial del cliente (la del comprobante guardado);
+// solo si no existe se usa el campo "date" y, como último recurso, la fecha de creación del documento.
+const payDay = p => p.comprobante?.fechaISO || dayOf(p);
+const ymOf = p => payDay(p).slice(0, 7);                // mes del abono ("2026-09") según su fecha real
+const curYM = () => today().slice(0, 7);
+const ymLabel = ym => { const [y, m] = ym.split("-").map(Number); return `${MES[m - 1]} ${y}`; };
+const shiftYM = (ym, d) => { const [y, m] = ym.split("-").map(Number), t = new Date(y, m - 1 + d, 1); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}`; };
+// Fuente única: los abonos del "Historial de abonos" de cada cliente (histOf), exactamente los mismos que se ven dentro de su cuenta.
+// Dashboard y historial de cobros se recalculan desde ahí en cada cambio de datos (agregar, editar fecha o eliminar un abono).
+const allHist = () => [...new Set(payments.map(p => p.key))].flatMap(k => histOf(k));
+const cobOf = ym => allHist().filter(p => ymOf(p) === ym);
+const sumOf = list => list.reduce((s, p) => s + p.amount, 0);
+let cobYM = curYM();
+
+// Del mes más reciente al más antiguo de la lista dada (siempre incluye el mes actual)
+function monthRange(yms) {
+  let first = curYM(), last = first;
+  for (const m of yms) { if (m < first) first = m; if (m > last) last = m; }
+  const out = []; for (let m = last; m >= first && out.length < 600; m = shiftYM(m, -1)) out.push(m);
+  return out;
+}
+const cobMonths = () => monthRange(allHist().map(ymOf));
+
+function renderCob() {
+  const months = cobMonths();
+  if (!months.includes(cobYM)) cobYM = curYM();
+  $("#cMonth").innerHTML = months.map(m => `<option value="${m}"${m === cobYM ? " selected" : ""}>${ymLabel(m)}</option>`).join("");
+  $("#cNext").disabled = cobYM >= months[0];
+  $("#cPrev").disabled = cobYM <= months[months.length - 1];
+  const list = cobOf(cobYM).sort((a, b) => payDay(b).localeCompare(payDay(a)) || payments.indexOf(b) - payments.indexOf(a));
+  $("#cList").innerHTML = list.length
+    ? list.map(p => `<li><div class="cw"><b>${esc(p.client || "Cliente")}</b><small>${esc(fmtDate(payDay(p)))} · ${esc(methodOf(p))}</small></div><span class="cm">${money(p.amount)}</span></li>`).join("")
+    : `<li class="none">Sin cobros en ${esc(ymLabel(cobYM))}</li>`;
+  $("#cTotL").textContent = `Total cobrado · ${ymLabel(cobYM)}` + (list.length ? ` (${list.length} abono${list.length > 1 ? "s" : ""})` : "");
+  $("#cTot").textContent = money(sumOf(list));
+}
+$("#cCob").onclick = () => { cobYM = curYM(); renderCob(); $("#dCob").showModal(); };
+$("#cPrev").onclick = () => { cobYM = shiftYM(cobYM, -1); renderCob(); };
+$("#cNext").onclick = () => { cobYM = shiftYM(cobYM, 1); renderCob(); };
+$("#cMonth").onchange = e => { cobYM = e.target.value; renderCob(); };
+
+/* ---------- Prestado por mes: total de la tarjeta e historial de préstamos ---------- */
+// Se toman los préstamos/mandados registrados, según la fecha del préstamo (la misma que se ve en la cuenta del cliente)
+const loanYM = e => dayOf(e).slice(0, 7);
+const loansOf = ym => errands.filter(e => loanYM(e) === ym);
+let lendYM = curYM();
+
+function renderLoans() {
+  const months = monthRange(errands.map(loanYM));
+  if (!months.includes(lendYM)) lendYM = curYM();
+  $("#lMonth").innerHTML = months.map(m => `<option value="${m}"${m === lendYM ? " selected" : ""}>${ymLabel(m)}</option>`).join("");
+  $("#lNext").disabled = lendYM >= months[0];
+  $("#lPrev").disabled = lendYM <= months[months.length - 1];
+  const list = loansOf(lendYM).sort((a, b) => dayOf(b).localeCompare(dayOf(a)) || errands.indexOf(b) - errands.indexOf(a));
+  $("#lList").innerHTML = list.length
+    ? list.map(e => `<li><div class="cw"><b>${esc(e.client || "Cliente")}</b><small>${esc(fmtDate(dayOf(e)))}${e.concept ? " · " + esc(e.concept) : ""}</small></div><span class="cm">${money(e.total)}</span></li>`).join("")
+    : `<li class="none">Sin préstamos en ${esc(ymLabel(lendYM))}</li>`;
+  $("#lTotL").textContent = `Total prestado · ${ymLabel(lendYM)}` + (list.length ? ` (${list.length} préstamo${list.length > 1 ? "s" : ""})` : "");
+  $("#lTot").textContent = money(list.reduce((s, e) => s + e.total, 0));
+}
+$("#cLoan").onclick = () => { lendYM = curYM(); renderLoans(); $("#dLoan").showModal(); };
+$("#lPrev").onclick = () => { lendYM = shiftYM(lendYM, -1); renderLoans(); };
+$("#lNext").onclick = () => { lendYM = shiftYM(lendYM, 1); renderLoans(); };
+$("#lMonth").onchange = e => { lendYM = e.target.value; renderLoans(); };
+
+document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); }); // al volver a la app el mes en curso se recalcula solo
+
 /* ---------- Dashboard ---------- */
 function render() {
   const gs = groups();
   const debtors = gs.filter(g => g.balance > 0).sort((a, b) => b.balance - a.balance);
   $("#sPend").textContent = money(debtors.reduce((s, g) => s + g.balance, 0));
-  $("#sCob").textContent = money(payments.filter(p => sameMonth(new Date(dayOf(p) + "T12:00:00"))).reduce((s, p) => s + p.amount, 0));
+  $("#sCob").textContent = money(sumOf(cobOf(curYM())));
+  $("#sLoan").textContent = money(loansOf(curYM()).reduce((s, e) => s + e.total, 0));
 
   $("#debtors").innerHTML = debtors.map(g => `
     <li>
@@ -638,6 +768,8 @@ function render() {
   $("#empty").hidden = debtors.length > 0;
   $("#clientList").innerHTML = gs.map(g => `<option value="${esc(g.name)}">`).join("");
   if ($("#dPay").open && currentKey) renderPay(); // refresca el saldo en vivo
+  if ($("#dCob").open) renderCob();                // y el historial de cobros si está abierto
+  if ($("#dLoan").open) renderLoans();             // y el de préstamos
 }
 
 /* ---------- Historial de abonos (por cliente, dentro de su ventana) ---------- */
@@ -645,7 +777,7 @@ const methodOf = p => p.comprobante?.metodoPago || mTxt(p.method, p.methodNote) 
 const histTitle = p => `${money(p.comprobante?.montoAbonado ?? p.amount)} · ${fmtDate(p.comprobante?.fechaISO || dayOf(p))}`;
 // Solo los abonos de ESE cliente (por su clave). Se incluyen los que conservan comprobante aunque sus préstamos ya se hayan borrado.
 const histOf = k => payments.map((p, i) => ({ p, i })).filter(x => x.p.key === k && (!x.p.settled || x.p.comprobante))
-  .sort((a, b) => dayOf(b.p).localeCompare(dayOf(a.p)) || b.i - a.i).map(x => x.p);
+  .sort((a, b) => payDay(b.p).localeCompare(payDay(a.p)) || b.i - a.i).map(x => x.p);
 
 $("#debtors").addEventListener("click", e => {
   const k = e.target.dataset.pay; if (k === undefined) return;
@@ -745,7 +877,7 @@ function renderPay() {
   const body = $("#payBody");
 
   if (lastReceipt) {
-    const saved = lastData.saved, canReg = !saved && lastData.amount > 0, canDel = saved && lastData.coveredIds.length > 0;
+    const saved = lastData.saved, canReg = !saved && lastData.amount > 0;
     body.innerHTML = `
       <h3>${saved ? "Pago registrado" : "Estado de cuenta"}</h3>
       <div class="rcpt-prev" id="rPrev">${lastImgUrl ? prevImg() : `<p class="empty">Generando comprobante…</p>`}</div>
@@ -759,8 +891,6 @@ function renderPay() {
       </div>
       ${canReg ? `<button class="primary" id="bReg">✅ Registrar abono (${money(lastData.amount)})</button>
       <p class="hint">Guarda el abono en la base de datos. Puedes enviar el comprobante antes.</p>` : ""}
-      ${canDel ? `<button class="primary" id="bDel">🗑️ Borrar préstamos pagados (${lastData.coveredIds.length})</button>
-      <p class="hint">Opcional: deja la lista solo con las deudas pendientes. El cobro se conserva.</p>` : ""}
       <div class="actions">
         <button class="ghost" id="bBack">← Volver</button>
         <button class="ghost" data-close>Cerrar</button>
@@ -774,7 +904,6 @@ function renderPay() {
       if (plan.amount <= 0) return toast("No hay saldo pendiente para abonar");
       finishPay(plan, registerPay(currentKey, plan));
     };
-    if (canDel) $("#bDel").onclick = confirmDeletePaid;
     $("#bSave").onclick = e => imageAction(e.currentTarget, false);
     $("#bShare").onclick = e => imageAction(e.currentTarget, true);
     // La vista previa es la propia imagen que se guarda/comparte; se prepara en segundo plano
@@ -1093,10 +1222,10 @@ async function shareLoanItem(btn, client, concept, amount, date) {
 
 /* Borra préstamos de Firestore sin descuadrar las cuentas: los abonos que los habían pagado se marcan "settled"
    (siguen sumando en "Cobrado este mes", pero ya no en el saldo del cliente) y lo que faltaba por pagar se registra como cobro. */
-function settleLoans(k, ids, method = "otro", onlyPaid = false) {
+function settleLoans(k, ids, method = "otro") {
   const errs = clientErrs(k), pays = clientPays(k), name = errs[0]?.client || "";
   const { paid, from } = allocateDetailed(errs, pays);
-  const gone = errs.filter(e => ids.includes(e.id) && (!onlyPaid || paid[e.id] >= e.total));
+  const gone = errs.filter(e => ids.includes(e.id));
   if (!gone.length) return null;
   const used = {}; let X = 0;
   for (const e of gone) {
@@ -1104,18 +1233,14 @@ function settleLoans(k, ids, method = "otro", onlyPaid = false) {
     for (const [pid, a] of Object.entries(from[e.id])) used[pid] = (used[pid] || 0) + a;
   }
   const keep = [], ops = [];
-  // Trazabilidad: con "Borrar pagados" cada abono guarda una copia de los préstamos que pagó (restore),
-  // para que, si luego se elimina ese abono, esos préstamos vuelvan a la lista de deudas.
-  const snapLoan = e => ({ id: e.id, client: e.client || name, concept: e.concept || "", lent: e.lent ?? e.total, total: e.total, date: dayOf(e), ...(e.createdAt ? { createdAt: e.createdAt } : {}) });
   for (const p of pays) {
     const c = used[p.id] || 0;
     if (c <= 0) { keep.push(p); continue; }
-    const rest = onlyPaid ? gone.filter(e => from[e.id][p.id] > 0).map(snapLoan) : null;
-    if (c >= p.amount) ops.push(b => b.update(doc(db, "pagos", p.id), { settled: true, ...(rest ? { restore: rest } : {}) }));
+    if (c >= p.amount) ops.push(b => b.update(doc(db, "pagos", p.id), { settled: true }));
     else {
       ops.push(b => {
         b.update(doc(db, "pagos", p.id), { amount: p.amount - c });
-        b.set(doc(collection(db, "pagos")), { client: name, key: k, amount: c, date: dayOf(p), method: p.method || "otro", ...(p.methodNote ? { methodNote: p.methodNote } : {}), settled: true, ...(rest ? { restore: rest, parent: p.id, covers: rest.map(x => x.id) } : {}), createdAt: serverTimestamp() });
+        b.set(doc(collection(db, "pagos")), { client: name, key: k, amount: c, date: dayOf(p), method: p.method || "otro", ...(p.methodNote ? { methodNote: p.methodNote } : {}), settled: true, createdAt: serverTimestamp() });
       });
       keep.push({ ...p, amount: p.amount - c });
     }
@@ -1127,18 +1252,6 @@ function settleLoans(k, ids, method = "otro", onlyPaid = false) {
 
 // Al cerrar el modal (Cerrar, Esc o al borrar todo) se limpia el estado del comprobante y se redibuja la lista con los saldos actuales
 $("#dPay").addEventListener("close", () => { lastReceipt = null; marks.clear(); draft = null; render(); });
-
-async function confirmDeletePaid() {
-  const k = currentKey, n = clientErrs(k).filter(e => lastData.coveredIds.includes(e.id)).length;
-  if (!n) return toast("Esos préstamos ya no existen");
-  const r = await ask(`¿Borrar ${n} préstamo${n > 1 ? "s" : ""} ya pagado${n > 1 ? "s" : ""} de la base de datos? Quedarán solo las deudas pendientes; el cobro se conserva en "Cobrado este mes".`, { ok: "Borrar pagados" });
-  if (r !== "ok") return;
-  const res = settleLoans(k, lastData.coveredIds, "otro", true);
-  if (!res) return toast("El pago aún se está guardando; inténtalo de nuevo");
-  marks.clear(); lastReceipt = null;
-  toast(`${res.n} préstamo${res.n > 1 ? "s" : ""} borrado${res.n > 1 ? "s" : ""}`);
-  res.empty ? $("#dPay").close() : renderPay();
-}
 
 function openEdit(t, id) {
   const item = (t === "err" ? errands : payments).find(x => x.id === id); if (!item) return;
@@ -1174,48 +1287,16 @@ $("#fEdit").addEventListener("submit", () => {
   toast("Cambios guardados");
 });
 
-/* Si el abono pagó préstamos que luego se borraron con "Borrar pagados", devuelve lo necesario para restaurarlos:
-   los préstamos guardados, los abonos que se eliminan con él (parte "settled" de un abono dividido) y los demás
-   abonos que también habían pagado esos préstamos (se reactivan para que el saldo quede igual que antes). */
-function restorePlan(k, item) {
-  const sp = payments.filter(p => p.key === k && p.settled && p.restore?.length);
-  const seeds = sp.filter(p => p.id === item.id || p.parent === item.id);
-  if (!seeds.length) return null;
-  const exists = new Set(clientErrs(k).map(e => e.id)), loans = new Map(), pays = new Map(), queue = [...seeds];
-  while (queue.length) {
-    const p = queue.pop(); if (pays.has(p.id)) continue; pays.set(p.id, p);
-    for (const l of p.restore) {
-      if (exists.has(l.id) || loans.has(l.id)) continue;
-      loans.set(l.id, l);
-      for (const q of sp) if (!pays.has(q.id) && q.restore.some(x => x.id === l.id)) queue.push(q);
-    }
-  }
-  const drop = new Set(seeds.map(p => p.id));
-  return { loans: [...loans.values()], drop, unsettle: [...pays.values()].filter(p => !drop.has(p.id)) };
-}
-
 async function remove(t, id) {
   const item = (t === "err" ? errands : payments).find(x => x.id === id); if (!item) return;
   const k = t === "err" ? norm(item.client) : item.key;
   const isErr = t === "err";
-  const rs = isErr ? null : restorePlan(k, item), nBack = rs ? rs.loans.length : 0;
   const what = isErr ? `el préstamo "${item.concept}" por ${money(item.total)}` : `el abono de ${payLabel(item)} del ${fmtDate(dayOf(item))}`;
   const r = await ask(isErr
     ? `¿Qué hacer con ${what}? "Eliminar" lo borra sin registrar cobro. "Ya pagado" lo borra y suma ${money(pendingOf(item))} a lo cobrado.`
-    : `¿Eliminar ${what}? ` + (nBack ? `${nBack === 1 ? "El préstamo que había pagado vuelve" : `Los ${nBack} préstamos que había pagado vuelven`} a la lista de deudas y el saldo del cliente se recalculará.` : "El saldo del cliente se recalculará."), { paid: isErr && pendingOf(item) > 0 });
+    : `¿Eliminar ${what}? El saldo del cliente se recalculará.`, { paid: isErr && pendingOf(item) > 0 });
   if (r === "paid") { settleLoans(k, [id]); toast("Préstamo pagado y borrado"); return; }
   if (r !== "ok") return;
-  if (rs) { // restaura los préstamos borrados con "Borrar pagados" y reactiva los abonos que también los habían pagado
-    const back = rs.loans.map(l => ({ ...l, paid: 0, isNew: true })), dropIds = new Set([item.id, ...rs.drop]);
-    const reopened = rs.unsettle.map(p => ({ ...p, settled: false, covers: p.covers?.length ? p.covers : p.restore.map(l => l.id) }));
-    commit([...clientErrs(k), ...back], [...clientPays(k).filter(p => !dropIds.has(p.id)), ...reopened], (b, paid) => {
-      dropIds.forEach(x => b.delete(doc(db, "pagos", x)));
-      reopened.forEach(p => b.update(doc(db, "pagos", p.id), { settled: false, restore: [], parent: null, covers: p.covers }));
-      back.forEach(l => { const { id: lid, isNew, paid: p0, ...data } = l; b.set(doc(db, "mandados", lid), { ...data, paid: paid[lid], createdAt: l.createdAt || serverTimestamp() }); });
-    });
-    toast(nBack ? `Eliminado · ${nBack} préstamo${nBack > 1 ? "s" : ""} restaurado${nBack > 1 ? "s" : ""}` : "Eliminado");
-    return;
-  }
   const errs = clientErrs(k).filter(e => t !== "err" || e.id !== id);
   const pays = clientPays(k).filter(p => t !== "pay" || p.id !== id);
   commit(errs, pays, b => b.delete(doc(db, t === "err" ? "mandados" : "pagos", id)));
@@ -1389,12 +1470,12 @@ function openDate(id) {
   const p = payments.find(x => x.id === id); if (!p) return;
   dateEditId = id;
   $("#dtInfo").textContent = `${money(p.comprobante?.montoAbonado ?? p.amount)} · ${methodOf(p)}`;
-  $("#dtDate").max = today(); $("#dtDate").value = dayOf(p);
+  $("#dtDate").max = today(); $("#dtDate").value = payDay(p);
   $("#dDate").showModal();
 }
 $("#fDateEdit").addEventListener("submit", () => {
   const p = payments.find(x => x.id === dateEditId); if (!p) return;
-  const date = $("#dtDate").value || today(); if (date === dayOf(p)) return;
+  const date = $("#dtDate").value || today(); if (date === payDay(p) && date === dayOf(p)) return;
   const pays = clientPays(p.key).map(x => x.id === p.id ? { ...x, date } : x); // el orden por fecha puede cambiar cómo se reparte el abono
   commit(clientErrs(p.key), pays, b => b.update(doc(db, "pagos", p.id),
     p.comprobante ? { date, "comprobante.fechaISO": date, "comprobante.fechaAbono": fmtLong(date) } : { date }));
