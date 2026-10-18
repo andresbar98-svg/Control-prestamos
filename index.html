@@ -304,7 +304,18 @@ dialog .hist li{background:var(--bg)}
 .rg-it small{display:block;font-size:.74rem;font-weight:700;color:#2c4a8f;line-height:1.2;margin-top:2px}
 .rg-ip{flex:none;background:#ffe38a;border-radius:99px;padding:4px 11px;font-weight:900;font-size:.92rem;color:#0b1c45;white-space:nowrap}
 .gr .rg-ip{background:#c6f09c}
-.rg-it.rg-pc small{font-weight:600;color:#2c4a8f;white-space:nowrap;font-style:normal}
+/* DEBE: bloque en columna (cabecera + líneas independientes), la pastilla de Saldo queda arriba a la derecha */
+.rg-it.rg-pc{display:block;padding:10px 12px}
+.rg-pc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.rg-pc-hd{min-width:0;flex:1;overflow-wrap:anywhere}
+.rg-pc-body{display:flex;flex-direction:column;gap:3px}
+.rg-pc-body .ln{display:block;font-size:.8rem;font-weight:700;color:#2c4a8f;line-height:1.3;white-space:normal;overflow-wrap:anywhere}
+/* PAGO (cruce): ítem aireado */
+.rg-it.rg-pg{align-items:flex-start;gap:10px;padding:12px}
+.rg-pg .t{margin-right:0}
+.rg-pg small{margin-top:3px}
+.rg-pg small{white-space:nowrap}
+.rg-pg .rg-ip{align-self:flex-start;background:#9fe070;color:#0a3d1c;box-shadow:0 1px 0 rgba(20,83,45,.25)}
 .rg-sd{flex:none;background:#ffe38a;border-radius:16px;padding:6px 12px;text-align:center;white-space:nowrap}
 .rg-sd .lb{display:block;font-style:normal;font-size:.7rem;font-weight:800;color:#2c4a8f;line-height:1.1}
 .rg-sd b{display:block;font-size:.95rem;font-weight:900;color:#0b1c45;line-height:1.2;margin-top:1px}
@@ -312,6 +323,7 @@ dialog .hist li{background:var(--bg)}
 .rg-pf strong{font-weight:900;font-size:1.05rem;color:#0b1c45;margin-left:8px;white-space:nowrap}
 .rg-pf small{display:block;font-size:.74rem;font-weight:700;opacity:.85}
 .gr .rg-pf{border-top-color:#9bd67f;color:#14532d}
+.rg-pn:not(.gr) .rg-pf{border-top:0;padding-top:4px}
 .rg-tots{position:relative;z-index:1;background:#e3eefb;border-radius:18px;padding:6px 16px}
 .rg-tr{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;font-weight:800;font-size:1.05rem;color:#10285f}
 .rg-tr+.rg-tr{border-top:2px solid #a9c6ef}
@@ -338,6 +350,12 @@ dialog .hist li{background:var(--bg)}
 .rcpt.rg-2c .rg-it b{font-size:1.32rem}
 .rcpt.rg-2c .rg-it small{font-size:1.02rem;font-weight:800;margin-top:3px}
 .rcpt.rg-2c .rg-ip{padding:7px 16px;font-size:1.28rem}
+.rcpt.rg-2c .rg-it.rg-pc{padding:14px}
+.rcpt.rg-2c .rg-pc-top{margin-bottom:10px;gap:14px}
+.rcpt.rg-2c .rg-pc-body{gap:5px}
+.rcpt.rg-2c .rg-pc-body .ln{font-size:1.05rem;font-weight:800}
+.rcpt.rg-2c .rg-it.rg-pg{padding:16px 14px;gap:12px}
+.rcpt.rg-2c .rg-pg small{font-size:1rem}
 .rcpt.rg-2c .rg-sd{padding:8px 14px;border-radius:18px}
 .rcpt.rg-2c .rg-sd .lb{font-size:.95rem}
 .rcpt.rg-2c .rg-sd b{font-size:1.28rem}
@@ -632,7 +650,7 @@ const fmtDate = s => { const t = parts(s); return `${t.d} ${t.m} ${t.y}`; };    
 // Insignia del comprobante: "17 Octubre 2026"; ítems: "06 Oct. 2026"
 const MES_ABR = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 const fmtHead = s => { const t = String(s).slice(0, 10).split("-").map(Number); return `${t[2]} ${MES[(t[1] || 1) - 1]} ${t[0]}`; };
-const fmtItem = s => { const t = String(s).slice(0, 10).split("-").map(Number); return `${String(t[2]).padStart(2, "0")} ${MES_ABR[(t[1] || 1) - 1]}. ${t[0]}`; };
+const fmtItem = s => { const t = String(s).slice(0, 10).split("-").map(Number); return `${String(t[2]).padStart(2, "0")} ${MES_ABR[(t[1] || 1) - 1].toLowerCase()} ${t[0]}`; };
 const fmtLong = s => { const t = parts(s); return `${t.d} de ${t.m} de ${t.y}`; };    // "28 de sept de 2026"
 const dayOf = x => x.date || ymd(dateOf(x.createdAt)); // registros viejos usan su fecha de creación
 const byDay = (a, b) => dayOf(a).localeCompare(dayOf(b));
@@ -1439,11 +1457,26 @@ function receiptHTML(d, w) {
   const pn = (cls, icon, title, inner, foot) => `<div class="rg-pn ${cls}"><div class="rg-ph"><span class="rg-pi">${icon}</span><span class="rg-pt">${title}</span></div>${inner}${foot || ""}</div>`;
   // Ítem con abono: título · fecha / Préstamo / Abono (izquierda) y píldora "Saldo" (derecha). Sin abono: tarjeta simple.
   const debeCard = x => {
-    const prior = Math.max(0, x.total - x.left - x.applied);
+    const prior = Math.max(0, x.total - x.left - x.applied);   // abonos acumulados antes de este cobro
+    const before = x.left + x.applied;                          // saldo pendiente antes de este cobro
     if (x.applied <= 0 && prior <= 0) return it(x.concept, fmtItem(x.date), x.left);
-    return `<div class="rg-it rg-pc"><span class="t"><b>${esc(x.concept)}</b><small>${fmtItem(x.date)}</small><small>Prest: ${money(x.total)}</small>`
-      + (prior > 0 ? `<small>Abonado antes: ${money(prior)}</small>` : "") + (x.applied > 0 ? `<small>Abono: ${money(x.applied)}</small>` : "")
-      + `</span><span class="rg-sd"><span class="lb">Saldo:</span><b>${money(x.left)}</b></span></div>`;
+    return `<div class="rg-it rg-pc"><div class="rg-pc-top"><span class="rg-pc-hd"><b>${esc(x.concept)}</b><small>${fmtItem(x.date)}</small></span>`
+      + `<span class="rg-sd"><span class="lb">Saldo:</span><b>${money(x.left)}</b></span></div>`
+      + `<div class="rg-pc-body"><span class="ln">Préstamo: ${money(x.total)}</span>`
+      + `<span class="ln">Saldo anterior: ${money(before)}</span>`
+      + (x.applied > 0 ? `<span class="ln">Abono: ${money(x.applied)}</span>` : "")
+      + `</div></div>`;
+  };
+  // PAGO (cruce): encabezado / fecha • tipo / detalle de saldo (izquierda) + badge verde con el monto (derecha)
+  const payCard = x => {
+    const prior = Math.max(0, x.total - x.left - x.applied);   // abonos previos acumulados
+    return `<div class="rg-it rg-pg"><span class="t"><b>${esc(x.concept)}</b>`
+      + `<small>${fmtDate(x.date)}</small>`
+      + `<small>${x.status === "pago" ? "Préstamo cubierto" : "Abono a préstamo"}</small>`
+      + `<small>Préstamo: ${money(x.total)}</small>`
+      + `<small>Abono antes: ${money(prior)}</small>`
+      + `<small>Saldo: ${money(x.left)}</small></span>`
+      + `<span class="rg-ip">${money(x.applied)}</span></div>`;
   };
   const debeInner = debeRows.length ? debeRows.map(debeCard).join("") : none("Sin ítems pendientes");
   const debeFoot = `<div class="rg-pf"><span>${abono ? "Pendiente tras el abono" : "Total pendiente"}</span><strong>${money(sum(debeRows, x => x.left))}</strong></div>`;
@@ -1451,7 +1484,7 @@ function receiptHTML(d, w) {
 
   let main;
   if (abono && multi) { // 2 columnas: DEBE (pendientes) | PAGO (cruce)
-    const payInner = payRows.length ? payRows.map(x => it(x.concept, paidSub(x), x.applied)).join("") : none(`Ningún ítem cubierto`);
+    const payInner = payRows.length ? payRows.map(payCard).join("") : none(`Ningún ítem cubierto`);
     const payFoot = `<div class="rg-pf"><span>Monto abonado<small>${dTxt} • ${esc(meth)}</small></span><strong>${money(d.amount)}</strong></div>`;
     main = `<div class="rg-two">${debePanel}${pn("gr", IC.hand, "PAGO (CRUCE)", payInner, payFoot)}</div>`;
   } else if (abono) { // 1 columna: un solo ítem
