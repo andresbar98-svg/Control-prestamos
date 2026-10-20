@@ -713,15 +713,13 @@ const totalsFrom = (errs, pays) => {
 const pendingOf = e => Math.max(0, e.total - (e.paid || 0));
 
 function groups() {
-  const m = new Map();
-  for (const e of errands) {
-    const k = norm(e.client);
-    const g = m.get(k) || { key: k, name: e.client, balance: 0, count: 0 };
-    const p = pendingOf(e);
-    g.balance += p; if (p > 0) g.count++;
-    m.set(k, g);
-  }
-  return [...m.values()];
+  // Una entrada por cliente (todas sus cuentas); el saldo es SOLO el del ciclo activo (si está saldado: $0)
+  const names = new Map();
+  for (const e of errands) { const k = norm(e.client); if (!names.has(k)) names.set(k, e.client); }
+  return [...names].map(([key, name]) => {
+    const s = obtenerSaldoCliente(key);
+    return { key, name, balance: s.saldo, count: s.pendientes.length };
+  });
 }
 
 /* ---------- Cobrado por mes: total de la tarjeta e historial ---------- */
@@ -846,13 +844,49 @@ const noteOf = (method, v) => method === "otro" ? (v || "").trim().slice(0, 80) 
 const clientErrs = k => errands.filter(e => norm(e.client) === k);
 // Abonos vigentes del cliente. Los "settled" son cobros de préstamos ya borrados: solo cuentan en "Cobrado este mes"
 const clientPays = k => payments.filter(p => p.key === k && !p.settled);
-const pendingErrs = k => clientErrs(k).filter(e => pendingOf(e) > 0);
+
+/* ---------- CICLOS DE CUENTA ----------
+   Un ciclo empieza con un préstamo/mandado y termina cuando los abonos alcanzan o superan lo prestado (SALDADO).
+   El siguiente préstamo de esa persona abre un ciclo nuevo desde cero: no arrastra abonos ni montos del anterior.
+   Se calcula en vivo reproduciendo los movimientos en el orden en que se registraron (createdAt), sin migrar datos. */
+const tsOf = x => x?.createdAt?.toMillis?.() ?? Number.MAX_SAFE_INTEGER; // lo recién creado (sin hora de servidor aún) va al final
+function ciclosCliente(errs, pays) {
+  const ev = [...errs.map(x => ({ m: true, x })), ...pays.map(x => ({ m: false, x }))]
+    .sort((a, b) => tsOf(a.x) - tsOf(b.x) || dayOf(a.x).localeCompare(dayOf(b.x)) || (b.m - a.m)); // a igual hora: préstamo antes que abono
+  const ciclos = []; let c = null;
+  for (const { m, x } of ev) {
+    if (m) {
+      if (!c || c.saldado) { c = { n: ciclos.length + 1, errs: [], pays: [], prestado: 0, abonado: 0, saldado: false }; ciclos.push(c); }
+      c.errs.push(x); c.prestado += x.total;
+    } else {
+      if (!c) continue;                 // abono sin ningún préstamo previo: se ignora
+      c.pays.push(x); c.abonado += x.amount; // si el ciclo ya estaba saldado, el abono extra queda en su historial sin reabrirlo
+    }
+    c.saldado = c.prestado > 0 && c.abonado >= c.prestado;
+  }
+  return ciclos;
+}
+// Ciclo activo = el último, siempre que NO esté saldado (si no hay deuda vigente devuelve null)
+function cicloActivo(k, errs = clientErrs(k), pays = clientPays(k)) {
+  const c = ciclosCliente(errs, pays).at(-1);
+  return c && !c.saldado ? c : null;
+}
+// Saldo de un cliente (por su clave norm(nombre)): solo préstamos/mandados PENDIENTES del ciclo activo y los abonos de ESE ciclo
+function obtenerSaldoCliente(k, errs = clientErrs(k), pays = clientPays(k)) {
+  const c = cicloActivo(k, errs, pays);
+  if (!c) return { estado: "SALDADO", saldo: 0, prestado: 0, abonado: 0, pendientes: [], errs: [], pays: [] };
+  const { paid } = allocateDetailed(c.errs, c.pays);
+  const pendientes = c.errs.filter(e => e.total - (paid[e.id] || 0) > 0).sort(byDay);          // estado PENDIENTE
+  const saldo = pendientes.reduce((s, e) => s + (e.total - paid[e.id]), 0);
+  return { estado: saldo > 0 ? "PENDIENTE" : "SALDADO", saldo, prestado: c.prestado, abonado: c.abonado, pendientes, errs: c.errs, pays: c.pays };
+}
+const pendingErrs = k => obtenerSaldoCliente(k).pendientes.filter(e => pendingOf(e) > 0);
 
 // Reparte los abonos entre los préstamos, abono por abono y en orden cronológico:
 // 1) los préstamos que el usuario marcó como "Pago" (covers) se cubren primero, hasta su SALDO real (no hasta su total)
 // 2) solo lo que sobra de ESE abono se reparte del préstamo no marcado más antiguo al más reciente
 // "from[id][abono.id]" guarda cuánto aportó cada abono a cada préstamo (así el comprobante muestra el cruce exacto).
-function allocateDetailed(errs, pays) {
+function allocateCiclo(errs, pays) {
   const sorted = [...errs].sort(byDay), cap = {}, paid = {}, from = {};
   for (const e of sorted) { cap[e.id] = e.total; paid[e.id] = 0; from[e.id] = {}; }
   const give = (id, p, a) => { cap[id] -= a; paid[id] += a; from[id][p.id] = (from[id][p.id] || 0) + a; };
@@ -872,6 +906,12 @@ function allocateDetailed(errs, pays) {
       const a = Math.min(left, cap[e.id]); if (a > 0) { give(e.id, p, a); left -= a; }
     }
   }
+  return { paid, from };
+}
+// Cada ciclo se reparte por separado: los abonos de un ciclo saldado jamás se aplican a préstamos de otro ciclo
+function allocateDetailed(errs, pays) {
+  const paid = {}, from = {};
+  for (const c of ciclosCliente(errs, pays)) { const r = allocateCiclo(c.errs, c.pays); Object.assign(paid, r.paid); Object.assign(from, r.from); }
   return { paid, from };
 }
 const allocate = (errs, pays) => allocateDetailed(errs, pays).paid;
@@ -990,8 +1030,8 @@ function renderPay() {
   const keep = $("#pAmt")?.value ?? (draft?.amount > 0 ? grp(draft.amount) : undefined);
   const keepDate = $("#pDate")?.value ?? draft?.date, keepM = $("#pMethod")?.value ?? draft?.method, keepN = $("#pNote")?.value ?? draft?.methodNote ?? "";
   draft = null;
-  const hist = clientPays(currentKey).sort(byDay);
-  const tot = totalsFrom(clientErrs(currentKey), hist);
+  const cur = obtenerSaldoCliente(currentKey), hist = [...cur.pays].sort(byDay);
+  const tot = totalsFrom(cur.errs, hist);   // solo el ciclo activo
   const acts = (t, id) => `<span class="act">${t === "pay" ? `<button type="button" data-act="view-pay" data-id="${id}" aria-label="Ver detalle / Reenviar comprobante" title="Ver detalle / Reenviar comprobante">📄</button>` : ""}${t === "err" ? `<button type="button" data-act="share-err" data-id="${id}" aria-label="Compartir este registro" title="Compartir este registro">📤</button>` : ""}<button type="button" data-act="edit-${t}" data-id="${id}" aria-label="Editar">✏️</button><button type="button" data-act="del-${t}" data-id="${id}" aria-label="Eliminar">🗑️</button></span>`;
   body.innerHTML = `
     <h3>${esc(name)}</h3>
@@ -1095,8 +1135,8 @@ function syncRow(id) { // actualiza la fila en el lugar (sin redibujar, para no 
 
 // Simula el abono para saber qué préstamos quedan cubiertos (Pago) y cuáles siguen pendientes (Debe)
 function buildPlan(k, amount, date, method, covers, saved, methodNote = "", partsIn = {}) {
-  const errs = clientErrs(k), list = pendingErrs(k), name = errs[0]?.client || "";
-  const hist = clientPays(k).sort(byDay);
+  const cur = obtenerSaldoCliente(k), errs = cur.errs, list = pendingErrs(k), name = clientErrs(k)[0]?.client || "";
+  const hist = [...cur.pays].sort(byDay);   // solo el ciclo activo
   amount = Math.min(amount, list.reduce((s, e) => s + pendingOf(e), 0));
   const cov = covers.filter(id => list.some(e => e.id === id));
   const prt = {}; // abonos parciales válidos: solo ítems pendientes, sin pasar de su saldo y sin duplicar un ítem ya marcado Pago
@@ -1614,7 +1654,8 @@ function abonoData(p) {
   } else {
     // Reconstrucción aproximada a la fecha del abono: solo los préstamos y abonos de ese día o anteriores.
     // Incluye también los préstamos que seguían debiéndose (aunque este abono no los tocara).
-    const day = dayOf(p), errs2 = errs.filter(e => dayOf(e) <= day), pays2 = pays.filter(q => q.id === p.id || dayOf(q) <= day);
+    const cic = ciclosCliente(errs, pays).find(c => c.pays.some(q => q.id === p.id)) || { errs, pays };   // solo el ciclo de este abono
+    const day = dayOf(p), errs2 = cic.errs.filter(e => dayOf(e) <= day), pays2 = cic.pays.filter(q => q.id === p.id || dayOf(q) <= day);
     const { paid, from } = allocateDetailed(errs2, pays2);
     detail = errs2.map(e => {
       const applied = from[e.id]?.[p.id] || 0, left = Math.max(0, e.total - paid[e.id]);
