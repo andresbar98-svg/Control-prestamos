@@ -267,6 +267,10 @@ dialog .hist li{background:var(--bg)}
 .rg-date .rg-sep{background:#6fa4ee}
 .rg-lb{display:block;font-size:.95rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#1559d6;line-height:1.1}
 .rg-date b{display:block;font-size:1.72rem;line-height:1.15;font-weight:900;color:#0b1c45;white-space:nowrap}
+.rg-date.rg-d2{gap:12px;padding-right:20px}
+.rg-d2 b{font-size:1.3rem}
+.rg-d2 .rg-am b{color:#0a3d1c}
+.rcpt.rg-2c .rg-d2 b{font-size:1.6rem}
 .rg-card{position:relative;z-index:2;margin-top:-40px;padding:58px 14px 24px;border-radius:32px;background:#ffffff;border-bottom:4px solid #ffc933;box-shadow:0 18px 34px rgba(0,0,0,.45);overflow:hidden;display:grid;gap:12px}
 .rg-gold{position:absolute;right:0;bottom:0;width:62%;height:46px;display:block;z-index:0}
 .rg-row{position:relative;z-index:1;display:flex;align-items:center;gap:14px;padding:14px 16px 14px 14px;border-radius:24px;background:#f0f7ff;box-shadow:none;overflow:hidden}
@@ -315,6 +319,17 @@ dialog .hist li{background:var(--bg)}
 .rg-pg .t{margin-right:0}
 .rg-pg small{margin-top:3px}
 .rg-pg small{white-space:nowrap}
+.rg-pg .rg-cd{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rg-pg .rg-l1{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+.rg-pg .rg-l1 b{display:inline}
+.rg-pg .rg-l2{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 8px}
+.rg-pg .rg-hl{font-weight:700;color:#2c5a1c}
+.rg-pg .rg-hl.act{font-weight:900;color:#0a3d1c}
+.rg-pc-body .ln.act{font-weight:900;color:#0b1c45}
+.rg-pg .rg-lv{font-size:.66rem;font-weight:800;color:#3f6b2c}
+.rg-pg .rg-pd{display:inline-flex;align-items:center;gap:4px;padding:1px 9px;border-radius:99px;background:#fff;border:1.5px solid #2e9e3f;color:#14532d;font-size:.7rem;font-weight:900;line-height:1.3;letter-spacing:.02em;box-shadow:0 1px 0 rgba(20,83,45,.18)}
+.rcpt.rg-2c .rg-pg .rg-pd{font-size:.95rem;padding:2px 12px}
+.rcpt.rg-2c .rg-pg .rg-lv{font-size:.84rem}
 .rg-pg .rg-ip{align-self:flex-start;background:#9fe070;color:#0a3d1c;box-shadow:0 1px 0 rgba(20,83,45,.25)}
 .rg-sd{flex:none;background:#ffe38a;border-radius:16px;padding:6px 12px;text-align:center;white-space:nowrap}
 .rg-sd .lb{display:block;font-style:normal;font-size:.7rem;font-weight:800;color:#2c4a8f;line-height:1.1}
@@ -354,6 +369,7 @@ dialog .hist li{background:var(--bg)}
 .rcpt.rg-2c .rg-pc-top{margin-bottom:10px;gap:14px}
 .rcpt.rg-2c .rg-pc-body{gap:5px}
 .rcpt.rg-2c .rg-pc-body .ln{font-size:1.05rem;font-weight:800}
+.rcpt.rg-2c .rg-pc-body .ln.act{font-weight:900}
 .rcpt.rg-2c .rg-it.rg-pg{padding:16px 14px;gap:12px}
 .rcpt.rg-2c .rg-pg small{font-size:1rem}
 .rcpt.rg-2c .rg-sd{padding:8px 14px;border-radius:18px}
@@ -1037,7 +1053,7 @@ function renderPay() {
     <h3>${esc(name)}</h3>
     ${tabsHTML()}
     <h4>Préstamos pendientes</h4>
-    ${list.length > 1 ? `<div class="chips"><button type="button" data-markall="1">Todos: Pago</button><button type="button" data-markall="0">Todos: Debe</button></div>` : ""}
+    ${list.length ? `<div class="chips">${list.length > 1 ? `<button type="button" data-markall="1">Todos: Pago</button><button type="button" data-markall="0">Todos: Debe</button>` : ""}<button type="button" id="bSharePend" aria-label="Compartir pendiente como imagen" title="Compartir pendiente como imagen">📤 Pendiente</button></div>` : ""}
     <ul class="items loans">${list.length ? list.map(e => { const on = marks.has(e.id), pv = partsSel.get(e.id) || 0; return `<li data-row="${e.id}" class="${on ? "paid" : ""}${pv > 0 ? " has-part" : ""}">
       <div class="r1"><span class="main">${esc(e.concept)}<small>${fmtDate(dayOf(e))}${(e.paid || 0) > 0 ? " · abonado " + money(e.paid) + " de " + money(e.total) : ""}</small></span>
         <span class="amt">${money(pendingOf(e))}</span>${acts("err", e.id)}</div>
@@ -1095,6 +1111,20 @@ function renderPay() {
     b.onclick = () => { list.forEach(e => toggleMark(e, b.dataset.markall === "1")); renderPay(); });
   $("#bPay").onclick = () => pay(balance);
   $("#bNew").onclick = () => openNewFor(name);
+  // Compartir PENDIENTE como imagen: solo los ítems en "Debe" (los marcados como "Pago" no se incluyen)
+  $("#bSharePend")?.addEventListener("click", e => {
+    const debe = list.filter(x => !marks.has(x.id));
+    if (!debe.length) { toast("No hay préstamos pendientes por compartir"); return; }
+    const plan = buildPlan(currentKey, 0, today(), "", [], false, "", {});
+    const detail = plan.detail.filter(x => !marks.has(x.id) && x.left > 0);
+    const sum = f => detail.reduce((t, x) => t + f(x), 0);
+    const d = { ...plan, amount: 0, hist: [], detail, remaining: sum(x => x.left), totals: { loans: sum(x => x.total), paid: sum(x => x.total - x.left), balance: sum(x => x.left) } };
+    const [yy, mm, dd] = today().split("-");
+    const text = [`📌 *Estado de Cuenta - ${name}*`, `📅 *Fecha:* ${dd}/${mm}/${yy}`, "", "*Préstamos Pendientes:*",
+      ...detail.map(x => `• ${x.concept} (${fmtItem(x.date)}): ${money(x.left)}`), "",
+      `💰 *Total Pendiente por Cobrar:* ${money(d.totals.balance)}`].join("\n");   // texto de respaldo si el equipo no puede compartir imágenes
+    whatsappAction(e.currentTarget, () => makeImage(d), text, () => name);
+  });
   $("#bStmt").onclick = () => {
     const M = Math.min(getMoney($("#pAmt")), balance);
     setReceipt(buildPlan(currentKey, M, $("#pDate").value || today(), $("#pMethod").value, [...marks], false, noteOf($("#pMethod").value, $("#pNote").value), partsObj()));
@@ -1145,7 +1175,8 @@ function buildPlan(k, amount, date, method, covers, saved, methodNote = "", part
   const after = alloc.paid;
   const detail = list.map(e => {
     const applied = alloc.from[e.id]?.__nuevo || 0, left = Math.max(0, e.total - after[e.id]); // applied = lo que ESTE abono aportó a este préstamo
-    return { id: e.id, concept: e.concept, date: dayOf(e), total: e.total, applied, left, status: left <= 0 ? "pago" : "debe" };
+    const prevs = hist.map(q => ({ date: dayOf(q), amount: alloc.from[e.id]?.[q.id] || 0 })).filter(a => a.amount > 0);   // abonos anteriores a ESTE préstamo (fecha + valor)
+    return { id: e.id, concept: e.concept, date: dayOf(e), total: e.total, applied, left, prevs, status: left <= 0 ? "pago" : "debe" };
   });
   const loans = errs.reduce((s, e) => s + e.total, 0), paid = hist.reduce((s, p) => s + p.amount, 0) + amount;
   return {
@@ -1166,10 +1197,10 @@ function buildComprobante(refId, k, name, plan) {
     cliente: name, clienteKey: k,
     // Préstamos vigentes tras el abono (lo que sigue debiéndose)
     deudasPendientes: plan.detail.filter(x => x.status !== "pago")
-      .map(x => ({ id: x.id, nombre: x.concept || "", fecha: x.date, valor: x.left, valorOriginal: x.total, abonoAplicado: x.applied })),
+      .map(x => ({ id: x.id, nombre: x.concept || "", fecha: x.date, valor: x.left, valorOriginal: x.total, abonoAplicado: x.applied, abonosPrevios: x.prevs || [] })),
     // Préstamos/cargos que cubrió este abono
     pagosCruzados: plan.detail.filter(x => x.status === "pago")
-      .map(x => ({ id: x.id, nombre: x.concept || "", fecha: x.date, valor: x.applied, valorOriginal: x.total })),
+      .map(x => ({ id: x.id, nombre: x.concept || "", fecha: x.date, valor: x.applied, valorOriginal: x.total, abonosPrevios: x.prevs || [] })),
     // abonos parciales: el préstamo sigue en deudasPendientes (con su saldo corregido) y aquí queda el cruce
     pagosParciales: plan.detail.filter(x => x.status !== "pago" && x.applied > 0)
       .map(x => ({ id: x.id, nombre: x.concept || "", fecha: x.date, valor: x.applied, valorOriginal: x.total, saldo: x.left })),
@@ -1183,8 +1214,8 @@ function buildComprobante(refId, k, name, plan) {
 // Convierte un snapshot en los datos que dibujan el comprobante (la misma plantilla sirve para el recibo nuevo y el histórico)
 function compToData(c) {
   const detail = [
-    ...(c.deudasPendientes || []).map(x => ({ id: x.id || "", concept: x.nombre, date: x.fecha, total: x.valorOriginal ?? x.valor, applied: x.abonoAplicado || 0, left: x.valor, status: "debe" })),
-    ...(c.pagosCruzados || []).map(x => ({ id: x.id || "", concept: x.nombre, date: x.fecha, total: x.valorOriginal ?? x.valor, applied: x.valor, left: 0, status: "pago" }))
+    ...(c.deudasPendientes || []).map(x => ({ id: x.id || "", concept: x.nombre, date: x.fecha, total: x.valorOriginal ?? x.valor, applied: x.abonoAplicado || 0, left: x.valor, prevs: x.abonosPrevios || [], status: "debe" })),
+    ...(c.pagosCruzados || []).map(x => ({ id: x.id || "", concept: x.nombre, date: x.fecha, total: x.valorOriginal ?? x.valor, applied: x.valor, left: 0, prevs: x.abonosPrevios || [], status: "pago" }))
   ];
   const totals = { loans: c.totalPrestamos, paid: c.totalAbonos, balance: c.saldoRestante };
   return { name: c.cliente, amount: c.montoAbonado, detail, hist: [], method: c.metodo || "", methodNote: c.metodoNota || "",
@@ -1276,9 +1307,10 @@ function shell(o) {
         </div>
         <div class="rg-bag">${RG.bag}</div>
       </div>
-      <div class="rg-date">
+      <div class="rg-date${o.amt ? " rg-d2" : ""}">
         <span class="rg-dic">${RG.cal}</span><span class="rg-sep"></span>
         <span><span class="rg-lb">${o.dl}</span><b>${o.dt}</b></span>
+        ${o.amt ? `<span class="rg-sep"></span><span class="rg-am"><span class="rg-lb">Monto abonado</span><b>${o.amt}</b></span>` : ""}
       </div>
       <div class="rg-card">
         ${RG.gold}
@@ -1496,27 +1528,45 @@ function receiptHTML(d, w) {
     : (x.total - x.left > 0 ? " · préstamo " + money(x.total) + " · abonado " + money(x.total - x.left) : ""));
   const pn = (cls, icon, title, inner, foot) => `<div class="rg-pn ${cls}"><div class="rg-ph"><span class="rg-pi">${icon}</span><span class="rg-pt">${title}</span></div>${inner}${foot || ""}</div>`;
   // Ítem con abono: título · fecha / Préstamo / Abono (izquierda) y píldora "Saldo" (derecha). Sin abono: tarjeta simple.
+  // Historial de un préstamo con abonos fraccionados: inicial, cada abono anterior (fecha + valor), abono actual y saldo restante
+  const histItems = (x, conSaldo) => [
+    { t: `Préstamo inicial: ${money(x.total)}` },
+    ...(x.prevs || []).map(a => ({ t: `• ${fmtItem(a.date)}: ${money(a.amount)}` })),   // un renglón por abono previo (fecha + valor exacto)
+    ...(x.applied > 0 ? [{ t: `• ${d.date ? fmtItem(d.date) : "Hoy"} (Abono actual): ${money(x.applied)}`, act: 1 }] : []),
+    ...(conSaldo ? [{ t: `Saldo restante: ${money(x.left)}` }] : [])
+  ];
+  // Ítem con abono: título · fecha / detalle (izquierda) y píldora "Saldo" (derecha). Sin abono: tarjeta simple.
+  // Ítem con abono: título · fecha / detalle (izquierda) y píldora "Saldo" (derecha). Sin abono: tarjeta simple.
   const debeCard = x => {
     const prior = Math.max(0, x.total - x.left - x.applied);   // abonos acumulados antes de este cobro
     const before = x.left + x.applied;                          // saldo pendiente antes de este cobro
     if (x.applied <= 0 && prior <= 0) return it(x.concept, fmtItem(x.date), x.left);
+    // Con historial: en la tarjeta azul cada renglón muestra el SALDO que quedó tras ese abono (620.000 → 530.000 → ...)
+    let run = x.total;
+    const saldos = [{ t: `Préstamo inicial: ${money(x.total)}` },
+      ...(x.prevs || []).map(a => ({ t: `• ${fmtItem(a.date)}: ${money(run -= a.amount)}` })),
+      ...(x.applied > 0 ? [{ t: `• ${d.date ? fmtItem(d.date) : "Hoy"} (Abono actual): ${money(run -= x.applied)}`, act: 1 }] : [])];
+    const lines = (x.prevs || []).length
+      ? saldos.map(h => `<span class="ln${h.act ? " act" : ""}">${h.t}</span>`).join("")
+      : `<span class="ln">Préstamo: ${money(x.total)}</span><span class="ln">Saldo anterior: ${money(before)}</span>`
+        + (x.applied > 0 ? `<span class="ln act">Abono: ${money(x.applied)}</span>` : "");
     return `<div class="rg-it rg-pc"><div class="rg-pc-top"><span class="rg-pc-hd"><b>${esc(x.concept)}</b><small>${fmtItem(x.date)}</small></span>`
       + `<span class="rg-sd"><span class="lb">Saldo:</span><b>${money(x.left)}</b></span></div>`
-      + `<div class="rg-pc-body"><span class="ln">Préstamo: ${money(x.total)}</span>`
-      + `<span class="ln">Saldo anterior: ${money(before)}</span>`
-      + (x.applied > 0 ? `<span class="ln">Abono: ${money(x.applied)}</span>` : "")
-      + `</div></div>`;
+      + `<div class="rg-pc-body">${lines}</div></div>`;
   };
-  // PAGO (cruce): encabezado / fecha • tipo / detalle de saldo (izquierda) + badge verde con el monto (derecha)
+  // PAGO (cruce): línea 1 concepto + sello · línea 2 fecha + valor del préstamo · derecha monto cobrado
   const payCard = x => {
     const prior = Math.max(0, x.total - x.left - x.applied);   // abonos previos acumulados
-    return `<div class="rg-it rg-pg"><span class="t"><b>${esc(x.concept)}</b>`
-      + `<small>${fmtDate(x.date)}</small>`
-      + `<small>${x.status === "pago" ? "Préstamo cubierto" : "Abono a préstamo"}</small>`
-      + `<small>Préstamo: ${money(x.total)}</small>`
-      + `<small>Abono antes: ${money(prior)}</small>`
-      + `<small>Saldo: ${money(x.left)}</small></span>`
-      + `<span class="rg-ip">${money(x.applied)}</span></div>`;
+    const saldado = x.status === "pago";                        // concepto cubierto por completo con este pago
+    const conHist = (x.prevs || []).length > 0;                 // pagos fraccionados: se lista el historial completo
+    let det = "";
+    if (conHist) det = histItems(x, !saldado).map(h => `<small class="rg-hl${h.act ? " act" : ""}">${h.t}</small>`).join("");   // saldado: el sello ya indica que no queda saldo
+    else if (saldado) det = prior > 0 ? `<small>Abono anterior: ${money(prior)}</small><small>Saldo: ${money(x.left + x.applied)}</small>` : "";   // directo: solo sello
+    else det = (prior > 0 ? `<small>Abono anterior: ${money(prior)}</small>` : "") + `<small>Saldo: ${money(x.left)}</small>`;
+    return `<div class="rg-it rg-pg"><span class="t">`
+      + `<span class="rg-l1"><b>${esc(x.concept)}</b>${saldado ? `<span class="rg-pd">✅ Pagado</span>` : ""}</span>`
+      + `<span class="rg-l2"><small>${fmtDate(x.date)}</small>${conHist ? "" : `<small class="rg-lv">${money(x.total)}</small>`}</span>`
+      + det + `</span><span class="rg-ip">${money(x.applied)}</span></div>`;
   };
   const debeInner = debeRows.length ? debeRows.map(debeCard).join("") : none("Sin ítems pendientes");
   const debeFoot = `<div class="rg-pf"><span>${abono ? "Pendiente tras el abono" : "Total pendiente"}</span><strong>${money(sum(debeRows, x => x.left))}</strong></div>`;
@@ -1525,7 +1575,7 @@ function receiptHTML(d, w) {
   let main;
   if (abono && multi) { // 2 columnas: DEBE (pendientes) | PAGO (cruce)
     const payInner = payRows.length ? payRows.map(payCard).join("") : none(`Ningún ítem cubierto`);
-    const payFoot = `<div class="rg-pf"><span>Monto abonado<small>${dTxt} • ${esc(meth)}</small></span><strong>${money(d.amount)}</strong></div>`;
+    const payFoot = `<div class="rg-pf"><span>Monto abonado · ${esc(meth)}</span><strong>${money(d.amount)}</strong></div>`;
     main = `<div class="rg-two">${debePanel}${pn("gr", IC.hand, "PAGO (CRUCE)", payInner, payFoot)}</div>`;
   } else if (abono) { // 1 columna: un solo ítem
     const x = d.detail[0];
@@ -1539,7 +1589,7 @@ function receiptHTML(d, w) {
       `<div class="rg-pf"><span>Total abonos</span><strong>${money(t.paid)}</strong></div>`) : "";
     main = multi ? `<div class="rg-two">${debePanel}${abPanel}</div>` : debePanel + abPanel;
   }
-  return shell({ w, wide: multi, t1: abono && d.saved ? "Comprobante de" : "Estado de", t2: abono && d.saved ? "pago" : "cuenta", dl: abono ? "Fecha del abono" : "Fecha", dt: dTxt, body: `
+  return shell({ w, wide: multi, t1: abono && d.saved ? "Comprobante de" : "Estado de", t2: abono && d.saved ? "pago" : "cuenta", dl: abono ? "Fecha del abono" : "Fecha", dt: dTxt, amt: abono ? money(d.amount) : "", body: `
         ${cliRow(d.name)}
         ${main}
         <div class="rg-tots">
@@ -1642,9 +1692,25 @@ const detImage = () => (det.img ||= makeImage(det.d).catch(e => { det.img = null
 
 // Arma los datos del comprobante de un abono ya registrado.
 // Con detalle guardado se usa tal cual; sin él (abonos viejos o modificados después) se reconstruye con los préstamos actuales.
+// Comprobantes guardados antes de existir el historial por préstamo: se reconstruye la lista de abonos previos (fecha + valor)
+// a partir de los pagos del cliente. Solo se usa si la suma coincide con lo abonado antes según el comprobante guardado.
+function fillPrevs(d, p) {
+  try {
+    const k = p.key, errs = clientErrs(k), pays = clientPays(k), day = dayOf(p);
+    const cic = ciclosCliente(errs, pays).find(c => c.pays.some(q => q.id === p.id)); if (!cic) return;
+    const pays2 = cic.pays.filter(q => q.id === p.id || dayOf(q) <= day), errs2 = cic.errs.filter(e => dayOf(e) <= day);
+    const { from } = allocateDetailed(errs2, pays2);
+    for (const x of d.detail) {
+      if ((x.prevs || []).length) continue;
+      const prior = Math.max(0, x.total - x.left - x.applied); if (prior <= 0) continue;
+      const prevs = pays2.filter(q => q.id !== p.id).sort(byDay).map(q => ({ date: dayOf(q), amount: from[x.id]?.[q.id] || 0 })).filter(a => a.amount > 0);
+      if (prevs.reduce((t, a) => t + a.amount, 0) === prior) x.prevs = prevs;
+    }
+  } catch (e) { /* sin historial: se muestra el acumulado */ }
+}
 function abonoData(p) {
   // Abonos nuevos: se reconstruye el comprobante con el snapshot guardado, sin recalcular nada
-  if (p.comprobante) return { note: "Comprobante histórico: muestra los datos exactos del momento del abono.", id: p.comprobante.idComprobante, d: compToData(p.comprobante) };
+  if (p.comprobante) { const d = compToData(p.comprobante); fillPrevs(d, p); return { note: "Comprobante histórico: muestra los datos exactos del momento del abono.", id: p.comprobante.idComprobante, d }; }
   const k = p.key, errs = clientErrs(k), pays = clientPays(k), s = p.detalle;
   const name = p.client || errs[0]?.client || "";
   let detail, totals, note = "";
@@ -1659,7 +1725,8 @@ function abonoData(p) {
     const { paid, from } = allocateDetailed(errs2, pays2);
     detail = errs2.map(e => {
       const applied = from[e.id]?.[p.id] || 0, left = Math.max(0, e.total - paid[e.id]);
-      return { id: e.id, concept: e.concept, date: dayOf(e), total: e.total, applied, left, status: left <= 0 ? "pago" : "debe" };
+      const prevs = pays2.filter(q => q.id !== p.id).map(q => ({ date: dayOf(q), amount: from[e.id]?.[q.id] || 0 })).filter(a => a.amount > 0);
+      return { id: e.id, concept: e.concept, date: dayOf(e), total: e.total, applied, left, prevs, status: left <= 0 ? "pago" : "debe" };
     }).filter(x => x.applied > 0 || x.left > 0);
     totals = totalsFrom(errs2, pays2);
     note = s ? "Este abono se modificó después de registrarse: el desglose se recalculó con los datos disponibles."
