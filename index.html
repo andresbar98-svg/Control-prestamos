@@ -165,6 +165,48 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
 .hist .main small{display:block;color:var(--mute);font-size:.78rem;margin-top:2px}
 .hist .chev{color:var(--mute);font-size:1.4rem;line-height:1;flex:none}
 dialog .hist li{background:var(--bg)}
+
+/* Dinero guardado: botones junto al título + vista de historial */
+.hhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hhead h3{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hhead .hb{display:flex;gap:8px;flex:none}
+.hhead .hb button{min-height:40px;min-width:40px;padding:0 12px;font-size:.82rem;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:12px;background:var(--bg);border:1px solid var(--line);color:var(--text)}
+.hhead .hb .hwa{background:#0f2a1b;border-color:#1f6b3f;color:#25d366}
+.hhead .hb button:disabled{opacity:.4}
+.hsum{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hsum div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:2px}
+.hsum span{font-size:.75rem;color:var(--mute)}
+.hsum strong{font-size:1.05rem;font-variant-numeric:tabular-nums}
+.hsum .in strong{color:var(--ok)} .hsum .out strong{color:var(--bad)}
+.hfull{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.hfull li{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.hfull li.entra{background:rgba(95,208,160,.13);border-color:rgba(95,208,160,.4)}
+.hfull li.sale{background:rgba(255,122,122,.13);border-color:rgba(255,122,122,.4)}
+.hfull .main{flex:1;min-width:0}
+.hfull .main b{display:block;white-space:nowrap;font-size:.92rem}
+.hfull .main small{display:block;color:var(--mute);font-size:.76rem;overflow-wrap:anywhere}
+.hfull .acts{flex:none;display:flex;gap:4px}
+.hfull .acts button{min-height:32px;min-width:32px;width:32px;padding:0;font-size:.85rem;line-height:1;border-radius:9px;background:var(--bg);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center}
+.hfull .acts .wa{background:#0f2a1b;border-color:#1f6b3f;color:#25d366}
+.hfull .a{flex:none;min-width:5.6rem;text-align:right;font-weight:700;font-size:.95rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.hfull li.entra .a{color:var(--ok)} .hfull li.sale .a{color:var(--bad)}
+.hfull .none{display:block;text-align:center;color:var(--mute)}
+/* Dinero guardado: movimiento con su botón de comprobante */
+.items.hist li.mv{display:block;cursor:default;padding:10px 12px}
+.mv .r1{display:flex;align-items:center;gap:6px}
+.mv .r1 .main{flex:1;min-width:0}
+.mv .main b{white-space:nowrap;font-size:.92rem}
+.items.hist li.mv.entra{background:rgba(95,208,160,.13);border-color:rgba(95,208,160,.4)}
+.items.hist li.mv.sale{background:rgba(255,122,122,.13);border-color:rgba(255,122,122,.4)}
+.mv .r1 .amt{flex:none;min-width:5.6rem;text-align:right;font-weight:700;font-size:.95rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mv.sale .amt{color:var(--bad)} .mv.entra .amt{color:var(--ok)}
+.row>label{min-width:0}
+.mtabs{margin:22px 0 14px}
+.mtabs button{min-height:50px;line-height:1.15;font-size:.84rem;font-weight:600;padding:0 6px}
+.mv .acts{flex:none;display:flex;gap:4px}
+.mv .acts button{min-height:32px;min-width:32px;width:32px;padding:0;font-size:.85rem;line-height:1;border-radius:9px;background:var(--bg);border:1px solid var(--line)}
+.mv .acts .wa{background:#0f2a1b;border-color:#1f6b3f;color:#25d366;display:inline-flex;align-items:center;justify-content:center}
+.cobl li .pill{flex:none;min-height:40px;padding:0 16px}
 #dPrev img{width:100%;max-height:none}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:4px}
 .tabs button{min-height:40px;font-size:.85rem;background:transparent;color:var(--mute);border-radius:10px;padding:0 8px}
@@ -343,6 +385,18 @@ dialog .hist li{background:var(--bg)}
 .rg-tr{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;font-weight:800;font-size:1.05rem;color:#10285f}
 .rg-tr+.rg-tr{border-top:2px solid #a9c6ef}
 .rg-tr strong{font-weight:900;color:#0b1c45}
+.rg-hr{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:18px;background:#e3f7ea}
+.rg-hr.out{background:#ffe6e6}
+.rg-hr b{display:block;font-size:1.02rem;color:#0b1c45;font-weight:800}
+.rg-hr small{display:block;font-size:.78rem;color:#4b5b82;font-weight:600;overflow-wrap:anywhere}
+.rg-hr .am{flex:none;text-align:right;font-weight:900;font-size:1.1rem;color:#0f7a43;white-space:nowrap}
+.rg-hr.out .am{color:#c0392b}
+.rg-hr .am small{color:#4b5b82;font-size:.74rem}
+.rg-tot{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rg-tot div{background:#f0f7ff;border-radius:18px;padding:10px 14px}
+.rg-tot span{display:block;font-size:.78rem;color:#4b5b82;font-weight:700}
+.rg-tot b{display:block;font-size:1.2rem;font-weight:900;color:#0f7a43}
+.rg-tot .o b{color:#c0392b}
 .rg-sal{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;background:#ffd54a;border-radius:22px;padding:10px 12px;overflow:hidden}
 .rg-sal.ok{background:#b9ecc6}
 .rg-sl{display:flex;align-items:center;min-width:0;font-family:"Kalam","Segoe Print","Comic Sans MS",cursive;font-weight:700;font-size:1.2rem;line-height:1.1;color:#0b1c45}
@@ -469,20 +523,30 @@ dialog .hist li{background:var(--bg)}
     </button>
   </section>
 
-  <section aria-label="Deudores">
-    <h2>Quién me debe</h2>
+  <div class="tabs mtabs" role="tablist" aria-label="Secciones">
+    <button type="button" role="tab" class="on" data-mtab="debts">💵 Créditos / Quién me debe</button>
+    <button type="button" role="tab" data-mtab="hold">🔐 Dinero guardado</button>
+  </div>
+
+  <section id="pDebts" aria-label="Deudores">
     <ul id="debtors" class="debtors"></ul>
-    <p id="empty" class="empty" hidden>Nadie te debe nada. Registra un mandado con el botón +.</p>
+    <p id="empty" class="empty" hidden>Nadie te debe nada. Registra un cliente con el botón +.</p>
+  </section>
+
+  <section id="pHold" aria-label="Dinero guardado y saldos a favor" style="padding-bottom:84px" hidden>
+    <ul id="holds" class="debtors"></ul>
+    <p id="holdsEmpty" class="empty" hidden>Nadie tiene dinero guardado ni saldo a favor.</p>
   </section>
 
 </main>
 
-<button class="fab" id="btnNew" aria-label="Nuevo mandado">+ Mandado</button>
+<button class="fab" id="btnHold" aria-label="Dinero guardado" style="right:auto;left:16px;padding:0 20px">🔐 Dinero guardado</button>
+<button class="fab" id="btnNew" aria-label="Nuevo cliente">+ Nuevo cliente</button>
 
 <!-- Nuevo mandado -->
 <dialog id="dNew">
   <form id="fNew" method="dialog" autocomplete="off">
-    <h3 id="nTitle">Nuevo mandado</h3>
+    <h3 id="nTitle">Nuevo cliente</h3>
     <label>Cliente
       <input id="fClient" list="clientList" required placeholder="Nombre">
       <datalist id="clientList"></datalist>
@@ -499,6 +563,116 @@ dialog .hist li{background:var(--bg)}
     <div class="actions">
       <button type="button" class="ghost" data-close>Cancelar</button>
       <button type="submit" class="primary">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Dinero guardado: lista de personas con saldo en custodia -->
+<dialog id="dHoldList">
+  <div>
+    <h3>Dinero guardado</h3>
+    <ul class="cobl" id="hlList"></ul>
+    <div class="total cobt"><span>Total en custodia</span><strong id="hlTot">$0</strong></div>
+    <button type="button" class="btn-new" id="hlNew">➕ Guardar dinero de otra persona</button>
+    <button type="button" class="ghost" data-close>Cerrar</button>
+  </div>
+</dialog>
+
+<!-- Dinero guardado: ficha de una persona (ni préstamo ni abono) -->
+<dialog id="dHold">
+  <form id="fHold" method="dialog" autocomplete="off">
+    <div class="hhead">
+      <h3 id="hTitle">Dinero guardado</h3>
+      <div class="hb">
+        <button type="button" id="hHist" aria-label="Ver historial" title="Historial"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>Historial</button>
+        <button type="button" class="hwa" id="hShare" aria-label="Compartir historial por WhatsApp" title="Compartir historial por WhatsApp"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.875 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></button>
+      </div>
+    </div>
+    <label>Cliente
+      <input id="hClient" list="clientList" required placeholder="Nombre">
+    </label>
+    <div class="total"><span>Saldo en custodia</span><strong id="hBal">$0</strong></div>
+    <p class="hint" id="hInfo" hidden></p>
+    <div class="row">
+      <label>Movimiento
+        <select id="hType">
+          <option value="custodia">📥 Ingresó dinero</option>
+          <option value="devolucion">📤 Retiró dinero</option>
+        </select>
+      </label>
+      <label>Monto
+        <input id="hAmt" data-money inputmode="numeric" pattern="[1-9][0-9.]*" title="Escribe un monto mayor a 0" autocomplete="off" required placeholder="0">
+      </label>
+    </div>
+    <div class="row">
+      <label>Medio de pago
+        <select id="hMedio">
+          <option value="efectivo">💵 Efectivo</option>
+          <option value="nequi">📱 Nequi</option>
+          <option value="daviplata">📱 Daviplata</option>
+          <option value="bancolombia">🏦 Bancolombia</option>
+        </select>
+      </label>
+      <label>Fecha
+        <input id="hDate" type="date" required>
+      </label>
+    </div>
+    <label>Nota (opcional)
+      <input id="hNote" maxlength="80" placeholder="Ej. para pagar el arriendo">
+    </label>
+    <div class="actions">
+      <button type="button" class="ghost" data-close>Cerrar</button>
+      <button type="submit" class="primary">Guardar movimiento</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Dinero guardado: historial completo de una persona -->
+<dialog id="dHoldHist">
+  <div>
+    <div class="hhead">
+      <h3 id="hhTitle">Historial</h3>
+      <div class="hb"><button type="button" class="hwa" id="hhShare" aria-label="Compartir historial por WhatsApp" title="Compartir por WhatsApp"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.875 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></button></div>
+    </div>
+    <div class="total"><span>Saldo en custodia</span><strong id="hhBal">$0</strong></div>
+    <div class="hsum">
+      <div class="in"><span>📥 Total ingresado</span><strong id="hhIn">$0</strong></div>
+      <div class="out"><span>📤 Total retirado</span><strong id="hhOut">$0</strong></div>
+    </div>
+    <ul class="hfull" id="hhList"></ul>
+    <button type="button" class="ghost" data-close>Cerrar</button>
+  </div>
+</dialog>
+
+<!-- Editar un movimiento de dinero guardado -->
+<dialog id="dMvEdit">
+  <form id="fMvEdit" method="dialog" autocomplete="off">
+    <h3>Editar movimiento</h3>
+    <div class="row">
+      <label>Movimiento
+        <select id="mType">
+          <option value="custodia">📥 Ingresó dinero</option>
+          <option value="devolucion">📤 Retiró dinero</option>
+        </select>
+      </label>
+      <label>Monto
+        <input id="mAmt" data-money inputmode="numeric" pattern="[1-9][0-9.]*" title="Escribe un monto mayor a 0" autocomplete="off" required placeholder="0">
+      </label>
+    </div>
+    <div class="row">
+      <label>Medio de pago
+        <select id="mMedio"></select>
+      </label>
+      <label>Fecha
+        <input id="mDate" type="date" required>
+      </label>
+    </div>
+    <label>Nota (opcional)
+      <input id="mNote" maxlength="80">
+    </label>
+    <div class="actions">
+      <button type="button" class="ghost" data-close>Cancelar</button>
+      <button type="submit" class="primary">Guardar cambios</button>
     </div>
   </form>
 </dialog>
@@ -671,7 +845,7 @@ const fmtLong = s => { const t = parts(s); return `${t.d} de ${t.m} de ${t.y}`; 
 const dayOf = x => x.date || ymd(dateOf(x.createdAt)); // registros viejos usan su fecha de creación
 const byDay = (a, b) => dayOf(a).localeCompare(dayOf(b));
 
-let errands = [], payments = [], currentKey = null, tab = "cobrar"; // tab: "cobrar" | "hist"
+let errands = [], payments = [], moves = [], currentKey = null, tab = "cobrar"; // tab: "cobrar" | "hist"
 
 function toast(t) {
   const el = $("#toast"); el.textContent = t; el.classList.add("show");
@@ -719,6 +893,10 @@ onSnapshot(query(collection(db, "mandados"), orderBy("createdAt", "asc")), live,
 onSnapshot(query(collection(db, "pagos"), orderBy("createdAt", "asc")), live, s => {
   netMeta("p", s);
   if (!got.p || s.docChanges().length) { got.p = true; payments = s.docs.map(d => ({ id: d.id, ...d.data(DOC) })); render(); }
+}, onErr);
+// Movimientos aparte de préstamos y abonos: saldo a favor ("favor") y dinero guardado ("custodia" / "devolucion")
+onSnapshot(query(collection(db, "movimientos"), orderBy("createdAt", "asc")), live, s => {
+  if (!got.x || s.docChanges().length) { got.x = true; moves = s.docs.map(d => ({ id: d.id, ...d.data(DOC) })); render(); }
 }, onErr);
 
 // Totales del cliente: préstamos, abonos y saldo (préstamos − abonos)
@@ -822,10 +1000,21 @@ function render() {
       <button class="pill" data-pay="${esc(g.key)}">Cobrar</button>
     </li>`).join("");
   $("#empty").hidden = debtors.length > 0;
-  $("#clientList").innerHTML = gs.map(g => `<option value="${esc(g.name)}">`).join("");
+  const hs = holdGroups();
+  $("#holds").innerHTML = hs.sort((x, y) => y.cust - x.cust || y.fav - x.fav).map(g => `
+    <li>
+      <div class="who"><b>${esc(g.name)}</b><small>${g.cust > 0 ? (g.fav > 0 ? "En custodia · a favor: " + money(g.fav) : "En custodia") : "Saldo a favor"}</small></div>
+      <span class="bal" style="color:var(--ok)">${money(g.cust > 0 ? g.cust : g.fav)}</span>
+      <button class="pill" data-hold="${esc(g.key)}">Abrir</button>
+    </li>`).join("");
+  $("#holdsEmpty").hidden = hs.length > 0;
+  const names = new Map(gs.map(g => [g.key, g.name])); for (const m of moves) if (!names.has(m.key)) names.set(m.key, m.client);
+  $("#clientList").innerHTML = [...names.values()].map(n => `<option value="${esc(n)}">`).join("");
   if ($("#dPay").open && currentKey) renderPay(); // refresca el saldo en vivo
   if ($("#dCob").open) renderCob();                // y el historial de cobros si está abierto
-  if ($("#dLoan").open) renderLoans();             // y el de préstamos
+  if ($("#dLoan").open) renderLoans();
+  if ($("#dHold").open) renderHold();             // y la ficha de dinero guardado
+  if ($("#dHoldList").open) renderHoldList();     // y su lista             // y el de préstamos
 }
 
 /* ---------- Historial de abonos (por cliente, dentro de su ventana) ---------- */
@@ -842,7 +1031,7 @@ $("#debtors").addEventListener("click", e => {
 
 /* ---------- Métodos de pago ---------- */
 const METHODS = { efectivo: "💵 Efectivo", transferencia: "🏦 Transferencia / Nequi / Daviplata", otro: "📝 Otro" };
-const MS = { efectivo: "Efectivo", transferencia: "Transferencia", otro: "Otro", encargo: "Encargo / Producto" }; // "encargo" ya no se ofrece; solo se conserva para mostrar abonos antiguos
+const MS = { efectivo: "Efectivo", transferencia: "Transferencia", otro: "Otro", favor: "Saldo a favor", encargo: "Encargo / Producto" }; // "encargo" ya no se ofrece; solo se conserva para mostrar abonos antiguos
 const methodOptions = sel => Object.entries(METHODS).map(([k, v]) => `<option value="${k}"${k === sel ? " selected" : ""}>${v}</option>`).join("");
 // Texto del método: con "Otro" se muestra exactamente lo que escribió el usuario (p. ej. "Repuestos moto"); si lo dejó vacío, "Otro"
 const mTxt = (m, note) => m === "otro" && note ? note : (MS[m] || "");
@@ -860,6 +1049,14 @@ const noteOf = (method, v) => method === "otro" ? (v || "").trim().slice(0, 80) 
 const clientErrs = k => errands.filter(e => norm(e.client) === k);
 // Abonos vigentes del cliente. Los "settled" son cobros de préstamos ya borrados: solo cuentan en "Cobrado este mes"
 const clientPays = k => payments.filter(p => p.key === k && !p.settled);
+
+/* ---------- SALDO A FAVOR y DINERO GUARDADO ----------
+   Saldo a favor = excedentes de abonos (movimientos "favor") − lo ya descontado en préstamos nuevos (abonos con fromFavor).
+   Dinero guardado = "custodia" (me lo deja) − "devolucion" (se lo devuelvo). No afecta préstamos, abonos ni "Cobrado este mes". */
+const sumMoves = (k, t) => moves.filter(m => m.key === k && m.type === t).reduce((s, m) => s + m.amount, 0);
+const saldoFavor = k => Math.max(0, sumMoves(k, "favor") - payments.filter(p => p.key === k && p.fromFavor).reduce((s, p) => s + p.amount, 0));
+const custodia = k => Math.max(0, sumMoves(k, "custodia") - sumMoves(k, "devolucion"));
+const moveDoc = (client, key, type, amount, date, note = "", medio = "") => ({ client, key, type, amount, date, ...(note ? { note } : {}), ...(medio ? { medio } : {}), createdAt: serverTimestamp() });
 
 /* ---------- CICLOS DE CUENTA ----------
    Un ciclo empieza con un préstamo/mandado y termina cuando los abonos alcanzan o superan lo prestado (SALDADO).
@@ -950,7 +1147,7 @@ const dNew = $("#dNew");
 function openNew(client) { // client: nombre fijo (desde la cuenta de un cliente) o undefined (mandado general)
   $("#fNew").reset();
   $("#fClient").readOnly = !!client; $("#fClient").value = client || "";
-  $("#nTitle").textContent = client ? "Nuevo préstamo · " + client : "Nuevo mandado";
+  $("#nTitle").textContent = client ? "Nuevo préstamo · " + client : "Nuevo cliente";
   $("#fDate").max = $("#fDate").value = today(); dNew.showModal();
   setTimeout(() => $("#fConcept").focus(), 50);
 }
@@ -962,9 +1159,15 @@ $("#fNew").addEventListener("submit", () => {
   const client = $("#fClient").value.trim(), lent = getMoney($("#fLent")), k = norm(client);
   const data = { client, concept: $("#fConcept").value.trim(), lent, total: lent, date: $("#fDate").value || today() };
   const ref = doc(collection(db, "mandados"));
-  commit([...clientErrs(k), { id: ref.id, ...data, paid: 0, isNew: true }], clientPays(k),
-    (b, paid) => b.set(ref, { ...data, paid: paid[ref.id], createdAt: serverTimestamp() }));
-  toast("Mandado guardado");
+  // Saldo a favor: se descuenta solo, como un abono (método "Saldo a favor") hasta cubrir el préstamo o agotar el saldo
+  const use = Math.min(saldoFavor(k), lent), pref = use > 0 ? doc(collection(db, "pagos")) : null;
+  const favPay = use > 0 ? { id: pref.id, amount: use, date: today(), method: "favor", fromFavor: true } : null;
+  commit([...clientErrs(k), { id: ref.id, ...data, paid: 0, isNew: true }], [...clientPays(k), ...(favPay ? [favPay] : [])],
+    (b, paid) => {
+      b.set(ref, { ...data, paid: paid[ref.id], createdAt: serverTimestamp() });
+      if (favPay) b.set(pref, { client, key: k, amount: use, date: favPay.date, method: "favor", fromFavor: true, createdAt: serverTimestamp() });
+    });
+  toast(use > 0 ? `Mandado guardado · se descontaron ${money(use)} de su saldo a favor` : "Mandado guardado");
 });
 
 /* ---------- Cobrar ---------- */
@@ -1011,6 +1214,7 @@ function renderPay() {
     if (canReg) $("#bReg").onclick = () => {
       const q = lastData.pay, plan = buildPlan(currentKey, q.amount, q.date, q.method, q.covers, true, q.methodNote, q.parts);
       if (plan.amount <= 0) return toast("No hay saldo pendiente para abonar");
+      plan.extra = lastData.extra || 0;
       finishPay(plan, registerPay(currentKey, plan));
     };
     $("#bSave").onclick = e => imageAction(e.currentTarget, false);
@@ -1047,6 +1251,7 @@ function renderPay() {
   const keepDate = $("#pDate")?.value ?? draft?.date, keepM = $("#pMethod")?.value ?? draft?.method, keepN = $("#pNote")?.value ?? draft?.methodNote ?? "";
   draft = null;
   const cur = obtenerSaldoCliente(currentKey), hist = [...cur.pays].sort(byDay);
+  const fav = saldoFavor(currentKey), cust = custodia(currentKey);
   const tot = totalsFrom(cur.errs, hist);   // solo el ciclo activo
   const acts = (t, id) => `<span class="act">${t === "pay" ? `<button type="button" data-act="view-pay" data-id="${id}" aria-label="Ver detalle / Reenviar comprobante" title="Ver detalle / Reenviar comprobante">📄</button>` : ""}${t === "err" ? `<button type="button" data-act="share-err" data-id="${id}" aria-label="Compartir este registro" title="Compartir este registro">📤</button>` : ""}<button type="button" data-act="edit-${t}" data-id="${id}" aria-label="Editar">✏️</button><button type="button" data-act="del-${t}" data-id="${id}" aria-label="Eliminar">🗑️</button></span>`;
   body.innerHTML = `
@@ -1066,6 +1271,7 @@ function renderPay() {
       <div class="s-bal"><small>Saldo pendiente</small><strong id="sBal"></strong></div>
     </div>
     <div class="total"><span id="sLbl"></span><strong id="sBalT"></strong></div>
+    <p class="hint" id="sExtra" style="color:var(--ok)" hidden></p>
     <label>Monto recibido
       <input id="pAmt" data-money inputmode="numeric" autocomplete="off" placeholder="0" value="${keep ?? ""}">
     </label>
@@ -1082,6 +1288,8 @@ function renderPay() {
     <label>Fecha del abono
       <input id="pDate" type="date" max="${today()}" value="${keepDate || today()}">
     </label>
+    ${fav > 0 ? `<p class="hint">💰 Saldo a favor disponible: <b>${money(fav)}</b> · se descuenta solo en su próximo préstamo</p>` : ""}
+    <div class="chips"><button type="button" id="bHold">🔐 Dinero guardado${cust > 0 ? " · " + money(cust) : ""}</button></div>
     <div class="bar">
       <div class="actions main">
         <button type="button" class="btn-new" id="bNew">➕ Nuevo Préstamo</button>
@@ -1095,7 +1303,8 @@ function renderPay() {
 
   // Vista previa en vivo: el monto recibido se suma al total abonado y se resta del saldo
   const refresh = () => {
-    const M = Math.min(getMoney($("#pAmt")), balance);
+    const R = getMoney($("#pAmt")), M = Math.min(R, balance), X = R - M; // X = lo que sobra del monto recibido
+    $("#sExtra").hidden = X <= 0; $("#sExtra").textContent = X > 0 ? `💰 ${money(X)} quedarán como saldo a favor de ${name}` : "";
     $("#sPaid").textContent = money(tot.paid + M);
     $("#sHint").textContent = M > 0 ? `+ ${money(M)} este abono` : "";
     $("#sBal").textContent = $("#sBalT").textContent = money(Math.max(0, balance - M));
@@ -1111,6 +1320,7 @@ function renderPay() {
     b.onclick = () => { list.forEach(e => toggleMark(e, b.dataset.markall === "1")); renderPay(); });
   $("#bPay").onclick = () => pay(balance);
   $("#bNew").onclick = () => openNewFor(name);
+  $("#bHold").onclick = () => openHold(name);
   // Compartir PENDIENTE como imagen: solo los ítems en "Debe" (los marcados como "Pago" no se incluyen)
   $("#bSharePend")?.addEventListener("click", e => {
     const debe = list.filter(x => !marks.has(x.id));
@@ -1126,8 +1336,10 @@ function renderPay() {
     whatsappAction(e.currentTarget, () => makeImage(d), text, () => name);
   });
   $("#bStmt").onclick = () => {
-    const M = Math.min(getMoney($("#pAmt")), balance);
-    setReceipt(buildPlan(currentKey, M, $("#pDate").value || today(), $("#pMethod").value, [...marks], false, noteOf($("#pMethod").value, $("#pNote").value), partsObj()));
+    const R = getMoney($("#pAmt")), M = Math.min(R, balance);
+    const plan = buildPlan(currentKey, M, $("#pDate").value || today(), $("#pMethod").value, [...marks], false, noteOf($("#pMethod").value, $("#pNote").value), partsObj());
+    plan.extra = M > 0 ? R - M : 0;
+    setReceipt(plan);
     renderPay();
   };
 }
@@ -1205,6 +1417,7 @@ function buildComprobante(refId, k, name, plan) {
     pagosParciales: plan.detail.filter(x => x.status !== "pago" && x.applied > 0)
       .map(x => ({ id: x.id, nombre: x.concept || "", fecha: x.date, valor: x.applied, valorOriginal: x.total, saldo: x.left })),
     montoAbonado: p.amount,
+    saldoAFavor: plan.extra || 0,           // excedente del monto recibido que quedó a favor del cliente
     metodo: p.method, metodoNota: p.methodNote || "", metodoPago: mTxt(p.method, p.methodNote) || "Abono",
     totalPrestamos: t.loans, totalAbonos: t.paid, saldoRestante: t.balance,   // acumulados al momento del abono
     creadoEn: new Date().toISOString()
@@ -1219,7 +1432,7 @@ function compToData(c) {
   ];
   const totals = { loans: c.totalPrestamos, paid: c.totalAbonos, balance: c.saldoRestante };
   return { name: c.cliente, amount: c.montoAbonado, detail, hist: [], method: c.metodo || "", methodNote: c.metodoNota || "",
-    saved: true, date: c.fechaISO, dateText: c.fechaAbono, remaining: c.saldoRestante, totals };
+    saved: true, date: c.fechaISO, dateText: c.fechaAbono, remaining: c.saldoRestante, totals, extra: c.saldoAFavor || 0 };
 }
 
 // Guarda el abono en Firestore (con el snapshot del comprobante) y recalcula el "paid" de cada préstamo
@@ -1227,22 +1440,202 @@ function registerPay(k, plan) {
   const p = plan.pay, errs = clientErrs(k), name = errs[0]?.client || "", ref = doc(collection(db, "pagos"));
   const comprobante = buildComprobante(ref.id, k, name, plan);
   const data = { client: name, key: k, amount: p.amount, date: p.date, method: p.method, ...(p.methodNote ? { methodNote: p.methodNote } : {}), comprobante, createdAt: serverTimestamp(), ...(p.covers.length ? { covers: p.covers } : {}), ...(Object.keys(p.parts || {}).length ? { parts: p.parts } : {}) };
-  commit(errs, [...clientPays(k), { id: ref.id, amount: p.amount, date: p.date, method: p.method, methodNote: p.methodNote, covers: p.covers, parts: p.parts }], b => b.set(ref, data));
+  const extra = plan.extra || 0, mref = extra > 0 ? doc(collection(db, "movimientos")) : null;
+  commit(errs, [...clientPays(k), { id: ref.id, amount: p.amount, date: p.date, method: p.method, methodNote: p.methodNote, covers: p.covers, parts: p.parts }], b => {
+    b.set(ref, data);
+    if (mref) b.set(mref, moveDoc(name, k, "favor", extra, p.date, "Excedente de abono")); // mismo lote: el abono y su saldo a favor se guardan juntos
+  });
   return comprobante;
 }
 
 function finishPay(plan, c) {
   setReceipt({ ...plan, ...compToData(c), hist: plan.hist }); clearSel(); // el recibo se dibuja desde el snapshot guardado
-  toast(plan.remaining <= 0 ? "Cuenta saldada" : "Pago registrado");
+  toast(plan.extra > 0 ? `Pago registrado · ${money(plan.extra)} quedaron a favor` : plan.remaining <= 0 ? "Cuenta saldada" : "Pago registrado");
   renderPay();
 }
 
 function pay(balance) {
-  const amount = Math.min(getMoney($("#pAmt")), balance);
-  if (amount <= 0) return toast("Escribe un monto válido");
-  const plan = buildPlan(currentKey, amount, $("#pDate").value || today(), $("#pMethod").value, [...marks], true, noteOf($("#pMethod").value, $("#pNote").value), partsObj());
+  const raw = getMoney($("#pAmt")), amount = Math.min(raw, balance), extra = raw - amount;
+  if (raw <= 0) return toast("Escribe un monto válido");
+  const date = $("#pDate").value || today(), method = $("#pMethod").value, note = noteOf(method, $("#pNote").value);
+  if (amount <= 0) { // sin deuda pendiente: todo lo recibido queda como saldo a favor
+    const name = clientErrs(currentKey)[0]?.client || "", b = writeBatch(db);
+    b.set(doc(collection(db, "movimientos")), moveDoc(name, currentKey, "favor", extra, date, "Pago adelantado"));
+    b.commit().catch(onErr);
+    $("#pAmt").value = ""; toast(`Saldo a favor guardado: ${money(extra)}`); return;
+  }
+  const plan = buildPlan(currentKey, amount, date, method, [...marks], true, note, partsObj());
+  plan.extra = extra;
   finishPay(plan, registerPay(currentKey, plan));
 }
+
+/* ---------- Dinero guardado (custodia) ---------- */
+const dHold = $("#dHold"), dHoldList = $("#dHoldList");
+const MOVE_TXT = { favor: "💰 Saldo a favor", custodia: "📥 Ingresó dinero", devolucion: "📤 Retiró dinero" };
+const MEDIOS = { efectivo: "Efectivo", nequi: "Nequi", daviplata: "Daviplata", bancolombia: "Bancolombia" };
+function holdGroups() { // clientes con saldo a favor o dinero guardado
+  const names = new Map(); for (const m of moves) names.set(m.key, m.client);
+  return [...names].map(([key, name]) => ({ key, name, fav: saldoFavor(key), cust: custodia(key) })).filter(g => g.fav > 0 || g.cust > 0);
+}
+// Movimientos de custodia en orden cronológico, cada uno con el saldo total que quedó después de él
+function holdRows(k) {
+  let run = 0;
+  return moves.filter(m => m.key === k && (m.type === "custodia" || m.type === "devolucion"))
+    .sort((a, b) => dayOf(a).localeCompare(dayOf(b)) || tsOf(a) - tsOf(b))
+    .map(m => ({ m, saldo: run += m.type === "custodia" ? m.amount : -m.amount }));
+}
+// 1) Lista de personas con dinero guardado
+function renderHoldList() {
+  const gs = holdGroups().filter(g => g.cust > 0).sort((a, b) => b.cust - a.cust);
+  $("#hlList").innerHTML = gs.length ? gs.map(g => { const last = holdRows(g.key).at(-1)?.m;
+    return `<li><div class="cw"><b>${esc(g.name)}</b><small>${last ? "Último movimiento: " + fmtDate(dayOf(last)) : "Dinero guardado"}</small></div><span class="cm">${money(g.cust)}</span><button type="button" class="pill" data-open-hold="${esc(g.key)}">Abrir</button></li>`; }).join("")
+    : `<li class="none">Nadie tiene dinero guardado</li>`;
+  $("#hlTot").textContent = money(gs.reduce((t, g) => t + g.cust, 0));
+}
+$("#btnHold").onclick = () => { renderHoldList(); dHoldList.showModal(); };
+// Pestañas de la pantalla principal: Créditos / Dinero guardado
+document.querySelector(".mtabs").addEventListener("click", e => {
+  const t = e.target.closest("[data-mtab]"); if (!t) return;
+  const hold = t.dataset.mtab === "hold";
+  $("#pDebts").hidden = hold; $("#pHold").hidden = !hold;
+  document.querySelectorAll(".mtabs [data-mtab]").forEach(b => { const on = b === t; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
+  scrollTo({ top: 0 });
+});
+$("#hlNew").onclick = () => openHold();
+$("#hlList").addEventListener("click", e => {
+  const k = e.target.closest("[data-open-hold]")?.dataset.openHold; if (k === undefined) return;
+  openHold(holdGroups().find(g => g.key === k)?.name || "");
+});
+$("#holds").addEventListener("click", e => {
+  const k = e.target.dataset.hold; if (k === undefined) return;
+  openHold(holdGroups().find(g => g.key === k)?.name || "");
+});
+
+// 2) Ficha de una persona
+function openHold(name = "") { // name: cliente fijo (desde la lista o su cuenta) o vacío (se escribe / elige)
+  $("#fHold").reset();
+  $("#hClient").readOnly = !!name; $("#hClient").value = name;
+  $("#hTitle").textContent = name ? "Dinero guardado · " + name : "Dinero guardado";
+  $("#hDate").max = $("#hDate").value = today();
+  renderHold(); dHold.showModal();
+  setTimeout(() => (name ? $("#hAmt") : $("#hClient")).focus(), 50);
+}
+function renderHold() {
+  const k = norm($("#hClient").value), fav = k ? saldoFavor(k) : 0;
+  $("#hBal").textContent = money(k ? custodia(k) : 0);
+  $("#hInfo").hidden = !(fav > 0); $("#hInfo").textContent = fav > 0 ? `💰 También tiene ${money(fav)} de saldo a favor` : "";
+  if ($("#dHoldHist").open) refreshHistory();
+}
+$("#hClient").addEventListener("input", renderHold);
+
+
+/* ---------- Historial completo + compartir por WhatsApp ---------- */
+function holdSummary(k) {
+  const rows = holdRows(k);
+  const tin = rows.reduce((t, r) => t + (r.m.type === "custodia" ? r.m.amount : 0), 0);
+  const tout = rows.reduce((t, r) => t + (r.m.type === "devolucion" ? r.m.amount : 0), 0);
+  return { rows, tin, tout, saldo: tin - tout };
+}
+function historyText(name, k) {
+  const { rows, tin, tout, saldo } = holdSummary(k);
+  const line = ({ m, saldo }) => `${m.type === "custodia" ? "📥" : "📤"} ${fmtDate(dayOf(m))} · *${m.type === "custodia" ? "+" : "−"}${money(m.amount)}*${m.medio ? " · " + (MEDIOS[m.medio] || m.medio) : ""}${m.note ? " · " + m.note : ""}\n      Saldo: ${money(saldo)}`;
+  const ins = rows.filter(r => r.m.type === "custodia"), outs = rows.filter(r => r.m.type === "devolucion");
+  return [`🔐 *Historial de dinero guardado*`, `👤 Cliente: *${name}*`, `📅 Al ${fmtDate(today())}`, "",
+    `📥 *INGRESOS* (${ins.length})`, ...(ins.length ? ins.map(line) : ["Sin ingresos"]), "",
+    `📤 *RETIROS* (${outs.length})`, ...(outs.length ? outs.map(line) : ["Sin retiros"]), "",
+    `➕ Total ingresado: ${money(tin)}`, `➖ Total retirado: ${money(tout)}`, "",
+    `📌 *Saldo actual en custodia: ${money(saldo)}*`].join("\n");
+}
+function holdClient() {
+  const name = $("#hClient").value.trim(), k = norm(name);
+  const real = moves.find(m => m.key === k)?.client || name;
+  if (!k || !holdRows(k).length) { toast(k ? "Este cliente aún no tiene movimientos" : "Primero elige un cliente"); return null; }
+  return { name: real, k };
+}
+function shareHistory(e) {
+  const c = holdClient(); if (!c) return;
+  whatsappAction(e.currentTarget, () => holdHistoryImage(c.name, c.k), historyText(c.name, c.k), () => c.name); // imagen PNG; el texto solo es respaldo
+}
+function renderHistory(c) {
+  const { rows, tin, tout, saldo } = holdSummary(c.k);
+  $("#hhTitle").textContent = "Historial · " + c.name;
+  $("#hhBal").textContent = money(saldo); $("#hhIn").textContent = money(tin); $("#hhOut").textContent = money(tout);
+  $("#hhList").innerHTML = rows.length ? [...rows].reverse().map(({ m, saldo }) => `<li class="${m.type === "custodia" ? "entra" : "sale"}">
+    <span class="main"><b>${m.type === "custodia" ? "📥 Ingresó dinero" : "📤 Retiró dinero"}</b><small>${fmtDate(dayOf(m))}${m.medio ? " · " + esc(MEDIOS[m.medio] || m.medio) : ""}${m.note ? " · " + esc(m.note) : ""}</small><small>Saldo: ${money(saldo)}</small></span>
+    <span class="acts"><button type="button" class="wa" data-share-move="${esc(m.id)}" aria-label="Compartir comprobante por WhatsApp" title="Compartir comprobante"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.875 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></button><button type="button" data-edit-move="${esc(m.id)}" aria-label="Editar movimiento" title="Editar">✏️</button><button type="button" data-del-move="${esc(m.id)}" aria-label="Eliminar movimiento" title="Eliminar">🗑️</button></span>
+    <span class="a">${m.type === "custodia" ? "+" : "−"}${money(m.amount)}</span></li>`).join("")
+    : `<li class="none">Aún no hay movimientos</li>`;
+}
+function refreshHistory() { // se llama cuando cambian los datos con el historial abierto
+  const name = $("#hClient").value.trim(), k = norm(name);
+  renderHistory({ name: moves.find(m => m.key === k)?.client || name, k });
+}
+function openHistory() {
+  const c = holdClient(); if (!c) return;
+  renderHistory(c); $("#dHoldHist").showModal();
+}
+$("#hHist").onclick = openHistory;
+$("#hShare").onclick = shareHistory;
+$("#hhShare").onclick = shareHistory;
+
+// Comprobante en texto (formato recibo) para WhatsApp
+function moveReceipt(m, saldo) {
+  const entro = m.type === "custodia";
+  return ["🧾 *Comprobante de dinero guardado*",
+    `📅 Fecha: ${fmtDate(dayOf(m))}`,
+    `👤 Cliente: ${m.client}`,
+    `${entro ? "📥" : "📤"} Movimiento: *${entro ? "Entró dinero" : "Salió dinero"}*`,
+    `💵 Monto: *${money(m.amount)}*`,
+    ...(m.medio ? [`🏦 Medio de pago: ${MEDIOS[m.medio] || m.medio}`] : []),
+    ...(m.note ? [`📝 Nota: ${m.note}`] : []),
+    "", `📌 Nuevo saldo total en custodia: *${money(saldo)}*`].join("\n");
+}
+$("#hhList").addEventListener("click", async e => {
+  const shBtn = e.target.closest("[data-share-move]");
+  if (shBtn) {
+    const x = holdRows(norm($("#hClient").value)).find(r => r.m.id === shBtn.dataset.shareMove); if (!x) return;
+    whatsappAction(shBtn, () => holdImage(x.m, x.saldo), moveReceipt(x.m, x.saldo), () => x.m.client); // imagen PNG; el texto solo es respaldo
+    return;
+  }
+  const ed = e.target.closest("[data-edit-move]")?.dataset.editMove; if (ed) return openMoveEdit(ed);
+  const id = e.target.closest("[data-del-move]")?.dataset.delMove; if (!id) return;
+  if (await ask("¿Eliminar este movimiento? Los saldos se recalcularán.") !== "ok") return;
+  const b = writeBatch(db); b.delete(doc(db, "movimientos", id)); b.commit().catch(onErr); toast("Eliminado");
+});
+// Editar un movimiento (por si hubo un error en monto, medio, nota, fecha o tipo)
+let editMoveId = null;
+function openMoveEdit(id) {
+  const m = moves.find(x => x.id === id); if (!m) return;
+  editMoveId = id;
+  $("#mMedio").innerHTML = `<option value="">Sin especificar</option>` + Object.entries(MEDIOS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+  $("#mType").value = m.type; $("#mMedio").value = m.medio || "";
+  setMoney($("#mAmt"), m.amount); $("#mNote").value = m.note || "";
+  $("#mDate").max = today(); $("#mDate").value = dayOf(m);
+  $("#dMvEdit").showModal();
+}
+$("#fMvEdit").addEventListener("submit", e => {
+  e.preventDefault();
+  const m = moves.find(x => x.id === editMoveId); if (!m) return $("#dMvEdit").close();
+  const type = $("#mType").value, amount = getMoney($("#mAmt")), eff = (t, a) => t === "custodia" ? a : -a;
+  if (amount <= 0) return toast("Escribe un monto válido");
+  const nuevo = sumMoves(m.key, "custodia") - sumMoves(m.key, "devolucion") - eff(m.type, m.amount) + eff(type, amount);
+  if (nuevo < 0) return toast("Con ese cambio el saldo guardado quedaría en negativo");
+  const b = writeBatch(db);
+  b.update(doc(db, "movimientos", m.id), { type, amount, medio: $("#mMedio").value, note: $("#mNote").value.trim(), date: $("#mDate").value || today() });
+  b.commit().catch(onErr);
+  toast("Movimiento actualizado"); $("#dMvEdit").close();
+});
+$("#fHold").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("#hClient").value.trim(), k = norm(name), type = $("#hType").value, amount = getMoney($("#hAmt"));
+  if (!k || amount <= 0) return toast("Escribe el cliente y un monto válido");
+  if (type === "devolucion" && amount > custodia(k)) return toast(`Solo tiene ${money(custodia(k))} guardado`);
+  const canon = clientErrs(k)[0]?.client || moves.find(m => m.key === k)?.client || name, b = writeBatch(db);
+  b.set(doc(collection(db, "movimientos")), moveDoc(canon, k, type, amount, $("#hDate").value || today(), $("#hNote").value.trim(), $("#hMedio").value));
+  b.commit().catch(onErr);
+  toast(type === "custodia" ? "Ingreso registrado" : "Retiro registrado");
+  $("#hAmt").value = ""; $("#hNote").value = ""; // la ficha sigue abierta para compartir el comprobante
+});
 
 /* ---------- Editar y eliminar ---------- */
 let editing = null, eBound = false;
@@ -1354,6 +1747,26 @@ async function stageFit(build, widths) {
     return stage;
   } catch (e) { stage.remove(); throw e; }
 }
+
+/* Historial completo de dinero guardado (PNG) */
+function holdHistoryHTML(name, k, w = 480) {
+  const { rows, tin, tout, saldo } = holdSummary(k);
+  const list = rows.map(({ m, saldo }) => { const e = m.type === "custodia";
+    return `<div class="rg-hr${e ? "" : " out"}"><div><b>${e ? "📥 Ingresó dinero" : "📤 Retiró dinero"}</b><small>${fmtDate(dayOf(m))}${m.medio ? " · " + esc(MEDIOS[m.medio] || m.medio) : ""}${m.note ? " · " + esc(m.note) : ""}</small></div><div class="am">${e ? "+" : "−"}${money(m.amount)}<small>Saldo: ${money(saldo)}</small></div></div>`; }).join("");
+  return shell({ w, minH: Math.round(w * 1.3), t1: "Historial de", t2: "custodia", dl: "Al", dt: fmtLong(today()), body: `
+        ${cliRow(name)}
+        <div class="rg-tot"><div><span>📥 Total ingresado</span><b>${money(tin)}</b></div><div class="o"><span>📤 Total retirado</span><b>${money(tout)}</b></div></div>
+        ${list}
+        <div class="rg-sal">
+          <div class="rg-sl">${IC.coins}<span>Saldo actual en custodia</span></div>
+          <span class="rg-big">${money(saldo)}</span>
+        </div>` });
+}
+async function holdHistoryImage(name, k) {
+  const slug = norm(name).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cliente";
+  const stage = await stageFit(w => holdHistoryHTML(name, k, w), [480, 540, 620, 720]);
+  return stageToFile(stage, `historial-custodia-${slug}-${today()}.png`);
+}
 async function stageToFile(stage, name) {
   try {
     const canvas = await html2canvas(stage, {
@@ -1383,6 +1796,30 @@ async function shareLoanItem(btn, client, concept, amount, date) {
   } finally { btn.disabled = false; btn.textContent = label; }
 }
 
+/* Comprobante de dinero guardado (PNG): misma plantilla y estilo que los demás comprobantes */
+function holdImageHTML(m, saldo, w = 480) {
+  const entro = m.type === "custodia";
+  const row = (ic, lb, v) => `<div class="rg-row"><span class="rg-ic">${ic}</span><span class="rg-sep"></span><span class="rg-tx"><span class="rg-lb">${lb}</span><span class="rg-v rg-cv">${esc(v)}</span></span></div>`;
+  return shell({ w, minH: Math.round(w * 1.5), t1: "Comprobante de", t2: "custodia", dl: "Fecha", dt: fmtLong(dayOf(m)), body: `
+        ${cliRow(m.client)}
+        ${row(RG.card, "Movimiento", entro ? "Entró dinero" : "Salió dinero")}
+        ${m.medio ? row(RG.card, "Medio de pago", MEDIOS[m.medio] || m.medio) : ""}
+        ${m.note ? row(RG.card, "Nota", m.note) : ""}
+        <div class="rg-val">
+          ${RG.coin}<span class="rg-sep"></span>
+          <span class="rg-tx"><span class="rg-lb">${entro ? "Monto que entró" : "Monto que salió"}</span><span class="rg-pill">${money(m.amount)}</span></span>
+        </div>
+        <div class="rg-sal">
+          <div class="rg-sl">${IC.coins}<span>Nuevo saldo en custodia</span></div>
+          <span class="rg-big">${money(saldo)}</span>
+        </div>` });
+}
+async function holdImage(m, saldo) {
+  const slug = norm(m.client).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cliente";
+  const stage = await stageFit(w => holdImageHTML(m, saldo, w), [480, 540, 620, 720]);
+  return stageToFile(stage, `custodia-${slug}-${dayOf(m)}.png`);
+}
+
 /* Borra préstamos de Firestore sin descuadrar las cuentas: los abonos que los habían pagado se marcan "settled"
    (siguen sumando en "Cobrado este mes", pero ya no en el saldo del cliente) y lo que faltaba por pagar se registra como cobro. */
 function settleLoans(k, ids, method = "otro") {
@@ -1403,7 +1840,7 @@ function settleLoans(k, ids, method = "otro") {
     else {
       ops.push(b => {
         b.update(doc(db, "pagos", p.id), { amount: p.amount - c });
-        b.set(doc(collection(db, "pagos")), { client: name, key: k, amount: c, date: dayOf(p), method: p.method || "otro", ...(p.methodNote ? { methodNote: p.methodNote } : {}), settled: true, createdAt: serverTimestamp() });
+        b.set(doc(collection(db, "pagos")), { client: name, key: k, amount: c, date: dayOf(p), method: p.method || "otro", ...(p.methodNote ? { methodNote: p.methodNote } : {}), ...(p.fromFavor ? { fromFavor: true } : {}), settled: true, createdAt: serverTimestamp() });
       });
       keep.push({ ...p, amount: p.amount - c });
     }
@@ -1467,7 +1904,7 @@ async function remove(t, id) {
 }
 
 /* ---------- Comprobante WhatsApp ---------- */
-function receipt(name, amount, detail, remaining, date, hist = [], method = "", totals = null, saved = false) { // method: texto ya formateado (mTxt)
+function receipt(name, amount, detail, remaining, date, hist = [], method = "", totals = null, saved = false, extra = 0) { // method: texto ya formateado (mTxt)
   const pago = detail.filter(d => d.status === "pago" || d.applied > 0), debe = detail.filter(d => d.status !== "pago");
   const debeNote = d => d.applied > 0 ? `abono ${money(d.applied)} aplicado · préstamo ${money(d.total)}`
     : (d.total - d.left > 0 ? `préstamo ${money(d.total)} · abonado ${money(d.total - d.left)}` : "");
@@ -1479,6 +1916,7 @@ function receipt(name, amount, detail, remaining, date, hist = [], method = "", 
     `📅 ${amount > 0 ? "Fecha del abono" : "Fecha"}: ${fmtDate(date)}`,
     `👤 Cliente: ${name}`,
     ...(amount > 0 ? [`💵 Monto abonado: *${money(amount)}*${method ? " - " + method : ""}`] : []),
+    ...(extra > 0 ? [`💰 Saldo a favor guardado: *${money(extra)}*`] : []),
     ...(pago.length ? ["", "✅ PAGO (cubiertos total o parcialmente con este abono):", pago.map(d => `• ${fmtDate(d.date)} · ${d.concept}: ${money(d.applied)}` + (d.status === "pago" ? " (cubierto)" : ` (abono parcial · saldo ${money(d.left)})`)).join("\n")]
       : amount > 0 ? ["", "✅ PAGO (CRUCE):", `• Ningún ítem cubierto por completo - Monto abonado: ${money(amount)}`] : []),
     ...(amount > 0 && method ? [`• ${fmtDate(date)} • ${method}`] : []),
@@ -1498,7 +1936,7 @@ function setReceipt(d) {
   lastData = d; lastImg = null;
   if (lastImgUrl) URL.revokeObjectURL(lastImgUrl);
   lastImgUrl = null;
-  lastReceipt = receipt(d.name, d.amount, d.detail, d.remaining, d.date, d.hist, mTxt(d.method, d.methodNote), d.totals, d.saved);
+  lastReceipt = receipt(d.name, d.amount, d.detail, d.remaining, d.date, d.hist, mTxt(d.method, d.methodNote), d.totals, d.saved, d.extra || 0);
 }
 
 const IC = {
@@ -1595,6 +2033,7 @@ function receiptHTML(d, w) {
         <div class="rg-tots">
           <div class="rg-tr"><span>Total préstamos</span><strong>${money(t.loans)}</strong></div>
           <div class="rg-tr"><span>Total abonos</span><strong>${money(t.paid)}</strong></div>
+          ${d.extra > 0 ? `<div class="rg-tr"><span>Saldo a favor</span><strong>${money(d.extra)}</strong></div>` : ""}
         </div>
         <div class="rg-sal${ok ? " ok" : ""}">
           <div class="rg-sl">${IC.coins}<span>Saldo ${abono ? "restante" : "total a pagar"}${ok ? "<span class=\"rg-ok\">✅ Cuenta saldada</span>" : ""}</span></div>
@@ -1638,14 +2077,14 @@ async function imageAction(btn, share, get = getImage, who = () => lastData.name
 
 // WhatsApp: en celulares con compartir nativo se envía la IMAGEN (el menú ofrece WhatsApp); si no, se descarga la imagen y se abre WhatsApp con el texto
 async function whatsappAction(btn, get, text, who) {
-  const label = btn.textContent; btn.disabled = true; btn.textContent = "Generando…";
+  const label = btn.innerHTML; btn.disabled = true; btn.textContent = "⏳";
   try {
     const file = await get();
     if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: BUSINESS + " - " + who() });
     else { downloadFile(file); window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank"); toast("Imagen descargada: adjúntala en el chat de WhatsApp"); }
   } catch (e) {
     if (e.name !== "AbortError") toast(e.message || "No se pudo crear la imagen");
-  } finally { btn.disabled = false; btn.textContent = label; }
+  } finally { btn.disabled = false; btn.innerHTML = label; }
 }
 
 /* Comparte el comprobante (imagen) de UN abono del historial */
