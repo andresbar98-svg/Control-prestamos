@@ -163,6 +163,7 @@ pre.msg{margin:0;white-space:pre-wrap;font:inherit;font-size:.88rem;background:v
 .hist li:active{transform:scale(.99);border-color:var(--ok)}
 .hist .main b{display:block;font-size:.95rem;color:var(--text);font-variant-numeric:tabular-nums}
 .hist .main small{display:block;color:var(--mute);font-size:.78rem;margin-top:2px}
+dialog .hist li.favrow{cursor:default;background:rgba(95,208,160,.13);border-color:rgba(95,208,160,.4)}
 .hist .chev{color:var(--mute);font-size:1.4rem;line-height:1;flex:none}
 dialog .hist li{background:var(--bg)}
 
@@ -524,7 +525,7 @@ dialog .hist li{background:var(--bg)}
   </section>
 
   <div class="tabs mtabs" role="tablist" aria-label="Secciones">
-    <button type="button" role="tab" class="on" data-mtab="debts">💵 Créditos / Quién me debe</button>
+    <button type="button" role="tab" class="on" data-mtab="debts">💵 Quién me debe</button>
     <button type="button" role="tab" data-mtab="hold">🔐 Dinero guardado</button>
   </div>
 
@@ -533,9 +534,9 @@ dialog .hist li{background:var(--bg)}
     <p id="empty" class="empty" hidden>Nadie te debe nada. Registra un cliente con el botón +.</p>
   </section>
 
-  <section id="pHold" aria-label="Dinero guardado y saldos a favor" style="padding-bottom:84px" hidden>
+  <section id="pHold" aria-label="Dinero guardado" style="padding-bottom:84px" hidden>
     <ul id="holds" class="debtors"></ul>
-    <p id="holdsEmpty" class="empty" hidden>Nadie tiene dinero guardado ni saldo a favor.</p>
+    <p id="holdsEmpty" class="empty" hidden>Nadie tiene dinero guardado.</p>
   </section>
 
 </main>
@@ -642,6 +643,25 @@ dialog .hist li{background:var(--bg)}
     <ul class="hfull" id="hhList"></ul>
     <button type="button" class="ghost" data-close>Cerrar</button>
   </div>
+</dialog>
+
+<!-- Editar un saldo a favor (excedente de un abono) -->
+<dialog id="dFavEdit">
+  <form id="fFavEdit" method="dialog" autocomplete="off">
+    <h3>Editar saldo a favor</h3>
+    <div class="row">
+      <label>Monto
+        <input id="fvAmt" data-money inputmode="numeric" pattern="[1-9][0-9.]*" title="Escribe un monto mayor a 0" autocomplete="off" required placeholder="0">
+      </label>
+      <label>Fecha
+        <input id="fvDate" type="date" required>
+      </label>
+    </div>
+    <div class="actions">
+      <button type="button" class="ghost" data-close>Cancelar</button>
+      <button type="submit" class="primary">Guardar</button>
+    </div>
+  </form>
 </dialog>
 
 <!-- Editar un movimiento de dinero guardado -->
@@ -999,12 +1019,19 @@ function render() {
       <span class="bal">${money(g.balance)}</span>
       <button class="pill" data-pay="${esc(g.key)}">Cobrar</button>
     </li>`).join("");
-  $("#empty").hidden = debtors.length > 0;
-  const hs = holdGroups();
-  $("#holds").innerHTML = hs.sort((x, y) => y.cust - x.cust || y.fav - x.fav).map(g => `
+  const favOnly = gs.filter(g => g.balance <= 0 && saldoFavor(g.key) > 0);
+  $("#debtors").insertAdjacentHTML("beforeend", favOnly.map(g => `
     <li>
-      <div class="who"><b>${esc(g.name)}</b><small>${g.cust > 0 ? (g.fav > 0 ? "En custodia · a favor: " + money(g.fav) : "En custodia") : "Saldo a favor"}</small></div>
-      <span class="bal" style="color:var(--ok)">${money(g.cust > 0 ? g.cust : g.fav)}</span>
+      <div class="who"><b>${esc(g.name)}</b><small>Saldo a favor</small></div>
+      <span class="bal" style="color:var(--ok)">${money(saldoFavor(g.key))}</span>
+      <button class="pill" data-pay="${esc(g.key)}">Abrir</button>
+    </li>`).join(""));
+  $("#empty").hidden = debtors.length > 0 || favOnly.length > 0;
+  const hs = holdGroups();
+  $("#holds").innerHTML = hs.sort((x, y) => y.cust - x.cust).map(g => `
+    <li>
+      <div class="who"><b>${esc(g.name)}</b><small>En custodia</small></div>
+      <span class="bal" style="color:var(--ok)">${money(g.cust)}</span>
       <button class="pill" data-hold="${esc(g.key)}">Abrir</button>
     </li>`).join("");
   $("#holdsEmpty").hidden = hs.length > 0;
@@ -1057,6 +1084,12 @@ const sumMoves = (k, t) => moves.filter(m => m.key === k && m.type === t).reduce
 const saldoFavor = k => Math.max(0, sumMoves(k, "favor") - payments.filter(p => p.key === k && p.fromFavor).reduce((s, p) => s + p.amount, 0));
 const custodia = k => Math.max(0, sumMoves(k, "custodia") - sumMoves(k, "devolucion"));
 const moveDoc = (client, key, type, amount, date, note = "", medio = "") => ({ client, key, type, amount, date, ...(note ? { note } : {}), ...(medio ? { medio } : {}), createdAt: serverTimestamp() });
+
+// Saldo a favor <-> abono del que nació. Los nuevos guardan payId; los antiguos se emparejan por monto y fecha.
+const favOfPay = pay => moves.filter(m => m.type === "favor" && m.key === pay.key && (m.payId === pay.id
+  || (!m.payId && m.note === "Excedente de abono" && m.amount === (pay.comprobante?.saldoAFavor || 0) && dayOf(m) === (pay.comprobante?.fechaISO || dayOf(pay)))));
+const payOfFav = m => payments.find(x => x.id === m.payId) || (m.note === "Excedente de abono" ? payments.find(x => x.key === m.key && !x.fromFavor && favOfPay(x).some(f => f.id === m.id)) : null);
+const favUsed = k => payments.filter(p => p.key === k && p.fromFavor).reduce((t, p) => t + p.amount, 0); // lo ya descontado en préstamos nuevos
 
 /* ---------- CICLOS DE CUENTA ----------
    Un ciclo empieza con un préstamo/mandado y termina cuando los abonos alcanzan o superan lo prestado (SALDADO).
@@ -1232,13 +1265,17 @@ function renderPay() {
 
   if (tab === "hist") { // Historial independiente de este cliente
     const all = histOf(currentKey);
+    const payRow = p => `<li data-view="${esc(p.id)}" role="button" tabindex="0">
+        <span class="main"><b>${esc(histTitle(p))}</b><small>${esc(methodOf(p))}</small></span>
+        <span class="act"><button type="button" data-act="share-pay" data-id="${esc(p.id)}" aria-label="Compartir comprobante como imagen" title="Compartir comprobante">📤</button><button type="button" data-act="date-pay" data-id="${esc(p.id)}" aria-label="Corregir fecha" title="Corregir fecha">✏️</button><button type="button" data-act="del-pay" data-id="${esc(p.id)}" aria-label="Eliminar abono" title="Eliminar abono">🗑️</button></span></li>`;
+    const favRow = m => `<li class="favrow"><span class="main"><b>💰 Saldo a favor · +${money(m.amount)}</b><small>${esc(m.note || "Saldo a favor")} · ${fmtDate(dayOf(m))}</small></span><span class="act"><button type="button" data-act="edit-fav" data-id="${esc(m.id)}" aria-label="Editar saldo a favor" title="Editar">✏️</button><button type="button" data-act="del-fav" data-id="${esc(m.id)}" aria-label="Eliminar saldo a favor" title="Eliminar">🗑️</button></span></li>`;
+    const rows = [...all.map(p => ({ t: "p", p, d: payDay(p) })), ...moves.filter(m => m.key === currentKey && m.type === "favor").map(m => ({ t: "f", m, d: dayOf(m) }))]
+      .sort((x, y) => y.d.localeCompare(x.d) || (x.t === y.t ? 0 : x.t === "p" ? -1 : 1));
     body.innerHTML = `
       <h3>${esc(name)}</h3>
       ${tabsHTML()}
-      ${all.length ? `<ul class="items hist">${all.map(p => `<li data-view="${esc(p.id)}" role="button" tabindex="0">
-        <span class="main"><b>${esc(histTitle(p))}</b><small>${esc(methodOf(p))}</small></span>
-        <span class="act"><button type="button" data-act="share-pay" data-id="${esc(p.id)}" aria-label="Compartir comprobante como imagen" title="Compartir comprobante">📤</button><button type="button" data-act="date-pay" data-id="${esc(p.id)}" aria-label="Corregir fecha" title="Corregir fecha">✏️</button><button type="button" data-act="del-pay" data-id="${esc(p.id)}" aria-label="Eliminar abono" title="Eliminar abono">🗑️</button></span></li>`).join("")}</ul>
-      <p class="hint">Toca un abono para ver su comprobante. 📤 comparte la imagen · ✏️ corrige la fecha.</p>`
+      ${rows.length ? `<ul class="items hist">${rows.map(r => r.t === "f" ? favRow(r.m) : payRow(r.p)).join("")}</ul>
+      <p class="hint">Toca un abono para ver su comprobante. 📤 comparte la imagen · ✏️ edita · 🗑️ elimina. El saldo a favor 💰 viene de un pago de más: si lo eliminas, se deshace ese pago y la deuda vuelve a como estaba.</p>`
       : `<p class="empty">${esc(name)} aún no tiene abonos registrados.</p>`}
       <button class="ghost" data-close>Cerrar</button>`;
     (async () => { for (const p of all.slice(0, 3)) { if (tab !== "hist" || !$("#dPay").open) break; try { await abonoImage(p); } catch { break; } } })(); // deja listas las imágenes para compartir al instante
@@ -1443,7 +1480,7 @@ function registerPay(k, plan) {
   const extra = plan.extra || 0, mref = extra > 0 ? doc(collection(db, "movimientos")) : null;
   commit(errs, [...clientPays(k), { id: ref.id, amount: p.amount, date: p.date, method: p.method, methodNote: p.methodNote, covers: p.covers, parts: p.parts }], b => {
     b.set(ref, data);
-    if (mref) b.set(mref, moveDoc(name, k, "favor", extra, p.date, "Excedente de abono")); // mismo lote: el abono y su saldo a favor se guardan juntos
+    if (mref) b.set(mref, { ...moveDoc(name, k, "favor", extra, p.date, "Excedente de abono"), payId: ref.id }); // mismo lote: el abono y su saldo a favor se guardan juntos
   });
   return comprobante;
 }
@@ -1473,9 +1510,9 @@ function pay(balance) {
 const dHold = $("#dHold"), dHoldList = $("#dHoldList");
 const MOVE_TXT = { favor: "💰 Saldo a favor", custodia: "📥 Ingresó dinero", devolucion: "📤 Retiró dinero" };
 const MEDIOS = { efectivo: "Efectivo", nequi: "Nequi", daviplata: "Daviplata", bancolombia: "Bancolombia" };
-function holdGroups() { // clientes con saldo a favor o dinero guardado
+function holdGroups() { // clientes con dinero guardado (el saldo a favor vive en el historial del crédito)
   const names = new Map(); for (const m of moves) names.set(m.key, m.client);
-  return [...names].map(([key, name]) => ({ key, name, fav: saldoFavor(key), cust: custodia(key) })).filter(g => g.fav > 0 || g.cust > 0);
+  return [...names].map(([key, name]) => ({ key, name, cust: custodia(key) })).filter(g => g.cust > 0);
 }
 // Movimientos de custodia en orden cronológico, cada uno con el saldo total que quedó después de él
 function holdRows(k) {
@@ -1521,9 +1558,8 @@ function openHold(name = "") { // name: cliente fijo (desde la lista o su cuenta
   setTimeout(() => (name ? $("#hAmt") : $("#hClient")).focus(), 50);
 }
 function renderHold() {
-  const k = norm($("#hClient").value), fav = k ? saldoFavor(k) : 0;
+  const k = norm($("#hClient").value);
   $("#hBal").textContent = money(k ? custodia(k) : 0);
-  $("#hInfo").hidden = !(fav > 0); $("#hInfo").textContent = fav > 0 ? `💰 También tiene ${money(fav)} de saldo a favor` : "";
   if ($("#dHoldHist").open) refreshHistory();
 }
 $("#hClient").addEventListener("input", renderHold);
@@ -1661,6 +1697,7 @@ $("#payBody").addEventListener("click", e => {
   const b = e.target.closest("[data-act]");
   if (!b) { const v = e.target.closest("[data-view]"); if (v) openDetail(v.dataset.view); return; }
   const [op, t] = b.dataset.act.split("-");
+  if (t === "fav") return op === "edit" ? openFavEdit(b.dataset.id) : removeFav(b.dataset.id);
   if (op === "view") return openDetail(b.dataset.id);
   if (t === "pay" && op === "share") { const p = payments.find(x => x.id === b.dataset.id); if (p) shareAbono(b, p); return; }
   if (op === "date") return openDate(b.dataset.id);
@@ -1887,19 +1924,51 @@ $("#fEdit").addEventListener("submit", () => {
   toast("Cambios guardados");
 });
 
+
+/* ---------- Saldo a favor dentro del historial del crédito ---------- */
+let editFavId = null;
+function openFavEdit(id) {
+  const m = moves.find(x => x.id === id); if (!m) return;
+  editFavId = id; setMoney($("#fvAmt"), m.amount); $("#fvDate").max = today(); $("#fvDate").value = dayOf(m);
+  $("#dFavEdit").showModal();
+}
+$("#fFavEdit").addEventListener("submit", e => {
+  e.preventDefault();
+  const m = moves.find(x => x.id === editFavId); if (!m) return $("#dFavEdit").close();
+  const amount = getMoney($("#fvAmt")), date = $("#fvDate").value || today();
+  if (amount <= 0) return toast("Escribe un monto mayor a 0");
+  if (sumMoves(m.key, "favor") - m.amount + amount < favUsed(m.key)) return toast("Ese saldo a favor ya se descontó en un préstamo nuevo");
+  const b = writeBatch(db); b.update(doc(db, "movimientos", m.id), { amount, date }); b.commit().catch(onErr);
+  $("#dFavEdit").close(); toast("Saldo a favor actualizado");
+});
+async function removeFav(id) {
+  const m = moves.find(x => x.id === id); if (!m) return;
+  if (sumMoves(m.key, "favor") - m.amount < favUsed(m.key)) return toast("Ese saldo a favor ya se descontó en un préstamo nuevo; elimina primero ese abono");
+  const pay = payOfFav(m);
+  const msg = pay ? `¿Eliminar el saldo a favor de ${money(m.amount)}? Nació del abono de ${payLabel(pay)} del ${fmtDate(dayOf(pay))}: se eliminará ese pago completo y la deuda del cliente volverá a como estaba antes.`
+                  : `¿Eliminar el saldo a favor de ${money(m.amount)}?`;
+  if (await ask(msg) !== "ok") return;
+  if (!pay) { const b = writeBatch(db); b.delete(doc(db, "movimientos", m.id)); b.commit().catch(onErr); return toast("Eliminado"); }
+  const k = m.key;
+  commit(clientErrs(k), clientPays(k).filter(x => x.id !== pay.id), b => { b.delete(doc(db, "pagos", pay.id)); favOfPay(pay).forEach(f => b.delete(doc(db, "movimientos", f.id))); b.delete(doc(db, "movimientos", m.id)); });
+  toast("Pago eliminado · deuda restaurada");
+}
+
 async function remove(t, id) {
   const item = (t === "err" ? errands : payments).find(x => x.id === id); if (!item) return;
   const k = t === "err" ? norm(item.client) : item.key;
   const isErr = t === "err";
   const what = isErr ? `el préstamo "${item.concept}" por ${money(item.total)}` : `el abono de ${payLabel(item)} del ${fmtDate(dayOf(item))}`;
+  if (!isErr && favOfPay(item).length && sumMoves(k, "favor") - favOfPay(item).reduce((t, f) => t + f.amount, 0) < favUsed(k)) return toast("Su saldo a favor ya se descontó en un préstamo nuevo; elimina primero ese abono");
   const r = await ask(isErr
     ? `¿Qué hacer con ${what}? "Eliminar" lo borra sin registrar cobro. "Ya pagado" lo borra y suma ${money(pendingOf(item))} a lo cobrado.`
-    : `¿Eliminar ${what}? El saldo del cliente se recalculará.`, { paid: isErr && pendingOf(item) > 0 });
+    : `¿Eliminar ${what}? El saldo del cliente se recalculará${favOfPay(item).length ? " y también se quitará su saldo a favor" : ""}.`, { paid: isErr && pendingOf(item) > 0 });
   if (r === "paid") { settleLoans(k, [id]); toast("Préstamo pagado y borrado"); return; }
   if (r !== "ok") return;
   const errs = clientErrs(k).filter(e => t !== "err" || e.id !== id);
   const pays = clientPays(k).filter(p => t !== "pay" || p.id !== id);
-  commit(errs, pays, b => b.delete(doc(db, t === "err" ? "mandados" : "pagos", id)));
+  const favs = t === "pay" ? favOfPay(item) : [];
+  commit(errs, pays, b => { b.delete(doc(db, t === "err" ? "mandados" : "pagos", id)); favs.forEach(f => b.delete(doc(db, "movimientos", f.id))); });
   toast("Eliminado");
 }
 
